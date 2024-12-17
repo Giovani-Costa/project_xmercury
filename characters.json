@@ -1,0 +1,72 @@
+[
+    {
+        "id": 921158705075077150,
+        "nome": "Julius Wick",
+        "pontos_de_enfase": 6,
+        "hp": 17,
+        "skills": {},
+        "status": {
+            "forca": [
+                11,
+                1
+            ],
+            "dexterity": [
+                10,
+                0
+            ],
+            "constituicao": [
+                12,
+                2
+            ],
+            "inteligencia": [
+                11,
+                1
+            ],
+            "wisdom": [
+                13,
+                3
+            ],
+            "carisma": [
+                9,
+                -1
+            ]
+        },
+        "catarse": 0,
+        "iniciativa": 0
+    },
+    {
+        "id": 766039963736866828,
+        "nome": "Chrollo",
+        "pontos_de_enfase": 6,
+        "hp": 23,
+        "skills": {},
+        "status": {
+            "forca": [
+                11,
+                1
+            ],
+            "dexterity": [
+                13,
+                1
+            ],
+            "constituicao": [
+                12,
+                2
+            ],
+            "inteligencia": [
+                15,
+                3
+            ],
+            "wisdom": [
+                11,
+                1
+            ],
+            "carisma": [
+                9,
+                -1
+            ]
+        },
+        "catarse": 0,
+        "iniciativa": 0
+    }
+]
