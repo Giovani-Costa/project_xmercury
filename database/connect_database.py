@@ -5,9 +5,11 @@ from cassandra.cluster import Cluster
 
 
 def criar_session():
-    cloud_config = {"secure_connect_bundle": "secure-connect-xmercury.zip"}
+    cloud_config = {
+        "secure_connect_bundle": "C:\\Users\\User\\OneDrive\\Programacao\\project_xmercury\\database\\secure-connect-xmercury.zip"
+    }
 
-    with open("xmercury-token.json") as f:
+    with open("database\\xmercury-token.json") as f:
         secrets = json.load(f)
 
     CLIENT_ID = secrets["clientId"]
