@@ -1,7 +1,8 @@
 /key.py
-/ep_sfx
+/eop_sfx
 *__pycache__
 /.env
 /database/xmercury-token.json
 /database/secure-connect-xmercury.zip
 /mapa
+/database/prompts.py

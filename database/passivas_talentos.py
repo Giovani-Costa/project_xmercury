@@ -36,8 +36,9 @@ def criar_passiva_talento(
         modificador_execucao = "None"
 
     passiva_talento_novo = f"""INSERT INTO {KEYSPACE}.{tipo} (id, nome, descricao, modificador_execucao, modificador_nome, modificador_descricao, modificador_gasto, modificador_gasto_tipo)
-VALUES (uuid(), '{nome}', '{descricao}', '{modificador_execucao}', '{modificador_nome}', '{modificador_descricao}', {modificador_gasto}, '{modificador_gasto_tipo}');"""
+VALUES ({id}, '{nome}', '{descricao}', '{modificador_execucao}', '{modificador_nome}', '{modificador_descricao}', {modificador_gasto}, '{modificador_gasto_tipo}');"""
     session.execute(passiva_talento_novo)
+    print(f"{passiva_talento_novo}\n")
     return id
 
 

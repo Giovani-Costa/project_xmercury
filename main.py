@@ -1,24 +1,18 @@
 import random
-import re
-import uuid
-from collections import deque
-from time import sleep
-from typing import Any, Coroutine, Optional
+from typing import Optional
 
 import discord
-import disnake
-import disnake.utils
-import pandas as pd
 from discord import FFmpegPCMAudio, Interaction, app_commands
 from discord.ext.commands import Bot
-from disnake.ext import commands
 
 import database.item
+import database.models
 import database.passivas_talentos
 import database.personagens
 import database.skill
 from constante import ADMS, KEYSPACE
 from database.connect_database import criar_session
+from ficha import PaginaFicha
 from key import key
 
 xmercury = Bot(command_prefix="!", intents=discord.Intents.all())
@@ -33,22 +27,6 @@ async def on_ready():
         status=discord.Status.idle,
     )
     print("XMercury se apresentando para o serviço @v@")
-
-
-@xmercury.tree.command(
-    name="join", description="O bot entra no canal de voz do usuário"
-)
-async def join(interaction: Interaction):
-    if interaction.user.voice:
-        channel = interaction.user.voice.channel
-        voice = await channel.connect()
-        await interaction.response.send_message(
-            "<:march:1302059770785824861>", ephemeral=True
-        )
-    else:
-        await interaction.response.send_message(
-            ":x:  Não foi possível entrar no canal de voz  :x:", ephemeral=True
-        )
 
 
 @xmercury.tree.command(name="leave", description="O bot sai da call que está")
@@ -67,17 +45,34 @@ async def leave(interaction: Interaction):
 
 @app_commands.choices(
     sfx=[
-        app_commands.Choice(name="Julius EP", value="Julius EP"),
-        app_commands.Choice(name="Hiller EP", value="Hiller EP"),
+        app_commands.Choice(name="Adam EOP", value="adam"),
+        app_commands.Choice(name="Chrollo EOP", value="chrollo"),
+        app_commands.Choice(name="Gunther EOP", value="gunther"),
+        app_commands.Choice(name="Julius EOP", value="julius"),
+        app_commands.Choice(name="Vincenzo EOP", value="vincenzo"),
     ]
 )
 @xmercury.tree.command(name="efeito_sonoro", description="O bot reproduz sons na call")
 async def efeito_sonoro(interaction: Interaction, sfx: app_commands.Choice[str]):
-    if interaction.user.voice:
-        sound_effect = f"ep_sfx\{sfx.value[:-3]}.mp3"
+    try:
+        if interaction.user.voice:
+            channel = interaction.user.voice.channel
+            voice = await channel.connect()
+            await interaction.response.send_message(
+                "<:march:1302059770785824861>", ephemeral=True
+            )
+            sound_effect = f"eop_sfx\{sfx.value}.mp3"
+            voice = interaction.guild.voice_client
+            source = discord.FFmpegPCMAudio(sound_effect)
+            audio_com_volume = discord.PCMVolumeTransformer(source, volume=0.1)
+            player = voice.play(audio_com_volume)
+
+    except discord.ClientException:
+        sound_effect = f"eop_sfx\{sfx.value}.mp3"
         voice = interaction.guild.voice_client
-        source = FFmpegPCMAudio(sound_effect)
-        player = voice.play(source)
+        source = discord.FFmpegPCMAudio(sound_effect)
+        audio_com_volume = discord.PCMVolumeTransformer(source, volume=0.1)
+        player = voice.play(audio_com_volume)
 
 
 @app_commands.choices(
@@ -94,8 +89,8 @@ async def efeito_sonoro(interaction: Interaction, sfx: app_commands.Choice[str])
         app_commands.Choice(name="Ação Livre", value="acao_livre"),
     ],
     modificador_gasto_tipo=[
-        app_commands.Choice(name="PE", value="pe"),
-        app_commands.Choice(name="PC", value="catarse"),
+        app_commands.Choice(name="PE", value="PE"),
+        app_commands.Choice(name="PC", value="PC"),
     ],
 )
 @xmercury.tree.command(
@@ -123,6 +118,9 @@ async def mandar_skill(
     modificador_gasto: Optional[int],
     modificador_gasto_tipo: Optional[app_commands.Choice[str]],
 ):
+    if carga is None:
+        carga = "Ilimitado."
+
     if modificador_execucao is not None:
         modificador_execucao = modificador_execucao.value
 
@@ -169,16 +167,10 @@ async def mandar_skill(
     description="Adiciona um item ao banco de dados",
 )
 async def mandar_item(
-    interaction: Interaction,
-    nome: str,
-    descricao: str,
+    interaction: Interaction, nome: str, descricao: str, preco: int, volume: int
 ):
     if interaction.user.id in ADMS:
-        id = database.item.criar_item(
-            session,
-            nome,
-            descricao,
-        )
+        id = database.item.criar_item(session, nome, descricao, preco, volume)
         await interaction.response.send_message(
             f":white_check_mark: ITEM CRIADO COM SUCESSO! :white_check_mark:\nO UUID de {nome} é **{id}**"
         )
@@ -200,8 +192,8 @@ async def mandar_item(
         app_commands.Choice(name="Ação Livre", value="acao_livre"),
     ],
     modificador_gasto_tipo=[
-        app_commands.Choice(name="PE", value="pe"),
-        app_commands.Choice(name="PC", value="catarse"),
+        app_commands.Choice(name="PE", value="PE"),
+        app_commands.Choice(name="PC", value="PC"),
     ],
 )
 @xmercury.tree.command(
@@ -321,143 +313,86 @@ async def mandar_personagem(
     usuario: Optional[discord.Member],
 ):
 
-    if usuario is not None:
-        usuario = usuario.id
-
-    if classe is not None:
-        classe = classe.value
-
-    if path is not None:
-        path = path.value
-
-    if legacy is not None:
-        legacy = legacy.value
-
-    tl_final = "[]"
-    ps_final = "[]"
-    sk_final = "[]"
-    status_splitado = status.split(" / ")
-    forca_string = status_splitado[0].split(", ")
-    forca = []
-    for k in forca_string:
-        forca.append(int(k))
-
-    dex_string = status_splitado[1].split(", ")
-    dexterity = []
-    for k in dex_string:
-        dexterity.append(int(k))
-
-    con_string = status_splitado[2].split(", ")
-    constituicao = []
-    for k in con_string:
-        constituicao.append(int(k))
-
-    int_string = status_splitado[3].split(", ")
-    inteligencia = []
-    for k in int_string:
-        inteligencia.append(int(k))
-
-    wis_string = status_splitado[4].split(", ")
-    sabedoria = []
-    for k in wis_string:
-        sabedoria.append(int(k))
-
-    car_string = status_splitado[5].split(", ")
-    carisma = []
-    for k in car_string:
-        carisma.append(int(k))
-
-    skills_lista_id = []
-    passivas_lista_id = []
-    talentos_lista_id = []
-    inventario_itens = []
-    inventario_numero = [0]
+    def get_ids(elemento, tabela, session):
+        if elemento is not None:
+            lista = elemento.split(", ")
+            lista_id = []
+            for nome_id in lista:
+                uuid_row = str(
+                    session.execute(
+                        f"SELECT id FROM {KEYSPACE}.{tabela} WHERE nome = '{nome_id}' ALLOW FILTERING;"
+                    ).one()
+                )
+                uuid = uuid_row.replace("Row(id=UUID('", "").replace("'))", "")
+                lista_id.append(uuid)
+            return ", ".join(lista_id)
+        else:
+            return "[]"
 
     if interaction.user.id in ADMS:
-        if inventario != None:
-            inventario_partes = inventario.replace(",", "").split()
-            for parte in inventario_partes:
-                if parte.isdigit():
-                    inventario_numero = []
-                    inventario_numero.append(parte)
-                else:
-                    inventario_itens = []
-                    inventario_itens.append(parte)
+        status_splitado = status.split(" / ")
 
-        if bonus_de_proficiencia is None:
-            bonus_de_proficiencia = 0
-        if level is None:
-            level = 0
-        if catarse is None:
-            catarse = 0
-        if pe is None:
-            pe = 0
-        if saldo is None:
-            saldo = 0
-        if pontos_de_sombra is None:
-            pontos_de_sombra = 5
+        forca_string = status_splitado[0].split(", ")
+        forca = []
+        for k in forca_string:
+            forca.append(int(k))
 
-        if resistencia is None:
-            resistencia = []
-        else:
-            resistencia = resistencia.split(", ")
+        dex_string = status_splitado[1].split(", ")
+        dexterity = []
+        for k in dex_string:
+            dexterity.append(int(k))
 
-        if vulnerabilidade is None:
-            vulnerabilidade = []
-        else:
-            vulnerabilidade = vulnerabilidade.split(", ")
+        con_string = status_splitado[2].split(", ")
+        constituicao = []
+        for k in con_string:
+            constituicao.append(int(k))
 
-        if imunidade is None:
-            imunidade = []
-        else:
-            imunidade = imunidade.split(", ")
+        int_string = status_splitado[3].split(", ")
+        inteligencia = []
+        for k in int_string:
+            inteligencia.append(int(k))
 
-        if condicoes is None:
-            condicoes = []
-        else:
-            condicoes = condicoes.split(", ")
+        wis_string = status_splitado[4].split(", ")
+        sabedoria = []
+        for k in wis_string:
+            sabedoria.append(int(k))
 
-        if talentos is not None:
-            talentos_lista = talentos.split(", ")
-            for nome in talentos_lista:
-                talentos_id = session.execute(
-                    f"SELECT id FROM {KEYSPACE}.talentos WHERE nome = '{nome}' ALLOW FILTERING;"
-                ).one()
-                talentos_lista_id.append(str(talentos_id))
-            tl_final = ", ".join(skills_lista_id)
-            uuids = re.findall(r"UUID\('([a-f0-9\-]+)'\)", tl_final)
-            tl_final = ", ".join(uuids)
-            tl_final = f"[{tl_final}]"
-        else:
-            tl_final = "[]"
+        car_string = status_splitado[5].split(", ")
+        carisma = []
+        for k in car_string:
+            carisma.append(int(k))
 
-        if passivas is not None:
-            passivas_lista = passivas.split(", ")
-            for nome in passivas_lista:
-                passivas_id = session.execute(
-                    f"SELECT id FROM {KEYSPACE}.passivas WHERE nome = '{nome}' ALLOW FILTERING;"
-                ).one()
-                passivas_lista_id.append(str(passivas_id))
-            ps_final = ", ".join(skills_lista_id)
-            uuids = re.findall(r"UUID\('([a-f0-9\-]+)'\)", ps_final)
-            ps_final = ", ".join(uuids)
-            ps_final = f"[{ps_final}]"
-        else:
-            ps_final = "[]"
+        inventario_itens = []
+        inventario_numero = []
+        if inventario is not None:
+            usuario = getattr(usuario, "id", None)
+            classe = getattr(classe, "value", None)
+            path = getattr(path, "value", None)
+            legacy = getattr(legacy, "value", None)
+            inventario_partes = inventario.split(" / ")
 
-        if skills is not None:
-            skills_lista = skills.split(", ")
-            for nome in skills_lista:
-                skills_id = session.execute(
-                    f"SELECT id FROM {KEYSPACE}.skills WHERE nome='{nome}' ALLOW FILTERING;"
-                ).one()
-                skills_lista_id.append(str(skills_id))
-            sk_final = ", ".join(skills_lista_id)
-            uuids = re.findall(r"UUID\('([a-f0-9\-]+)'\)", sk_final)
-            sk_final = ", ".join(uuids)
-            sk_final = f"[{sk_final}]"
-        else:
-            sk_final = "[]"
+            for item_inventario in inventario_partes:
+                item, numero = item_inventario.split(", ")
+                item_id = get_ids(item, "itens", session)
+                inventario_numero.append(int(numero))
+                inventario_itens.append(item_id)
+            it_final = ", ".join(inventario_itens)
+
+            bonus_de_proficiencia = bonus_de_proficiencia or 0
+            level = level or 0
+            catarse = catarse or 0
+            pe = pe or 0
+            saldo = saldo or 0
+            pontos_de_sombra = pontos_de_sombra or 5
+
+        resistencia = resistencia.split(", ") if resistencia else []
+        vulnerabilidade = vulnerabilidade.split(", ") if vulnerabilidade else []
+        imunidade = imunidade.split(", ") if imunidade else []
+        condicoes = condicoes.split(", ") if condicoes else []
+
+        tl_final = get_ids(talentos, "talentos", session)
+        ps_final = get_ids(passivas, "passivas", session)
+        sk_final = get_ids(skills, "skills", session)
 
         imagem = f"{nickname.lower()}.png"
 
@@ -476,9 +411,9 @@ async def mandar_personagem(
             hp,
             reducao_de_dano,
             bonus_de_proficiencia,
-            tl_final,
-            ps_final,
-            ps_final,
+            f"[{tl_final}]",
+            f"[{ps_final}]",
+            f"[{sk_final}]",
             forca,
             dexterity,
             constituicao,
@@ -489,7 +424,7 @@ async def mandar_personagem(
             resistencia,
             vulnerabilidade,
             imunidade,
-            inventario_itens,
+            f"[{it_final}]",
             inventario_numero,
             condicoes,
             saldo,
@@ -511,65 +446,63 @@ async def mandar_personagem(
     name="d",
     description="Gira um dado com quantidade de lados determinada pelo usuário",
 )
-async def dado(
-    interaction: Interaction,
-    numero: int,
-):
+async def dado(interaction: Interaction, numero: int, dados: Optional[int]):
+    def girar_dado(numero) -> int:
+        resultado = random.randint(1, numero)
+        return resultado
 
-    resultado = random.randint(1, numero)
-    embed = discord.Embed(
-        title=f"D{numero}",
-        description="",
-        colour=discord.Colour.from_str("#226089"),
-    )
-    embed.add_field(
-        name=f":game_die:  CAIU NO **{resultado}**  :game_die:",
-        value=f"",
-    )
-    if numero >= 1_000:
-        await interaction.response.send_message(
-            "https://tenor.com/view/miguel-o'hara-spider-man-spider-verse-miles-morales-meme-gif-2617586733573544579"
+    if dados is None:
+        resultado = girar_dado(numero)
+        embed = discord.Embed(
+            title=f"D{numero}",
+            description="",
+            colour=discord.Colour.from_str("#226089"),
         )
-    elif resultado == 1:
-        await interaction.response.send_message(
-            "https://tenor.com/view/dnd-nat1-going-to-bed-dungeons-and-dragons-natural1-gif-26298479"
+        embed.add_field(
+            name=f":game_die:  CAIU NO **{resultado}**  :game_die:",
+            value=f"",
         )
-        await interaction.followup.send(embed=embed)
+        if numero > 1_000:
+            await interaction.response.send_message(
+                "https://tenor.com/view/miguel-o'hara-spider-man-spider-verse-miles-morales-meme-gif-2617586733573544579"
+            )
+        elif resultado == 1:
+            await interaction.response.send_message(
+                "https://tenor.com/view/dnd-nat1-going-to-bed-dungeons-and-dragons-natural1-gif-26298479"
+            )
+            await interaction.followup.send(embed=embed)
 
-    elif resultado == numero:
-        await interaction.response.send_message(
-            "https://tenor.com/view/critical-succsess-gif-15687749433046296713"
-        )
-        await interaction.followup.send(embed=embed)
+        elif resultado == numero:
+            await interaction.response.send_message(
+                "https://tenor.com/view/critical-succsess-gif-15687749433046296713"
+            )
+            await interaction.followup.send(embed=embed)
+
+        else:
+            await interaction.response.send_message(embed=embed)
 
     else:
-        await interaction.response.send_message(embed=embed)
+        resultados = []
+        for _ in range(dados):
+            resultado_dado = girar_dado(numero)
+            resultados.append(resultado_dado)
+        resultado = sum(resultados)
 
-
-class PaginationView(discord.ui.View):
-    def __init__(self, embeds: list[discord.Embed]) -> None:
-        super().__init__(timeout=30)
-        self.embeds = embeds
-        self.queue = deque(embeds)
-        self.initial = embeds[0]
-        self.len = len(embeds)
-        self.current_page = 1
-
-    @discord.ui.button(emoji="◀")
-    async def previous(self, interaction: discord.Interaction, _):
-        self.queue.rotate(-1)
-        embed = self.queue[0]
-        await interaction.response.edit_message(embed=embed)
-
-    @discord.ui.button(emoji="▶")
-    async def previous(self, interaction: discord.Interaction, _):
-        self.queue.rotate(1)
-        embed = self.queue[0]
-        await interaction.response.edit_message(embed=embed)
-
-    @property
-    def initial(self) -> discord.Embed:
-        return self._initial
+        embed = discord.Embed(
+            title=f"{len(resultados)}D{numero}",
+            description=f"({'+'.join(map(str, resultados))})",
+            colour=discord.Colour.from_str("#226089"),
+        )
+        embed.add_field(
+            name=f":game_die:  O TOTAL É **{resultado}**  :game_die:",
+            value=f"",
+        )
+        if numero > 1_000:
+            await interaction.response.send_message(
+                "https://tenor.com/view/miguel-o'hara-spider-man-spider-verse-miles-morales-meme-gif-2617586733573544579"
+            )
+        else:
+            await interaction.response.send_message(embed=embed)
 
 
 @xmercury.tree.command(
@@ -577,58 +510,114 @@ class PaginationView(discord.ui.View):
     description="Mostra a ficha do usuário",
 )
 async def ficha(interaction: Interaction, personagem: Optional[str]):
-    discord_id = interaction.user.id
-    # if personagem is not None:
-    #     personagem_id = session.execute(
-    #         f"SELECT id FROM {KEYSPACE}.personagens WHERE nome = '{personagem}' ALLOW FILTERING;"
-    #     ).one()
-    #     if personagem_id is None:
-    #         personagem_id = session.execute(
-    #             f"SELECT id FROM {KEYSPACE}.personagens WHERE nickname = '{personagem}' ALLOW FILTERING;"
-    #         ).one()
-    #     personagem_id = str(personagem_id)
-    #     uuid = personagem_id.replace("Row(id=UUID('", "").replace("'))", "")
-    #     a = database.personagens.pegar_personagem(session, uuid)
-    # print(a)
+    await interaction.response.defer()
+    if personagem is not None:
+        personagem_id = session.execute(
+            f"SELECT id FROM {KEYSPACE}.personagens WHERE nome = '{personagem}' ALLOW FILTERING;"
+        ).one()
+        if personagem_id is None:
+            personagem_id = session.execute(
+                f"SELECT id FROM {KEYSPACE}.personagens WHERE nickname = '{personagem}' ALLOW FILTERING;"
+            ).one()
+        personagem_id = str(personagem_id)
+        uuid = personagem_id.replace("Row(id=UUID('", "").replace("'))", "")
+    else:
+        personagem_id = session.execute(
+            f"SELECT id FROM {KEYSPACE}.personagens WHERE usuario = '{interaction.user.id}' ALLOW FILTERING;"
+        ).one()
+        personagem_id = str(personagem_id)
+        uuid = personagem_id.replace("Row(id=UUID('", "").replace("'))", "")
+    personagem = database.personagens.pegar_personagem(session, uuid)
+    view = PaginaFicha(personagem)
+    embed = view.criar_embed()
+    view.send(interaction)
+    await interaction.followup.send(embed=embed, view=view, ephemeral=True)
 
-    embeds = []
 
-    embed = discord.Embed(
-        title=f"Julius Wick (Julius)                            LV4",
-        description=f"",
-        colour=discord.Colour.from_str("#226089"),
-    )
-    embed.set_image(
-        url="https://cdn.discordapp.com/attachments/1304898198497656842/1333914323285708801/julius.png?ex=679aa005&is=67994e85&hm=1eed73552699b31ccfc81263f8faf7bdaa0bbc109c83ca420a2564ef940c5e9d&"
-    )
-    embed.add_field(name="Legacy:", value="Humano", inline=True)
-    embed.add_field(name="Path:", value="Necromante", inline=True)
-    embed.add_field(name="Classe:", value="Especialista", inline=True)
-    embed.add_field(name="Heritage:", value="Pomona's Cycle", inline=True)
-    embed.add_field(name="HP:", value="37", inline=True)
-    embed.add_field(name="PE:", value="12", inline=True)
-    embed.add_field(name="Catarse:", value="1", inline=True)
-    embed.add_field(name="Redução: de Dano", value="2", inline=True)
-    embed.add_field(name="Bônus: de Proficiência", value="2", inline=True)
-    embed.add_field(name="Pontos: de Sombra", value="5", inline=True)
-    embed.add_field(name="Saldo:", value="250 T$", inline=True)
+@app_commands.choices(
+    audio=[
+        app_commands.Choice(name="Desativar áudio", value="False"),
+        app_commands.Choice(name="Não desativar áudio", value="True"),
+    ]
+)
+@xmercury.tree.command(
+    name="mute",
+    description="Muta todos os participantes de uma call",
+)
+async def mute(
+    interaction: Interaction,
+    execao: Optional[discord.Member],
+    audio: Optional[app_commands.Choice[str]],
+):
+    author = interaction.user
+    if author.id in ADMS:
+        if not author.voice or not author.voice.channel:
+            await interaction.response.send_message(
+                "Você precisa estar em um canal de voz para usar este comando."
+            )
+            return
+        audio = None or bool(audio)
+        canal = author.voice.channel
+        if execao is not None:
+            execao = execao.id
+            for membro in canal.members:
+                if (
+                    membro.bot == False
+                    and execao != membro.id
+                    and membro.id != 766039963736866828
+                ):
+                    try:
+                        await membro.edit(mute=True, deafen=audio)
+                    except discord.Forbidden:
+                        await interaction.response.send_message(
+                            f"Não tenho permissão para mutar {membro.mention}."
+                        )
+            await interaction.response.send_message(
+                f"Todos os membros do canal **{canal.name}** foram mutados!",
+                ephemeral=True,
+            )
+        else:
+            for membro in canal.members:
+                if membro.bot == False and membro.id != 766039963736866828:
+                    try:
+                        await membro.edit(mute=True, deafen=audio)
+                    except discord.Forbidden:
+                        await interaction.response.send_message(
+                            f"Não tenho permissão para mutar {membro.mention}."
+                        )
+            await interaction.response.send_message(
+                f"Todos os membros do canal **{canal.name}** foram mutados!",
+                ephemeral=True,
+            )
+    else:
+        await interaction.response.send_message(
+            "Você não tem permissão para usar esse comando", ephemeral=True
+        )
 
-    embed.add_field(
-        name="Stataus",
-        value="FOR: 15, +2\n CON: 15, +2\nDES: 15, +2\nINT: 15, +2\nSAB: 15, +2\nCAR: 15, +2",
-        inline=False,
-    )
-    embed.add_field(name="Condição:", value="Nenhum", inline=True)
-    embed.add_field(name="Resistência:", value="Nenhum", inline=True)
-    embed.add_field(name="Vulnerabilidade:", value="Nenhum", inline=True)
-    embed.add_field(name="Imunidade:", value="Nenhum", inline=True)
-    embed.add_field(
-        name="Melancolia:",
-        value="Para você, o fim é necessário. Assim como a vida, todo ciclo tem um fim. Sua missão em vida é garantir o fim dos ciclos",
-        inline=False,
-    )
-    embed.add_field(name="", value="", inline=False)
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+@xmercury.tree.command(
+    name="unmute",
+    description="Desmuta todos os participantes de uma call",
+)
+async def unmute(interaction: Interaction):
+    author = interaction.user
+    canal = author.voice.channel
+    if author.id in ADMS:
+        for membro in canal.members:
+            try:
+                await membro.edit(mute=False, deafen=False)
+            except discord.Forbidden:
+                await interaction.response.send_message(
+                    f"Não tenho permissão para mutar {membro.mention}."
+                )
+        await interaction.response.send_message(
+            f"Todos os membros do canal **{canal.name}** foram desmutados!",
+            ephemeral=True,
+        )
+    else:
+        await interaction.response.send_message(
+            "Você não tem permissão para usar esse comando", ephemeral=True
+        )
 
 
 xmercury.run(token)

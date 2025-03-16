@@ -24,7 +24,7 @@ class Skill(BaseModel):
     custo: Optional[int]
     execucao: str
     descritores: Optional[str]
-    alcance: Optional[int]
+    alcance: Optional[str]
     duracao: Optional[str]
     ataque: Optional[str]
     acerto: Optional[str]
@@ -33,8 +33,7 @@ class Skill(BaseModel):
     especial: Optional[str]
     gatilho: Optional[str]
     alvo: Optional[str]
-    modificacoes: Optional[str]
-    carga: Optional[int]
+    carga: Optional[str]
     modificador_execucao: Optional[str]
     modificador_nome: Optional[str]
     modificador_descricao: Optional[str]
@@ -68,6 +67,8 @@ class Item(BaseModel):
     id: UUID
     nome: str
     descricao: str
+    preco: int
+    volume: int
 
 
 class ItemDeInventario(BaseModel):
@@ -89,16 +90,16 @@ class Personagem(BaseModel):
     hp: int
     reducao_de_dano: int
     bonus_de_proficiencia: int
-    talentos: list[Talento]
-    passivas: list[Passiva]
-    skills: list[Skill]
-    atributos: Atributos
+    talentos: Optional[list[Talento]]
+    passivas: Optional[list[Passiva]]
+    skills: Optional[list[Skill]]
+    atributos: Optional[Atributos]
     pontos_de_sombra: Optional[int]
-    resistencia: Optional[str]
-    vulnerabilidade: Optional[str]
-    imunidade: Optional[str]
+    resistencia: Optional[list[str]]
+    vulnerabilidade: Optional[list[str]]
+    imunidade: Optional[list[str]]
     inventario: list[ItemDeInventario]
-    condicoes: list[str]
+    condicoes: Optional[list[str]]
     saldo: Optional[int]
     imagem: Optional[str]
     usuario: Optional[str]

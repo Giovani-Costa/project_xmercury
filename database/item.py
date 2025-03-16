@@ -6,11 +6,14 @@ import database.models
 from constante import KEYSPACE
 
 
-def criar_item(session: Session, nome: str, descricao: str) -> uuid.UUID:
+def criar_item(
+    session: Session, nome: str, descricao: str, preco: int, volume: int
+) -> uuid.UUID:
     id = uuid.uuid4()
-    item_novo = f"""INSERT INTO {KEYSPACE}.itens (id, nome, descricao)
-VALUES ({id}, '{nome}', '{descricao}');"""
+    item_novo = f"""INSERT INTO {KEYSPACE}.itens (id, nome, descricao, preco, volume)
+VALUES ({id}, '{nome}', '{descricao}', {preco}, {volume});"""
     session.execute(item_novo)
+    print(f"{item_novo}\n")
     return id
 
 
