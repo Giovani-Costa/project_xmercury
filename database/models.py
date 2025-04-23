@@ -76,6 +76,14 @@ class ItemDeInventario(BaseModel):
     quantidade: int
 
 
+class Pericia(BaseModel):
+    nome: str
+    descricao: str
+    e_vantagem: bool
+    e_soma: bool
+    somar: Optional[list[str]]
+
+
 class Personagem(BaseModel):
     nome: str
     nickname: str
@@ -90,6 +98,7 @@ class Personagem(BaseModel):
     hp: int
     reducao_de_dano: int
     bonus_de_proficiencia: int
+    # pericias: Optional[list[Pericia]]
     talentos: Optional[list[Talento]]
     passivas: Optional[list[Passiva]]
     skills: Optional[list[Skill]]

@@ -8,12 +8,15 @@ from discord.ext.commands import Bot
 import database.item
 import database.models
 import database.passivas_talentos
+import database.pericias
 import database.personagens
 import database.skill
 from constante import ADMS, KEYSPACE
+from dado import TipoDadoResultado, girar_dados
 from database.connect_database import criar_session
 from ficha import PaginaFicha
 from key import key
+from map.map import criar_mapa
 
 xmercury = Bot(command_prefix="!", intents=discord.Intents.all())
 session = criar_session()
@@ -27,20 +30,6 @@ async def on_ready():
         status=discord.Status.idle,
     )
     print("XMercury se apresentando para o serviço @v@")
-
-
-@xmercury.tree.command(name="leave", description="O bot sai da call que está")
-async def leave(interaction: Interaction):
-    if interaction.guild.voice_client:
-        await interaction.guild.voice_client.disconnect()
-        await interaction.response.send_message(
-            "https://tenor.com/view/bye-bye-bye-gif-12807868928498541318",
-            ephemeral=True,
-        )
-    else:
-        await interaction.response.send_message(
-            ":x:  Não estou em nenhum canal de voz  :x:", ephemeral=True
-        )
 
 
 @app_commands.choices(
@@ -117,6 +106,7 @@ async def mandar_skill(
     modificador_descricao: Optional[str],
     modificador_gasto: Optional[int],
     modificador_gasto_tipo: Optional[app_commands.Choice[str]],
+    usuario: Optional[discord.Member],
 ):
     if carga is None:
         carga = "Ilimitado."
@@ -152,6 +142,7 @@ async def mandar_skill(
             modificador_descricao,
             modificador_gasto,
             str(modificador_gasto_tipo),
+            usuario,
         )
         await interaction.response.send_message(
             f":white_check_mark: SKILL CRIADA COM SUCESSO! :white_check_mark:\nO UUID de {nome} é **{id}**"
@@ -167,10 +158,15 @@ async def mandar_skill(
     description="Adiciona um item ao banco de dados",
 )
 async def mandar_item(
-    interaction: Interaction, nome: str, descricao: str, preco: int, volume: int
+    interaction: Interaction,
+    nome: str,
+    descricao: str,
+    preco: int,
+    volume: int,
+    usuario: Optional[discord.Member],
 ):
     if interaction.user.id in ADMS:
-        id = database.item.criar_item(session, nome, descricao, preco, volume)
+        id = database.item.criar_item(session, nome, descricao, preco, volume, usuario)
         await interaction.response.send_message(
             f":white_check_mark: ITEM CRIADO COM SUCESSO! :white_check_mark:\nO UUID de {nome} é **{id}**"
         )
@@ -210,6 +206,7 @@ async def mandar_passiva_talento(
     modificador_descricao: Optional[str],
     modificador_gasto: Optional[int],
     modificador_gasto_tipo: Optional[app_commands.Choice[str]],
+    usuario: Optional[discord.Member],
 ):
 
     if interaction.user.id in ADMS:
@@ -232,6 +229,7 @@ async def mandar_passiva_talento(
             modificador_descricao,
             modificador_gasto,
             str(modificador_gasto_tipo),
+            usuario,
         )
         await interaction.response.send_message(
             f":white_check_mark: PASSIVA/TALENTO CRIADE COM SUCESSO! :white_check_mark:\nO UUID de {nome} é **{id}**"
@@ -442,92 +440,57 @@ async def mandar_personagem(
         )
 
 
+@app_commands.choices(
+    vantagem=[
+        app_commands.Choice(name="Vantagem", value="vantagem"),
+        app_commands.Choice(name="Desvantagem", value="desvantagem"),
+    ]
+)
 @xmercury.tree.command(
     name="d",
     description="Gira um dado com quantidade de lados determinada pelo usuário",
 )
-async def dado(interaction: Interaction, numero: int, dados: Optional[int]):
-    def girar_dado(numero) -> int:
-        resultado = random.randint(1, numero)
-        return resultado
-
-    if dados is None:
-        resultado = girar_dado(numero)
-        embed = discord.Embed(
-            title=f"D{numero}",
-            description="",
-            colour=discord.Colour.from_str("#226089"),
-        )
-        embed.add_field(
-            name=f":game_die:  CAIU NO **{resultado}**  :game_die:",
-            value=f"",
-        )
-        if numero > 1_000:
-            await interaction.response.send_message(
-                "https://tenor.com/view/miguel-o'hara-spider-man-spider-verse-miles-morales-meme-gif-2617586733573544579"
-            )
-        elif resultado == 1:
-            await interaction.response.send_message(
-                "https://tenor.com/view/dnd-nat1-going-to-bed-dungeons-and-dragons-natural1-gif-26298479"
-            )
-            await interaction.followup.send(embed=embed)
-
-        elif resultado == numero:
-            await interaction.response.send_message(
-                "https://tenor.com/view/critical-succsess-gif-15687749433046296713"
-            )
-            await interaction.followup.send(embed=embed)
-
-        else:
-            await interaction.response.send_message(embed=embed)
-
+async def dado(
+    interaction: Interaction,
+    numero: int,
+    dados: Optional[int] = 1,
+    vantagem: Optional[app_commands.Choice[str]] = None,
+    bonus: Optional[int] = 0,
+):
+    dado = girar_dados(numero, dados, vantagem.value, bonus)
+    embed = discord.Embed(
+        title=dado.titulo,
+        description=dado.mensagem,
+        colour=discord.Colour.from_str("#226089"),
+    )
+    if dado.gif is not None:
+        await interaction.response.send_message(dado.gif)
+        await interaction.followup.send(embed=embed)
     else:
-        resultados = []
-        for _ in range(dados):
-            resultado_dado = girar_dado(numero)
-            resultados.append(resultado_dado)
-        resultado = sum(resultados)
-
-        embed = discord.Embed(
-            title=f"{len(resultados)}D{numero}",
-            description=f"({'+'.join(map(str, resultados))})",
-            colour=discord.Colour.from_str("#226089"),
-        )
-        embed.add_field(
-            name=f":game_die:  O TOTAL É **{resultado}**  :game_die:",
-            value=f"",
-        )
-        if numero > 1_000:
-            await interaction.response.send_message(
-                "https://tenor.com/view/miguel-o'hara-spider-man-spider-verse-miles-morales-meme-gif-2617586733573544579"
-            )
-        else:
-            await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed)
 
 
+@app_commands.choices(
+    personagem=[
+        app_commands.Choice(
+            name="Julius ", value="69fa11c2-ca6a-44b7-93c2-b744d0e98554"
+        ),
+        app_commands.Choice(name="Adam", value="1c773acd-295b-436d-b792-8011e739e527"),
+        app_commands.Choice(
+            name="Gunther", value="e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8"
+        ),
+    ]
+)
 @xmercury.tree.command(
     name="ficha",
     description="Mostra a ficha do usuário",
 )
-async def ficha(interaction: Interaction, personagem: Optional[str]):
+async def ficha(
+    interaction: Interaction, personagem: Optional[app_commands.Choice[str]]
+):
+    personagem = personagem.value
     await interaction.response.defer()
-    if personagem is not None:
-        personagem_id = session.execute(
-            f"SELECT id FROM {KEYSPACE}.personagens WHERE nome = '{personagem}' ALLOW FILTERING;"
-        ).one()
-        if personagem_id is None:
-            personagem_id = session.execute(
-                f"SELECT id FROM {KEYSPACE}.personagens WHERE nickname = '{personagem}' ALLOW FILTERING;"
-            ).one()
-        personagem_id = str(personagem_id)
-        uuid = personagem_id.replace("Row(id=UUID('", "").replace("'))", "")
-    else:
-        personagem_id = session.execute(
-            f"SELECT id FROM {KEYSPACE}.personagens WHERE usuario = '{interaction.user.id}' ALLOW FILTERING;"
-        ).one()
-        personagem_id = str(personagem_id)
-        uuid = personagem_id.replace("Row(id=UUID('", "").replace("'))", "")
-    personagem = database.personagens.pegar_personagem(session, uuid)
+    personagem = database.personagens.pegar_personagem_com_id(session, personagem)
     view = PaginaFicha(personagem)
     embed = view.criar_embed()
     view.send(interaction)
@@ -618,6 +581,44 @@ async def unmute(interaction: Interaction):
         await interaction.response.send_message(
             "Você não tem permissão para usar esse comando", ephemeral=True
         )
+
+
+@xmercury.tree.command(
+    name="mapa",
+    description="Desmuta todos os participantes de uma call",
+)
+async def mapa(interaction: Interaction):
+    buffer = criar_mapa(
+        "map/mapa.png",
+        [
+            ("map/tokens/chrollo_token.png", (28, 0)),
+            ("map/tokens/julius_token.png", (0, 0)),
+            ("map/tokens/gunther_token.png", ((29 * 9), (29 * 10))),
+        ],
+    )
+    await interaction.response.send_message(
+        file=discord.File(buffer, filename="mapa.png")
+    )
+
+
+@xmercury.tree.command(
+    name="pericias",
+    description="Gira um dado com quantidade de lados determinada pelo usuário",
+)
+async def pericias(interaction: Interaction):
+    pericias = database.pericias.pegar_todas_as_pericias(session)
+    embed = discord.Embed(
+        title="Perícias",
+        description="",
+        colour=discord.Colour.from_str("#226089"),
+    )
+    for p in pericias:
+        embed.add_field(
+            name=p.nome,
+            value=p.descricao,
+            inline=False,
+        )
+    await interaction.response.send_message(embed=embed)
 
 
 xmercury.run(token)

@@ -31,7 +31,7 @@ class PaginaFicha(discord.ui.View):
         if self.pagina_atual == 0:
             self.pagina_atual = 4
         else:
-            self.pagina_atual = +1
+            self.pagina_atual += 1
         await self.atualizar_mensagem(interaction)
 
     @discord.ui.button(label=">", style=discord.ButtonStyle.gray)
@@ -58,7 +58,7 @@ class PaginaFicha(discord.ui.View):
             )
 
             embed.set_image(
-                url=f"https://raw.githubusercontent.com/Giovani-Costa/project_xmercury/main/all_characters/{self.personagem.imagem}"
+                url=f"https://raw.githubusercontent.com/Giovani-Costa/project_xmercury/refs/heads/main/characters_images/{self.personagem.imagem}"
             )
             embed.add_field(
                 name="Stataus",

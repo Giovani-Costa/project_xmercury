@@ -6,6 +6,8 @@ from cassandra.cluster import Session
 import database.item
 import database.models
 import database.passivas_talentos
+
+# import database.pericias
 import database.skill
 from constante import KEYSPACE
 
@@ -24,10 +26,11 @@ def criar_personagem(
     pe: Optional[int],
     hp: int,
     reducao_de_dano: Optional[int],
+    pericias: Optional[list[uuid.UUID]],
     bonus_de_proficiencia: Optional[int],
-    talentos: Optional[uuid.UUID],
-    passivas: Optional[uuid.UUID],
-    skills: Optional[uuid.UUID],
+    talentos: Optional[list[uuid.UUID]],
+    passivas: Optional[list[uuid.UUID]],
+    skills: Optional[list[uuid.UUID]],
     forca: list[int],
     dexterity: list[int],
     contituicao: list[int],
@@ -46,14 +49,16 @@ def criar_personagem(
     usuario: Optional[int],
 ) -> uuid.UUID:
     id = uuid.uuid4()
-    personagem_novo = f"""INSERT INTO {KEYSPACE}.personagens (id, nome, nickname, level, path, classe, legacy, heritage, melancholy, catarse, pe, hp, reducao_de_dano, bonus_de_proficiencia, talentos, passivas, skills, forca, dexterity, constituicao, inteligencia, sabedoria, carisma, pontos_de_sombra, resistencia, vulnerabilidade, imunidade, inventario_itens, inventario_numero, condicoes, saldo, imagem, usuario)
-    VALUES ({id}, '{nome}', '{nickname}', {level}, '{path}', '{classe}', '{legacy}', '{heritage}', '{melancholy}', {catarse}, {pe}, {hp}, {reducao_de_dano}, {bonus_de_proficiencia}, {talentos}, {passivas}, {skills}, {forca}, {dexterity}, {contituicao}, {inteligencia}, {sabedoria}, {carisma}, {pontos_de_sombra}, {resistencia}, {vulnerabilidade}, {imunidade}, {inventario_itens}, {inventario_numero}, {condicoes}, {saldo}, '{imagem}', '{usuario}');"""
+    personagem_novo = f"""INSERT INTO {KEYSPACE}.personagens (id, nome, nickname, level, path, classe, legacy, heritage, melancholy, catarse, pe, hp, reducao_de_dano, bonus_de_proficiencia, pericias, talentos, passivas, skills, forca, dexterity, constituicao, inteligencia, sabedoria, carisma, pontos_de_sombra, resistencia, vulnerabilidade, imunidade, inventario_itens, inventario_numero, condicoes, saldo, imagem, usuario)
+    VALUES ({id}, '{nome}', '{nickname}', {level}, '{path}', '{classe}', '{legacy}', '{heritage}', '{melancholy}', {catarse}, {pe}, {hp}, {reducao_de_dano}, {bonus_de_proficiencia}, {pericias}, {talentos}, {passivas}, {skills}, {forca}, {dexterity}, {contituicao}, {inteligencia}, {sabedoria}, {carisma}, {pontos_de_sombra}, {resistencia}, {vulnerabilidade}, {imunidade}, {inventario_itens}, {inventario_numero}, {condicoes}, {saldo}, '{imagem}', '{usuario}');"""
     print(personagem_novo)
     session.execute(f"{personagem_novo}\n")
     return id
 
 
-def pegar_personagem(session: Session, id: uuid.UUID) -> database.models.Personagem:
+def pegar_personagem_com_id(
+    session: Session, id: uuid.UUID
+) -> database.models.Personagem:
     comando = f"SELECT * FROM {KEYSPACE}.personagens WHERE id={id};"
     resultado = session.execute(comando)
     primeiro_resultado = resultado.one()
@@ -102,4 +107,32 @@ def pegar_personagem(session: Session, id: uuid.UUID) -> database.models.Persona
             database.models.ItemDeInventario(item=item, quantidade=n).model_dump()
         )
     kwargs["inventario"] = itens_true
+
+    # pericias_true = []
+    # for p in kwargs["pericias"]:
+    #     pericias_true.append(database.pericias.pegar_pericia(session, p).model_dump())
+    # kwargs["pericias"] = pericias_true
+
     return database.models.Personagem(**kwargs)
+
+
+def pegar_id_por_nome_ou_nick(session, personagem):
+    personagem_id = session.execute(
+        f"SELECT id FROM {KEYSPACE}.personagens WHERE nome = '{personagem}' ALLOW FILTERING;"
+    ).one()
+    if personagem_id is None:
+        personagem_id = session.execute(
+            f"SELECT id FROM {KEYSPACE}.personagens WHERE nickname = '{personagem}' ALLOW FILTERING;"
+        ).one()
+    personagem_id = str(personagem_id)
+    uuid = personagem_id.replace("Row(id=UUID('", "").replace("'))", "")
+    return uuid
+
+
+def pegar_id_por_user_id(session, user_id):
+    personagem_id = session.execute(
+        f"SELECT id FROM {KEYSPACE}.personagens WHERE usuario = '{user_id}' ALLOW FILTERING;"
+    ).one()
+    personagem_id = str(personagem_id)
+    uuid = personagem_id.replace("Row(id=UUID('", "").replace("'))", "")
+    return uuid

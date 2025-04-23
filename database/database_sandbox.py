@@ -113,6 +113,7 @@ with cluster.connect() as session:
     #    hp INT,
     #    reducao_de_dano INT,
     #    bonus_de_proficiencia INT,
+    #    pericias LIST<UUID>
     #    talentos LIST<UUID>,
     #    passivas LIST<UUID>,
     #    skills LIST<UUID>,
@@ -165,5 +166,22 @@ with cluster.connect() as session:
     # """
     # )
     # print("PARTY CRIADA")
+
+    # -------------------------------------------------------------------------------------------
+
+    # CRIAR A TABELA DE PERICIAS
+
+    session.execute(
+        f"""
+    CREATE TABLE {KEYSPACE}.pericias (
+       id UUID PRIMARY KEY,
+       nome TEXT,
+       descricao TEXT,
+       e_vantagem BOOLEAN,
+       e_soma BOOLEAN,
+       somar LIST<TEXT>,
+        );"""
+    )
+    print("PERÍCIAS CRIADA")
 
     pass
