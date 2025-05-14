@@ -6,7 +6,7 @@ import database.models
 from constante import KEYSPACE
 
 
-def pegar_pericia(session: Session, id: uuid.UUID) -> database.models.Pericia:
+def pegar_pericia(session: Session, id: uuid.UUID | str) -> database.models.Pericia:
     comando = f"SELECT * FROM {KEYSPACE}.pericias WHERE id={id};"
     resultado = session.execute(comando)
     primeiro_resultado = resultado.one()

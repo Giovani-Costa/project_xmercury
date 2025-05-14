@@ -37,7 +37,7 @@ VALUES ({id}, '{nome}', {custo}, '{execucao}', '{descritores}', '{alcance}', '{d
     return id
 
 
-def pegar_skills(session: Session, id: uuid.UUID) -> database.models.Skill:
+def pegar_skills(session: Session, id: uuid.UUID | str) -> database.models.Skill:
     comando = f"SELECT * FROM {KEYSPACE}.skills WHERE id={id};"
     resultado = session.execute(comando)
     primeiro_resultado = resultado.one()

@@ -77,6 +77,7 @@ class ItemDeInventario(BaseModel):
 
 
 class Pericia(BaseModel):
+    id: UUID
     nome: str
     descricao: str
     e_vantagem: bool
@@ -85,6 +86,7 @@ class Pericia(BaseModel):
 
 
 class Personagem(BaseModel):
+    id: UUID
     nome: str
     nickname: str
     level: int
@@ -98,7 +100,7 @@ class Personagem(BaseModel):
     hp: int
     reducao_de_dano: int
     bonus_de_proficiencia: int
-    # pericias: Optional[list[Pericia]]
+    pericias: Optional[list[Pericia]]
     talentos: Optional[list[Talento]]
     passivas: Optional[list[Passiva]]
     skills: Optional[list[Skill]]

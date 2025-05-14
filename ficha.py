@@ -7,7 +7,7 @@ from database.models import Personagem
 class PaginaFicha(discord.ui.View):
     def __init__(
         self,
-        personagem: str = Personagem,
+        personagem: Personagem,
         pagina_atual: int = 0,
         *,
         timeout: float | None = 600,
@@ -29,7 +29,7 @@ class PaginaFicha(discord.ui.View):
     async def botao_anterior(self, interaction: Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if self.pagina_atual == 0:
-            self.pagina_atual = 4
+            self.pagina_atual = 5
         else:
             self.pagina_atual += 1
         await self.atualizar_mensagem(interaction)
@@ -37,7 +37,7 @@ class PaginaFicha(discord.ui.View):
     @discord.ui.button(label=">", style=discord.ButtonStyle.gray)
     async def botao_proximo(self, interaction: Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        if self.pagina_atual == 4:
+        if self.pagina_atual == 5:
             self.pagina_atual = 0
         else:
             self.pagina_atual += 1
@@ -46,7 +46,7 @@ class PaginaFicha(discord.ui.View):
     @discord.ui.button(label=">>", style=discord.ButtonStyle.gray)
     async def botao_ultimo(self, interaction: Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        self.pagina_atual = 4
+        self.pagina_atual = 5
         await self.atualizar_mensagem(interaction)
 
     def criar_embed(self) -> discord.Embed:
@@ -129,8 +129,20 @@ class PaginaFicha(discord.ui.View):
                 value=f"{self.personagem.melancholy}",
                 inline=False,
             )
+        elif self.pagina_atual == 1:  # Perícias
+            embed = discord.Embed(
+                title=f"Perícias",
+                description=f"",
+                colour=discord.Colour.from_str("#226089"),
+            )
+            for k in self.personagem.pericias:
+                embed.add_field(
+                    name=f"{k.nome}",
+                    value=f"{k.descricao}",
+                    inline=False,
+                )
 
-        elif self.pagina_atual == 1:  # Inventáio
+        elif self.pagina_atual == 2:  # Inventáio
             embed = discord.Embed(
                 title=f"Inventário",
                 description=f"",
@@ -143,7 +155,7 @@ class PaginaFicha(discord.ui.View):
                     inline=False,
                 )
 
-        elif self.pagina_atual == 2:  # Talentos
+        elif self.pagina_atual == 3:  # Talentos
             embed = discord.Embed(
                 title=f"Talentos",
                 description=f"",
@@ -176,7 +188,7 @@ class PaginaFicha(discord.ui.View):
                     inline=False,
                 )
 
-        elif self.pagina_atual == 3:  # Pasivas
+        elif self.pagina_atual == 4:  # Pasivas
             embed = discord.Embed(
                 title=f"Passivas",
                 description=f"",
@@ -209,7 +221,7 @@ class PaginaFicha(discord.ui.View):
                     inline=False,
                 )
 
-        elif self.pagina_atual == 4:  # Skills
+        elif self.pagina_atual == 5:  # Skills
             embed = discord.Embed(
                 title=f"Skills",
                 description=f"",

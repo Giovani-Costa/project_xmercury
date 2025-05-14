@@ -18,7 +18,7 @@ VALUES ({id}, '{nome}', '{descricao}', {preco}, {volume});"""
     return id
 
 
-def pegar_item(session: Session, id: uuid.UUID) -> database.models.Item:
+def pegar_item(session: Session, id: uuid.UUID | str) -> database.models.Item:
     comando = f"SELECT * FROM {KEYSPACE}.itens WHERE id={id};"
     resultado = session.execute(comando)
     primeiro_resultado = resultado.one()

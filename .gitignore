@@ -1,9 +1,8 @@
 /key.py
-/eop_sfx
+sfx/ulquiorra.mp3
+sfx/ult_template.mp4
 *__pycache__
 /.env
 /database/xmercury-token.json
 /database/secure-connect-xmercury.zip
-/mapa
-/database/prompts.py
-/ROADMAP.md
+/map

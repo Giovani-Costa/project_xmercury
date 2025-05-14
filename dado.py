@@ -7,12 +7,9 @@ from discord import Interaction, app_commands
 from discord.ext.commands import Bot
 from pydantic import BaseModel
 
-# import database.pericias
 import database.personagens
 from constante import KEYSPACE
 from database.connect_database import criar_session
-
-# from database.models import Pericia
 
 
 class TipoDadoResultado(Enum):
@@ -53,7 +50,7 @@ def girar_dados(
     numero: int,
     dados: int,
     vantagem: Optional[str],
-    bonus: int,  # pericia: Optional[Pericia]
+    bonus: int,
 ) -> DadoResultado:
     if numero > 1000 or dados > 30:
         return DadoResultado(
@@ -62,7 +59,6 @@ def girar_dados(
             tipo=TipoDadoResultado.ERRO,
             gif="https://tenor.com/view/miguel-o'hara-spider-man-spider-verse-miles-morales-meme-gif-2617586733573544579",
         )
-    # if pericia is None
     resultados = []
     resultados_str = []
     for _ in range(dados):
@@ -73,11 +69,11 @@ def girar_dados(
     resultado = sum(resultados) + bonus
     gif = None
     tipo = TipoDadoResultado.NORMAL
-    if dados == 1:
-        if resultado == numero:
+    if dados == 1 and numero == 20:
+        if r == numero:
             tipo = TipoDadoResultado.ACERTO_CRITICO
             gif = "https://tenor.com/view/jujutsu-kaisen-kokusen-black-flash-yuji-itadori-gif-10077922593003290467"
-        elif resultado == 1:
+        elif r == 1:
             tipo = TipoDadoResultado.ERRO_CRITICO
             gif = "https://tenor.com/view/dnd-nat1-going-to-bed-dungeons-and-dragons-natural1-gif-26298479"
 
@@ -98,5 +94,3 @@ def girar_dados(
         gif=gif,
         tipo=tipo,
     )
-    # else:
-    #     return DadoResultado(titulo="a", memnsagem="a", tipo=TipoDadoResultado.NORMAL)

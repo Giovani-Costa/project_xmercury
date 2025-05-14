@@ -42,7 +42,7 @@ VALUES ({id}, '{nome}', '{descricao}', '{modificador_execucao}', '{modificador_n
     return id
 
 
-def pegar_passivas(session: Session, id: uuid.UUID) -> database.models.Passiva:
+def pegar_passivas(session: Session, id: uuid.UUID | str) -> database.models.Passiva:
     comando = f"SELECT * FROM {KEYSPACE}.passivas WHERE id={id};"
     resultado = session.execute(comando)
     primeiro_resultado = resultado.one()
@@ -50,7 +50,7 @@ def pegar_passivas(session: Session, id: uuid.UUID) -> database.models.Passiva:
     return database.models.Passiva(**kwargs)
 
 
-def pegar_talentos(session: Session, id: uuid.UUID) -> database.models.Talento:
+def pegar_talentos(session: Session, id: uuid.UUID | str) -> database.models.Talento:
     comando = f"SELECT * FROM {KEYSPACE}.talentos WHERE id={id};"
     resultado = session.execute(comando)
     primeiro_resultado = resultado.one()

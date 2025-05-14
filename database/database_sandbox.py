@@ -171,17 +171,17 @@ with cluster.connect() as session:
 
     # CRIAR A TABELA DE PERICIAS
 
-    session.execute(
-        f"""
-    CREATE TABLE {KEYSPACE}.pericias (
-       id UUID PRIMARY KEY,
-       nome TEXT,
-       descricao TEXT,
-       e_vantagem BOOLEAN,
-       e_soma BOOLEAN,
-       somar LIST<TEXT>,
-        );"""
-    )
-    print("PERÍCIAS CRIADA")
+    # session.execute(
+    #     f"""
+    # CREATE TABLE {KEYSPACE}.pericias (
+    #    id UUID PRIMARY KEY,
+    #    nome TEXT,
+    #    descricao TEXT,
+    #    e_vantagem BOOLEAN,
+    #    e_soma BOOLEAN,
+    #    somar LIST<TEXT>,
+    #     );"""
+    # )
+    # print("PERÍCIAS CRIADA")
 
     pass

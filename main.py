@@ -34,11 +34,11 @@ async def on_ready():
 
 @app_commands.choices(
     sfx=[
-        app_commands.Choice(name="Adam EOP", value="adam"),
-        app_commands.Choice(name="Chrollo EOP", value="chrollo"),
-        app_commands.Choice(name="Gunther EOP", value="gunther"),
-        app_commands.Choice(name="Julius EOP", value="julius"),
-        app_commands.Choice(name="Vincenzo EOP", value="vincenzo"),
+        app_commands.Choice(name="Adam EOP", value="adam_eop"),
+        app_commands.Choice(name="Chrollo EOP", value="chrollo_eop"),
+        app_commands.Choice(name="Gunther EOP", value="gunther_eop"),
+        app_commands.Choice(name="Julius EOP", value="julius_eop"),
+        app_commands.Choice(name="Vincenzo EOP", value="vincenzo_eop"),
     ]
 )
 @xmercury.tree.command(name="efeito_sonoro", description="O bot reproduz sons na call")
@@ -50,15 +50,18 @@ async def efeito_sonoro(interaction: Interaction, sfx: app_commands.Choice[str])
             await interaction.response.send_message(
                 "<:march:1302059770785824861>", ephemeral=True
             )
-            sound_effect = f"eop_sfx\{sfx.value}.mp3"
+            sound_effect = f"sfx\{sfx.value}.mp3"
             voice = interaction.guild.voice_client
             source = discord.FFmpegPCMAudio(sound_effect)
             audio_com_volume = discord.PCMVolumeTransformer(source, volume=0.1)
             player = voice.play(audio_com_volume)
 
     except discord.ClientException:
-        sound_effect = f"eop_sfx\{sfx.value}.mp3"
+        sound_effect = f"sfx\{sfx.value}.mp3"
         voice = interaction.guild.voice_client
+        await interaction.response.send_message(
+            "<:march:1302059770785824861>", ephemeral=True
+        )
         source = discord.FFmpegPCMAudio(sound_effect)
         audio_com_volume = discord.PCMVolumeTransformer(source, volume=0.1)
         player = voice.play(audio_com_volume)
@@ -70,6 +73,7 @@ async def efeito_sonoro(interaction: Interaction, sfx: app_commands.Choice[str])
         app_commands.Choice(name="Ação Bônus", value="acao bonus"),
         app_commands.Choice(name="Reação", value="reacao"),
         app_commands.Choice(name="Ação Livre", value="acao livre"),
+        app_commands.Choice(name="Echo of Pomona", value="eop"),
     ],
     modificador_execucao=[
         app_commands.Choice(name="Ação", value="acao"),
@@ -106,7 +110,6 @@ async def mandar_skill(
     modificador_descricao: Optional[str],
     modificador_gasto: Optional[int],
     modificador_gasto_tipo: Optional[app_commands.Choice[str]],
-    usuario: Optional[discord.Member],
 ):
     if carga is None:
         carga = "Ilimitado."
@@ -142,7 +145,6 @@ async def mandar_skill(
             modificador_descricao,
             modificador_gasto,
             str(modificador_gasto_tipo),
-            usuario,
         )
         await interaction.response.send_message(
             f":white_check_mark: SKILL CRIADA COM SUCESSO! :white_check_mark:\nO UUID de {nome} é **{id}**"
@@ -163,10 +165,9 @@ async def mandar_item(
     descricao: str,
     preco: int,
     volume: int,
-    usuario: Optional[discord.Member],
 ):
     if interaction.user.id in ADMS:
-        id = database.item.criar_item(session, nome, descricao, preco, volume, usuario)
+        id = database.item.criar_item(session, nome, descricao, preco, volume)
         await interaction.response.send_message(
             f":white_check_mark: ITEM CRIADO COM SUCESSO! :white_check_mark:\nO UUID de {nome} é **{id}**"
         )
@@ -206,7 +207,6 @@ async def mandar_passiva_talento(
     modificador_descricao: Optional[str],
     modificador_gasto: Optional[int],
     modificador_gasto_tipo: Optional[app_commands.Choice[str]],
-    usuario: Optional[discord.Member],
 ):
 
     if interaction.user.id in ADMS:
@@ -229,7 +229,6 @@ async def mandar_passiva_talento(
             modificador_descricao,
             modificador_gasto,
             str(modificador_gasto_tipo),
-            usuario,
         )
         await interaction.response.send_message(
             f":white_check_mark: PASSIVA/TALENTO CRIADE COM SUCESSO! :white_check_mark:\nO UUID de {nome} é **{id}**"
@@ -457,7 +456,9 @@ async def dado(
     vantagem: Optional[app_commands.Choice[str]] = None,
     bonus: Optional[int] = 0,
 ):
-    dado = girar_dados(numero, dados, vantagem.value, bonus)
+    if vantagem is not None:
+        vantagem = vantagem.value
+    dado = girar_dados(numero, dados, vantagem, bonus)
     embed = discord.Embed(
         title=dado.titulo,
         description=dado.mensagem,
@@ -473,12 +474,15 @@ async def dado(
 @app_commands.choices(
     personagem=[
         app_commands.Choice(
-            name="Julius ", value="69fa11c2-ca6a-44b7-93c2-b744d0e98554"
+            name="Julius Wick", value="69fa11c2-ca6a-44b7-93c2-b744d0e98554"
         ),
-        app_commands.Choice(name="Adam", value="1c773acd-295b-436d-b792-8011e739e527"),
         app_commands.Choice(
-            name="Gunther", value="e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8"
+            name="Adam Andrews", value="1c773acd-295b-436d-b792-8011e739e527"
         ),
+        app_commands.Choice(
+            name="Gunther Nosferata", value="e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8"
+        ),
+        app_commands.Choice(name="Vincenzo", value="a"),
     ]
 )
 @xmercury.tree.command(
@@ -488,9 +492,14 @@ async def dado(
 async def ficha(
     interaction: Interaction, personagem: Optional[app_commands.Choice[str]]
 ):
-    personagem = personagem.value
     await interaction.response.defer()
-    personagem = database.personagens.pegar_personagem_com_id(session, personagem)
+    if personagem is not None:
+        personagem = database.personagens.pegar_personagem_com_id(
+            session, personagem.value
+        )
+    else:
+        id = database.personagens.pegar_id_por_user_id(session, interaction.user.id)
+        personagem = database.personagens.pegar_personagem_com_id(session, id)
     view = PaginaFicha(personagem)
     embed = view.criar_embed()
     view.send(interaction)
@@ -603,7 +612,7 @@ async def mapa(interaction: Interaction):
 
 @xmercury.tree.command(
     name="pericias",
-    description="Gira um dado com quantidade de lados determinada pelo usuário",
+    description="Mostra todas as perícias no sistema",
 )
 async def pericias(interaction: Interaction):
     pericias = database.pericias.pegar_todas_as_pericias(session)
@@ -619,6 +628,66 @@ async def pericias(interaction: Interaction):
             inline=False,
         )
     await interaction.response.send_message(embed=embed)
+
+
+@app_commands.choices(
+    pericia=[
+        app_commands.Choice(name=p.nome, value=str(p.id))
+        for p in database.pericias.pegar_todas_as_pericias(session)
+        if p.e_soma or p.e_vantagem
+    ]
+)
+@xmercury.tree.command(
+    name="girar_pericias",
+    description="Gira um teste de uma perícia",
+)
+async def girar_pericias(interaction: Interaction, pericia: app_commands.Choice[str]):
+    await interaction.response.defer()
+    personagem = database.personagens.pegar_personagem_com_id(
+        session, "69fa11c2-ca6a-44b7-93c2-b744d0e98554"
+    )
+    p = database.pericias.pegar_pericia(session, pericia.value)
+    if p in personagem.pericias:
+        if p.e_vantagem and p.e_soma:
+            possiveis_bonus = []
+            for k in p.somar:
+                if k == "bonus_de_proficiencia":
+                    possiveis_bonus.append(personagem.bonus_de_proficiencia)
+                else:
+                    atributos = personagem.atributos
+                    atributo = getattr(atributos, k)
+                    possiveis_bonus.append(atributo.bonus)
+            dado = girar_dados(20, 1, "vantagem", max(possiveis_bonus))
+
+        elif p.e_vantagem:
+            dado = girar_dados(20, 1, "vantagem", 0)
+
+        elif p.e_soma:
+            possiveis_bonus = []
+            for k in p.somar:
+                if k == "bonus_de_proficiencia":
+                    possiveis_bonus.append(personagem.bonus_de_proficiencia)
+                else:
+                    atributos = personagem.atributos
+                    atributo = getattr(atributos, k)
+                    possiveis_bonus.append(atributo.bonus)
+
+            dado = girar_dados(20, 1, None, max(possiveis_bonus))
+        else:
+            raise RuntimeError("Todos as perícias deveriam ser vantagem ou soma")
+    else:
+        dado = girar_dados(20, 1, None, 0)
+
+    embed = discord.Embed(
+        title=dado.titulo,
+        description=dado.mensagem,
+        colour=discord.Colour.from_str("#226089"),
+    )
+    if dado.gif is not None:
+        await interaction.followup.send(dado.gif)
+        await interaction.followup.send(embed=embed)
+    else:
+        await interaction.followup.send(embed=embed)
 
 
 xmercury.run(token)

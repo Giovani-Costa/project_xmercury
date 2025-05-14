@@ -6,8 +6,7 @@ from cassandra.cluster import Session
 import database.item
 import database.models
 import database.passivas_talentos
-
-# import database.pericias
+import database.pericias
 import database.skill
 from constante import KEYSPACE
 
@@ -57,7 +56,7 @@ def criar_personagem(
 
 
 def pegar_personagem_com_id(
-    session: Session, id: uuid.UUID
+    session: Session, id: uuid.UUID | str
 ) -> database.models.Personagem:
     comando = f"SELECT * FROM {KEYSPACE}.personagens WHERE id={id};"
     resultado = session.execute(comando)
@@ -108,10 +107,10 @@ def pegar_personagem_com_id(
         )
     kwargs["inventario"] = itens_true
 
-    # pericias_true = []
-    # for p in kwargs["pericias"]:
-    #     pericias_true.append(database.pericias.pegar_pericia(session, p).model_dump())
-    # kwargs["pericias"] = pericias_true
+    pericias_true = []
+    for p in kwargs["pericias"]:
+        pericias_true.append(database.pericias.pegar_pericia(session, p).model_dump())
+    kwargs["pericias"] = pericias_true
 
     return database.models.Personagem(**kwargs)
 
