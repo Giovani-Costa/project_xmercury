@@ -4,7 +4,7 @@ from typing import Optional
 from cassandra.cluster import Session
 
 import database.models
-from constante import KEYSPACE
+from constantes import KEYSPACE
 
 
 def criar_skill(
@@ -38,7 +38,7 @@ VALUES ({id}, '{nome}', {custo}, '{execucao}', '{descritores}', '{alcance}', '{d
 
 
 def pegar_skills(session: Session, id: uuid.UUID | str) -> database.models.Skill:
-    comando = f"SELECT * FROM {KEYSPACE}.skills WHERE id={id};"
+    comando = f"SELECT * FROM xmercury.skills WHERE id={id};"
     resultado = session.execute(comando)
     primeiro_resultado = resultado.one()
     kwargs = {k: getattr(primeiro_resultado, k) for k in resultado.column_names}

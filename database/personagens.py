@@ -8,7 +8,7 @@ import database.models
 import database.passivas_talentos
 import database.pericias
 import database.skill
-from constante import KEYSPACE
+from constantes import KEYSPACE
 
 
 def criar_personagem(
@@ -23,7 +23,10 @@ def criar_personagem(
     melancholy: Optional[str],
     catarse: Optional[int],
     pe: Optional[int],
+    pe_atual: Optional[int],
     hp: int,
+    hp_atual: Optional[int],
+    hp_tipo: Optional[str],
     reducao_de_dano: Optional[int],
     pericias: Optional[list[uuid.UUID]],
     bonus_de_proficiencia: Optional[int],
@@ -42,14 +45,16 @@ def criar_personagem(
     imunidade: Optional[str],
     inventario_itens: Optional[list[uuid.UUID]],
     inventario_numero: Optional[list[int]],
+    volume_atual: Optional[int],
+    limete_de_volumes: Optional[int],
     condicoes: Optional[list[str]],
     saldo: int,
     imagem: Optional[str],
     usuario: Optional[int],
 ) -> uuid.UUID:
     id = uuid.uuid4()
-    personagem_novo = f"""INSERT INTO {KEYSPACE}.personagens (id, nome, nickname, level, path, classe, legacy, heritage, melancholy, catarse, pe, hp, reducao_de_dano, bonus_de_proficiencia, pericias, talentos, passivas, skills, forca, dexterity, constituicao, inteligencia, sabedoria, carisma, pontos_de_sombra, resistencia, vulnerabilidade, imunidade, inventario_itens, inventario_numero, condicoes, saldo, imagem, usuario)
-    VALUES ({id}, '{nome}', '{nickname}', {level}, '{path}', '{classe}', '{legacy}', '{heritage}', '{melancholy}', {catarse}, {pe}, {hp}, {reducao_de_dano}, {bonus_de_proficiencia}, {pericias}, {talentos}, {passivas}, {skills}, {forca}, {dexterity}, {contituicao}, {inteligencia}, {sabedoria}, {carisma}, {pontos_de_sombra}, {resistencia}, {vulnerabilidade}, {imunidade}, {inventario_itens}, {inventario_numero}, {condicoes}, {saldo}, '{imagem}', '{usuario}');"""
+    personagem_novo = f"""INSERT INTO {KEYSPACE}.personagens (id, nome, nickname, level, path, classe, legacy, heritage, melancholy, catarse, pe, pe_atual, hp hp_atual, hp_tipo, reducao_de_dano, bonus_de_proficiencia, pericias, talentos, passivas, skills, forca, dexterity, constituicao, inteligencia, sabedoria, carisma, pontos_de_sombra, resistencia, vulnerabilidade, imunidade, inventario_itens, inventario_numero, volume_atual, limite_de_volumes, condicoes, saldo, imagem, usuario)
+    VALUES ({id}, '{nome}', '{nickname}', {level}, '{path}', '{classe}', '{legacy}', '{heritage}', '{melancholy}', {catarse}, {pe}, {pe_atual}, {hp}, {hp_atual}, {hp_tipo}, {reducao_de_dano}, {bonus_de_proficiencia}, {pericias}, {talentos}, {passivas}, {skills}, {forca}, {dexterity}, {contituicao}, {inteligencia}, {sabedoria}, {carisma}, {pontos_de_sombra}, {resistencia}, {vulnerabilidade}, {imunidade}, {inventario_itens}, {inventario_numero}, {volume_atual}, {limete_de_volumes}, {condicoes}, {saldo}, '{imagem}', '{usuario}');"""
     print(personagem_novo)
     session.execute(f"{personagem_novo}\n")
     return id

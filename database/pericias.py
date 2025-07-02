@@ -3,7 +3,7 @@ import uuid
 from cassandra.cluster import Session
 
 import database.models
-from constante import KEYSPACE
+from constantes import KEYSPACE
 
 
 def pegar_pericia(session: Session, id: uuid.UUID | str) -> database.models.Pericia:
@@ -21,4 +21,5 @@ def pegar_todas_as_pericias(session: Session) -> list[database.models.Pericia]:
     for r in resultado:
         kwargs = {k: getattr(r, k) for k in resultado.column_names}
         lista_pericias.append(database.models.Pericia(**kwargs))
+        lista_pericias.sort(key=lambda p: p.nome.lower())
     return lista_pericias

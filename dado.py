@@ -8,7 +8,7 @@ from discord.ext.commands import Bot
 from pydantic import BaseModel
 
 import database.personagens
-from constante import KEYSPACE
+from constantes import KEYSPACE
 from database.connect_database import criar_session
 
 

@@ -85,6 +85,12 @@ class Pericia(BaseModel):
     somar: Optional[list[str]]
 
 
+class Condicao(BaseModel):
+    id: UUID
+    nome: str
+    descricao: str
+
+
 class Personagem(BaseModel):
     id: UUID
     nome: str
@@ -97,7 +103,10 @@ class Personagem(BaseModel):
     melancholy: str
     catarse: int
     pe: int
+    pe_atual: int
     hp: int
+    hp_atual: int
+    hp_tipo: str
     reducao_de_dano: int
     bonus_de_proficiencia: int
     pericias: Optional[list[Pericia]]
@@ -110,7 +119,15 @@ class Personagem(BaseModel):
     vulnerabilidade: Optional[list[str]]
     imunidade: Optional[list[str]]
     inventario: list[ItemDeInventario]
+    volume_atual: Optional[int]
+    limite_de_volumes: Optional[int]
     condicoes: Optional[list[str]]
     saldo: Optional[int]
     imagem: Optional[str]
+    tokenn: Optional[str]
     usuario: Optional[str]
+
+
+class Party(BaseModel):
+    id: UUID
+    personagens_jogaveis: list[Personagem]

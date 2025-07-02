@@ -144,14 +144,14 @@ class PaginaFicha(discord.ui.View):
 
         elif self.pagina_atual == 2:  # Inventáio
             embed = discord.Embed(
-                title=f"Inventário",
+                title=f"Inventário | {self.personagem.limite_de_volumes - self.personagem.volume_atual} espaços livres",
                 description=f"",
                 colour=discord.Colour.from_str("#226089"),
             )
             for k in self.personagem.inventario:
                 embed.add_field(
-                    name=f"{k.item.nome}   ({k.quantidade})\n{k.item.preco} T$  |  {k.item.volume} volume(s)",
-                    value=f"{k.item.descricao}\n({k.item.id})",
+                    name=f"({k.quantidade}x)  {k.item.nome}\n{k.item.preco} T$  |  {k.item.volume} volume(s)",
+                    value=f"{k.item.descricao}",
                     inline=False,
                 )
 

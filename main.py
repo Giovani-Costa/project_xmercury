@@ -1,3 +1,4 @@
+import os
 import random
 from typing import Optional
 
@@ -5,13 +6,15 @@ import discord
 from discord import FFmpegPCMAudio, Interaction, app_commands
 from discord.ext.commands import Bot
 
+import database.condicoes
 import database.item
 import database.models
+import database.party
 import database.passivas_talentos
 import database.pericias
 import database.personagens
 import database.skill
-from constante import ADMS, KEYSPACE
+from constantes import ADMS, KEYSPACE, MARCH
 from dado import TipoDadoResultado, girar_dados
 from database.connect_database import criar_session
 from ficha import PaginaFicha
@@ -34,22 +37,31 @@ async def on_ready():
 
 @app_commands.choices(
     sfx=[
-        app_commands.Choice(name="Adam EOP", value="adam_eop"),
-        app_commands.Choice(name="Chrollo EOP", value="chrollo_eop"),
-        app_commands.Choice(name="Gunther EOP", value="gunther_eop"),
-        app_commands.Choice(name="Julius EOP", value="julius_eop"),
-        app_commands.Choice(name="Vincenzo EOP", value="vincenzo_eop"),
+        app_commands.Choice(name="Echo of Pomona: Smashing Impact", value="eop_adam"),
+        app_commands.Choice(name="Echo of Pomona: The Cage", value="eop_chrollo"),
+        app_commands.Choice(name="Echo of Pomona: Blood Rain", value="eop_gunther"),
+        app_commands.Choice(
+            name="Echo of Pomona: The Rising of the Shadows", value="eop_julius"
+        ),
+        app_commands.Choice(
+            name="Echo of Pomona: Energy Concentracion", value="eop_vincenzo"
+        ),
+        app_commands.Choice(
+            name="Echo of Pomona: Entei no Gekirin ", value="eop_tsuku"
+        ),
+        app_commands.Choice(name='"Erga-se Fenrir..."', value="theme_fenrir"),
     ]
 )
-@xmercury.tree.command(name="efeito_sonoro", description="O bot reproduz sons na call")
+@xmercury.tree.command(
+    name="efeito_sonoro",
+    description="O bot entra na call e solta alguns sons para melhorar a gameplay do RPG",
+)
 async def efeito_sonoro(interaction: Interaction, sfx: app_commands.Choice[str]):
     try:
         if interaction.user.voice:
             channel = interaction.user.voice.channel
             voice = await channel.connect()
-            await interaction.response.send_message(
-                "<:march:1302059770785824861>", ephemeral=True
-            )
+            await interaction.response.send_message(MARCH, ephemeral=True)
             sound_effect = f"sfx\{sfx.value}.mp3"
             voice = interaction.guild.voice_client
             source = discord.FFmpegPCMAudio(sound_effect)
@@ -59,9 +71,7 @@ async def efeito_sonoro(interaction: Interaction, sfx: app_commands.Choice[str])
     except discord.ClientException:
         sound_effect = f"sfx\{sfx.value}.mp3"
         voice = interaction.guild.voice_client
-        await interaction.response.send_message(
-            "<:march:1302059770785824861>", ephemeral=True
-        )
+        await interaction.response.send_message(MARCH, ephemeral=True)
         source = discord.FFmpegPCMAudio(sound_effect)
         audio_com_volume = discord.PCMVolumeTransformer(source, volume=0.1)
         player = voice.play(audio_com_volume)
@@ -231,7 +241,7 @@ async def mandar_passiva_talento(
             str(modificador_gasto_tipo),
         )
         await interaction.response.send_message(
-            f":white_check_mark: PASSIVA/TALENTO CRIADE COM SUCESSO! :white_check_mark:\nO UUID de {nome} é **{id}**"
+            f":white_check_mark: {tipo.value.upper()} CRIADE COM SUCESSO! :white_check_mark:\nO UUID de {nome} é **{id}**"
         )
     else:
         await interaction.response.send_message(
@@ -393,6 +403,24 @@ async def mandar_personagem(
 
         imagem = f"{nickname.lower()}.png"
 
+        limite_de_volume = 0
+        if forca[0] == -3:
+            limite_de_volume = 10
+        elif forca[0] == -2:
+            limite_de_volume = 12
+        elif forca[0] == -1:
+            limite_de_volume = 14
+        elif forca[0] == 0:
+            limite_de_volume = 16
+        elif forca[0] == 1:
+            limite_de_volume = 19
+        elif forca[0] == 2:
+            limite_de_volume = 22
+        elif forca[0] == 3:
+            limite_de_volume = 25
+        elif forca[0] >= 4:
+            limite_de_volume = 25 + ((forca[0] - 3) * 3)
+
         id = database.personagens.criar_personagem(
             session,
             nome,
@@ -405,6 +433,8 @@ async def mandar_personagem(
             melancholy,
             catarse,
             pe,
+            pe,
+            hp,
             hp,
             reducao_de_dano,
             bonus_de_proficiencia,
@@ -423,6 +453,8 @@ async def mandar_personagem(
             imunidade,
             f"[{it_final}]",
             inventario_numero,
+            0,
+            limite_de_volume,
             condicoes,
             saldo,
             imagem,
@@ -482,7 +514,8 @@ async def dado(
         app_commands.Choice(
             name="Gunther Nosferata", value="e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8"
         ),
-        app_commands.Choice(name="Vincenzo", value="a"),
+        app_commands.Choice(name="Vincenzo LeBlanc", value="a"),
+        app_commands.Choice(name="Zênite", value="a"),
     ]
 )
 @xmercury.tree.command(
@@ -492,15 +525,13 @@ async def dado(
 async def ficha(
     interaction: Interaction, personagem: Optional[app_commands.Choice[str]]
 ):
-    await interaction.response.defer()
-    if personagem is not None:
-        personagem = database.personagens.pegar_personagem_com_id(
-            session, personagem.value
-        )
+    await interaction.response.defer(ephemeral=True)
+    if personagem is None:
+        p_id = database.personagens.pegar_id_por_user_id(session, interaction.user.id)
+        p = database.personagens.pegar_personagem_com_id(session, p_id)
     else:
-        id = database.personagens.pegar_id_por_user_id(session, interaction.user.id)
-        personagem = database.personagens.pegar_personagem_com_id(session, id)
-    view = PaginaFicha(personagem)
+        p = database.personagens.pegar_personagem_com_id(session, personagem.value)
+    view = PaginaFicha(p)
     embed = view.criar_embed()
     view.send(interaction)
     await interaction.followup.send(embed=embed, view=view, ephemeral=True)
@@ -568,31 +599,6 @@ async def mute(
 
 
 @xmercury.tree.command(
-    name="unmute",
-    description="Desmuta todos os participantes de uma call",
-)
-async def unmute(interaction: Interaction):
-    author = interaction.user
-    canal = author.voice.channel
-    if author.id in ADMS:
-        for membro in canal.members:
-            try:
-                await membro.edit(mute=False, deafen=False)
-            except discord.Forbidden:
-                await interaction.response.send_message(
-                    f"Não tenho permissão para mutar {membro.mention}."
-                )
-        await interaction.response.send_message(
-            f"Todos os membros do canal **{canal.name}** foram desmutados!",
-            ephemeral=True,
-        )
-    else:
-        await interaction.response.send_message(
-            "Você não tem permissão para usar esse comando", ephemeral=True
-        )
-
-
-@xmercury.tree.command(
     name="mapa",
     description="Desmuta todos os participantes de uma call",
 )
@@ -612,10 +618,12 @@ async def mapa(interaction: Interaction):
 
 @xmercury.tree.command(
     name="pericias",
-    description="Mostra todas as perícias no sistema",
+    description="Mostra todas as perícias do sistema",
 )
 async def pericias(interaction: Interaction):
     pericias = database.pericias.pegar_todas_as_pericias(session)
+    dm_channel = await interaction.user.create_dm()
+
     embed = discord.Embed(
         title="Perícias",
         description="",
@@ -627,7 +635,33 @@ async def pericias(interaction: Interaction):
             value=p.descricao,
             inline=False,
         )
-    await interaction.response.send_message(embed=embed)
+
+    await interaction.response.send_message(MARCH, ephemeral=True)
+    await dm_channel.send(embed=embed)
+
+
+@xmercury.tree.command(
+    name="condicoes",
+    description="Mostra todas as condições do sistema",
+)
+async def condicoes(interaction: Interaction):
+    condicoes = database.pericias.pegar_todas_as_pericias(session)
+    dm_channel = await interaction.user.create_dm()
+
+    embed = discord.Embed(
+        title="Condições",
+        description="",
+        colour=discord.Colour.from_str("#226089"),
+    )
+    for c in condicoes:
+        embed.add_field(
+            name=c.nome,
+            value=c.descricao,
+            inline=False,
+        )
+
+    await interaction.response.send_message(MARCH, ephemeral=True)
+    await dm_channel.send(embed=embed)
 
 
 @app_commands.choices(
@@ -643,9 +677,8 @@ async def pericias(interaction: Interaction):
 )
 async def girar_pericias(interaction: Interaction, pericia: app_commands.Choice[str]):
     await interaction.response.defer()
-    personagem = database.personagens.pegar_personagem_com_id(
-        session, "69fa11c2-ca6a-44b7-93c2-b744d0e98554"
-    )
+    p_id = database.personagens.pegar_id_por_user_id(session, interaction.user.id)
+    personagem = database.personagens.pegar_personagem_com_id(session, p_id)
     p = database.pericias.pegar_pericia(session, pericia.value)
     if p in personagem.pericias:
         if p.e_vantagem and p.e_soma:
@@ -688,6 +721,133 @@ async def girar_pericias(interaction: Interaction, pericia: app_commands.Choice[
         await interaction.followup.send(embed=embed)
     else:
         await interaction.followup.send(embed=embed)
+
+
+@xmercury.tree.command(
+    name="party",
+    description="Mostra as principais informações da equipe atual",
+)
+async def party(interaction: Interaction):
+    await interaction.response.defer(ephemeral=True)
+    party = database.party.pegar_party(session, "8a87e68e-cd9d-46e5-953a-35942487ef1b")
+    embed = discord.Embed(
+        title="Party",
+        description="",
+        colour=discord.Colour.from_str("#226089"),
+    )
+    barra_completa = 10
+    barra_cheia = round(
+        (party.personagens_jogaveis[-1].hp_atual / party.personagens_jogaveis[-1].hp)
+        * barra_completa
+    )
+    barra_vazia = barra_completa - barra_cheia
+    for p in party.personagens_jogaveis[:-1]:
+        embed.add_field(
+            name=f"{p.tokenn} {p.nickname} ­PE: {p.pe_atual}",
+            value=f"{'█' * barra_cheia}{'░' * barra_vazia} ­ ­ ­ ­ ­ ­{p.hp_atual}/{p.hp}\n ­",
+            inline=False,
+        )
+    embed.add_field(
+        name=f"{party.personagens_jogaveis[-1].tokenn} {party.personagens_jogaveis[-1].nickname} ­ ­ ­ ­PE: {party.personagens_jogaveis[-1].pe_atual}",
+        value=f"{'█' * barra_cheia}{'░' * barra_vazia} {party.personagens_jogaveis[-1].hp_atual}/{party.personagens_jogaveis[-1].hp}",
+        inline=False,
+    )
+
+    await interaction.followup.send(embed=embed, ephemeral=True)
+
+
+@app_commands.choices(
+    acao=[
+        app_commands.Choice(name="Subtrair", value="subtrair"),
+        app_commands.Choice(name="Somar", value="somar"),
+        app_commands.Choice(name="Definir", value="definir"),
+    ],
+    coluna=[
+        app_commands.Choice(name="PE", value="pe_atual"),
+        app_commands.Choice(name="HP", value="hp_atual"),
+        app_commands.Choice(name="PC", value="catarse"),
+        app_commands.Choice(name="PS", value="pontos_de_sombra"),
+        app_commands.Choice(name="Saldo", value="saldo"),
+    ],
+    personagem=[
+        app_commands.Choice(
+            name="Julius Wick", value="69fa11c2-ca6a-44b7-93c2-b744d0e98554"
+        ),
+        app_commands.Choice(
+            name="Adam Andrews", value="1c773acd-295b-436d-b792-8011e739e527"
+        ),
+        app_commands.Choice(
+            name="Gunther Nosferata", value="e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8"
+        ),
+        app_commands.Choice(name="Vincenzo LeBlanc", value="a"),
+        app_commands.Choice(name="Zênite", value="a"),
+    ],
+)
+@xmercury.tree.command(
+    name="cql",
+    description="Modifica número específicos no banco de dados",
+)
+async def cql(
+    interaction: Interaction,
+    personagem: app_commands.Choice[str],
+    acao: app_commands.Choice[str],
+    coluna: app_commands.Choice[str],
+    valor: int,
+):
+    await interaction.response.defer(ephemeral=True)
+    valor_atual_coluna = str(
+        session.execute(
+            f"SELECT {coluna.value} FROM {KEYSPACE}.personagens WHERE id = {personagem.value};"
+        ).one()
+    )
+    valor_coluna = int(
+        valor_atual_coluna.replace(f"Row({coluna.value}=", "").replace(")", "")
+    )
+    if acao.value == "subtrair":
+        session.execute(
+            f"UPDATE {KEYSPACE}.personagens SET {coluna.value} = {valor_coluna - valor} WHERE id = {personagem.value}"
+        )
+    elif acao.value == "somar":
+        session.execute(
+            f"UPDATE {KEYSPACE}.personagens SET {coluna.value} = {valor_coluna + valor} WHERE id = {personagem.value}"
+        )
+    elif acao.value == "definir":
+        session.execute(
+            f"UPDATE {KEYSPACE}.personagens SET {coluna.value} = {valor} WHERE id = {personagem.value}"
+        )
+    await interaction.followup.send(MARCH, ephemeral=True)
+
+
+@xmercury.tree.command(
+    name="w",
+    description="Manda uma mensagem privada para um usuário",
+)
+async def w(interaction: Interaction, usuario: discord.Member, mensagem: str):
+    if interaction.user.id in ADMS:
+        dm = await usuario.create_dm()
+        await dm.send(mensagem)
+        await interaction.response.send_message(MARCH, ephemeral=True)
+    else:
+        await interaction.response.send_message(
+            "https://tenor.com/view/brawlstars-twins-lawire-larry-larry-and-lawrie-gif-13625901646024351970",
+            ephemeral=True,
+        )
+
+
+@xmercury.tree.command(
+    name="restart_db",
+    description="Reinicia o banco de dados para uma versão estável",
+)
+async def restart_db(interaction: Interaction):
+    if interaction.user.id in ADMS:
+        interaction.response.defer(ephemeral=True)
+        os.system("python database\\database_prompts.py")
+        await interaction.followup.send(MARCH, ephemeral=True)
+    else:
+        await interaction.response.send_message(
+            "https://tenor.com/view/brawlstars-twins-lawire-larry-larry-and-lawrie-gif-13625901646024351970",
+            ephemeral=True,
+        )
 
 
 xmercury.run(token)

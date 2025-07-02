@@ -3,11 +3,11 @@ import uuid
 from cassandra.cluster import Session
 
 import database.models
-from constante import KEYSPACE
+from constantes import KEYSPACE
 
 
 def criar_item(
-    session: Session, nome: str, descricao: str, preco: int, volume: int, usuario: str
+    session: Session, nome: str, descricao: str, preco: int, volume: int
 ) -> uuid.UUID:
     id = uuid.uuid4()
 
