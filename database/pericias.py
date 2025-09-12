@@ -1,9 +1,27 @@
 import uuid
+from typing import Optional
 
 from cassandra.cluster import Session
 
 import database.models
-from constantes import KEYSPACE
+from constantes import INSERT_PERICIA, KEYSPACE
+
+
+def criar_pericia(
+    session: Session,
+    nome: str,
+    descricao: str,
+    id: Optional[str] = None,
+) -> uuid.UUID:
+    if id is None:
+        id = uuid.uuid4()
+    else:
+        id = uuid.UUID(id)
+    pericia_nova = f"""{INSERT_PERICIA}
+VALUES ({id}, '{nome}', '{descricao}');"""
+    session.execute(pericia_nova)
+    print(f"{pericia_nova}\n")
+    return id
 
 
 def pegar_pericia(session: Session, id: uuid.UUID | str) -> database.models.Pericia:

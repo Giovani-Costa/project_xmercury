@@ -7,6 +7,7 @@ INSERT_PASSIVA = "INSERT INTO xmercury.passivas (id, nome, descricao, modificado
 INSERT_TALENTO = "INSERT INTO xmercury.talentos (id, nome, descricao, modificador_execucao, modificador_nome, modificador_descricao, modificador_gasto, modificador_gasto_tipo)"
 INSERT_ITEM = "INSERT INTO xmercury.itens (id, nome, descricao, preco, volume)"
 INSERT_CONDICAO = "INSERT INTO xmercury.condicoes (id, nome, descricao)"
+INSERT_DESCRITOR = "INSERT INTO xmercury.descritores (id, nome, tipo, descricao)"
 INSERT_PERICIA = (
     "INSERT INTO xmercury.pericias (id, nome, descricao, e_vantagem, e_soma, somar)"
 )

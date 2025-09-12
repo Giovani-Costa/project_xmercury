@@ -17,8 +17,12 @@ def criar_passiva_talento(
     modificador_descricao: Optional[str],
     modificador_gasto: Optional[int],
     modificador_gasto_tipo: Optional[str],
+    id: Optional[str] = None,
 ) -> uuid.UUID:
-    id = uuid.uuid4()
+    if id is None:
+        id = uuid.uuid4()
+    else:
+        id = uuid.UUID(id)
 
     if modificador_nome is None:
         modificador_nome = "None"
@@ -56,3 +60,25 @@ def pegar_talentos(session: Session, id: uuid.UUID | str) -> database.models.Tal
     primeiro_resultado = resultado.one()
     kwargs = {k: getattr(primeiro_resultado, k) for k in resultado.column_names}
     return database.models.Talento(**kwargs)
+
+
+def pegar_todas_as_passivas(session: Session) -> list[database.models.Passiva]:
+    comando = f"SELECT * FROM {KEYSPACE}.passivas;"
+    resultado = session.execute(comando)
+    lista_passivas = []
+    for r in resultado:
+        kwargs = {k: getattr(r, k) for k in resultado.column_names}
+        lista_passivas.append(database.models.Passiva(**kwargs))
+        lista_passivas.sort(key=lambda p: p.nome.lower())
+    return lista_passivas
+
+
+def pegar_todos_os_talentos(session: Session) -> list[database.models.Talento]:
+    comando = f"SELECT * FROM {KEYSPACE}.talentos;"
+    resultado = session.execute(comando)
+    lista_talentos = []
+    for r in resultado:
+        kwargs = {k: getattr(r, k) for k in resultado.column_names}
+        lista_talentos.append(database.models.Talento(**kwargs))
+        lista_talentos.sort(key=lambda p: p.nome.lower())
+    return lista_talentos

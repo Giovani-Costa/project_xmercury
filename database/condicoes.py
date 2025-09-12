@@ -1,9 +1,27 @@
 import uuid
+from typing import Optional
 
 from cassandra.cluster import Session
 
 import database.models
-from constantes import KEYSPACE
+from constantes import INSERT_CONDICAO, KEYSPACE
+
+
+def criar_condicao(
+    session: Session,
+    nome: str,
+    descricao: str,
+    id: Optional[str] = None,
+) -> uuid.UUID:
+    if id is None:
+        id = uuid.uuid4()
+    else:
+        id = uuid.UUID(id)
+    condicao_novo = f"""{INSERT_CONDICAO}
+VALUES ({id}, '{nome}', '{descricao}');"""
+    session.execute(condicao_novo)
+    print(f"{condicao_novo}\n")
+    return id
 
 
 def pegar_condicao(session: Session, id: uuid.UUID | str) -> database.models.Condicao:

@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from cassandra.cluster import Session
 
@@ -7,10 +8,17 @@ from constantes import KEYSPACE
 
 
 def criar_item(
-    session: Session, nome: str, descricao: str, preco: int, volume: int
+    session: Session,
+    nome: str,
+    descricao: str,
+    preco: int,
+    volume: int,
+    id: Optional[str] = None,
 ) -> uuid.UUID:
-    id = uuid.uuid4()
-
+    if id is None:
+        id = uuid.uuid4()
+    else:
+        id = uuid.UUID(id)
     item_novo = f"""INSERT INTO {KEYSPACE}.itens (id, nome, descricao, preco, volume)
 VALUES ({id}, '{nome}', '{descricao}', {preco}, {volume});"""
     session.execute(item_novo)

@@ -3,7 +3,7 @@ import random
 from typing import Optional
 
 import discord
-from discord import FFmpegPCMAudio, Interaction, app_commands
+from discord import FFmpegPCMAudio, Interaction, Message, app_commands
 from discord.ext.commands import Bot
 
 import database.condicoes
@@ -15,7 +15,7 @@ import database.pericias
 import database.personagens
 import database.skill
 from constantes import ADMS, KEYSPACE, MARCH
-from dado import TipoDadoResultado, girar_dados
+from dado import TipoDadoResultado, girar_dados, girar_dados_str
 from database.connect_database import criar_session
 from ficha import PaginaFicha
 from key import key
@@ -78,400 +78,6 @@ async def efeito_sonoro(interaction: Interaction, sfx: app_commands.Choice[str])
 
 
 @app_commands.choices(
-    execucao=[
-        app_commands.Choice(name="Ação", value="acao"),
-        app_commands.Choice(name="Ação Bônus", value="acao bonus"),
-        app_commands.Choice(name="Reação", value="reacao"),
-        app_commands.Choice(name="Ação Livre", value="acao livre"),
-        app_commands.Choice(name="Echo of Pomona", value="eop"),
-    ],
-    modificador_execucao=[
-        app_commands.Choice(name="Ação", value="acao"),
-        app_commands.Choice(name="Ação Bônus", value="acao_bonus"),
-        app_commands.Choice(name="Reação", value="reacao"),
-        app_commands.Choice(name="Ação Livre", value="acao_livre"),
-    ],
-    modificador_gasto_tipo=[
-        app_commands.Choice(name="PE", value="PE"),
-        app_commands.Choice(name="PC", value="PC"),
-    ],
-)
-@xmercury.tree.command(
-    name="mandar_skill", description="Adiciona uma skill ao banco de dados"
-)
-async def mandar_skill(
-    interaction: Interaction,
-    nome: str,
-    custo: int,
-    execucao: app_commands.Choice[str],
-    descritores: Optional[str],
-    alcance: Optional[str],
-    duracao: Optional[str],
-    ataque: Optional[str],
-    acerto: Optional[str],
-    erro: Optional[str],
-    efeito: Optional[str],
-    especial: Optional[str],
-    gatilho: Optional[str],
-    alvo: Optional[str],
-    carga: Optional[str],
-    modificador_execucao: Optional[app_commands.Choice[str]],
-    modificador_nome: Optional[str],
-    modificador_descricao: Optional[str],
-    modificador_gasto: Optional[int],
-    modificador_gasto_tipo: Optional[app_commands.Choice[str]],
-):
-    if carga is None:
-        carga = "Ilimitado."
-
-    if modificador_execucao is not None:
-        modificador_execucao = modificador_execucao.value
-
-    if modificador_gasto_tipo is not None:
-        modificador_gasto_tipo = modificador_gasto_tipo.value
-
-    if modificador_gasto is None:
-        modificador_gasto = 0
-
-    if interaction.user.id in ADMS:
-        id = database.skill.criar_skill(
-            session,
-            nome,
-            custo,
-            execucao.value,
-            descritores,
-            alcance,
-            duracao,
-            ataque,
-            acerto,
-            erro,
-            efeito,
-            especial,
-            gatilho,
-            alvo,
-            carga,
-            str(modificador_execucao),
-            modificador_nome,
-            modificador_descricao,
-            modificador_gasto,
-            str(modificador_gasto_tipo),
-        )
-        await interaction.response.send_message(
-            f":white_check_mark: SKILL CRIADA COM SUCESSO! :white_check_mark:\nO UUID de {nome} é **{id}**"
-        )
-    else:
-        await interaction.response.send_message(
-            "Você não tem permissão para usar esse comando"
-        )
-
-
-@xmercury.tree.command(
-    name="mandar_item",
-    description="Adiciona um item ao banco de dados",
-)
-async def mandar_item(
-    interaction: Interaction,
-    nome: str,
-    descricao: str,
-    preco: int,
-    volume: int,
-):
-    if interaction.user.id in ADMS:
-        id = database.item.criar_item(session, nome, descricao, preco, volume)
-        await interaction.response.send_message(
-            f":white_check_mark: ITEM CRIADO COM SUCESSO! :white_check_mark:\nO UUID de {nome} é **{id}**"
-        )
-    else:
-        await interaction.response.send_message(
-            "Você não tem permissão para usar esse comando"
-        )
-
-
-@app_commands.choices(
-    tipo=[
-        app_commands.Choice(name="Passiva", value="passivas"),
-        app_commands.Choice(name="Talento", value="talentos"),
-    ],
-    modificador_execucao=[
-        app_commands.Choice(name="Ação", value="acao"),
-        app_commands.Choice(name="Ação Bônus", value="acao_bonus"),
-        app_commands.Choice(name="Reação", value="reacao"),
-        app_commands.Choice(name="Ação Livre", value="acao_livre"),
-    ],
-    modificador_gasto_tipo=[
-        app_commands.Choice(name="PE", value="PE"),
-        app_commands.Choice(name="PC", value="PC"),
-    ],
-)
-@xmercury.tree.command(
-    name="mandar_talendo_ou_passiva",
-    description="Adiciona um talento ou passiva ao banco de dados",
-)
-async def mandar_passiva_talento(
-    interaction: Interaction,
-    tipo: app_commands.Choice[str],
-    nome: str,
-    descricao: str,
-    modificador_execucao: Optional[app_commands.Choice[str]],
-    modificador_nome: Optional[str],
-    modificador_descricao: Optional[str],
-    modificador_gasto: Optional[int],
-    modificador_gasto_tipo: Optional[app_commands.Choice[str]],
-):
-
-    if interaction.user.id in ADMS:
-        if modificador_execucao is not None:
-            modificador_execucao = modificador_execucao.value
-
-        if modificador_gasto_tipo is not None:
-            modificador_gasto_tipo = modificador_gasto_tipo.value
-
-        if modificador_descricao is None:
-            modificador_descricao = 0
-
-        id = database.passivas_talentos.criar_passiva_talento(
-            session,
-            tipo.value,
-            nome,
-            descricao,
-            str(modificador_execucao),
-            modificador_nome,
-            modificador_descricao,
-            modificador_gasto,
-            str(modificador_gasto_tipo),
-        )
-        await interaction.response.send_message(
-            f":white_check_mark: {tipo.value.upper()} CRIADE COM SUCESSO! :white_check_mark:\nO UUID de {nome} é **{id}**"
-        )
-    else:
-        await interaction.response.send_message(
-            "Você não tem permissão para usar esse comando"
-        )
-
-
-@app_commands.choices(
-    classe=[
-        app_commands.Choice(name="Combatente", value="Combatente"),
-        app_commands.Choice(name="Especialista", value="Especialista"),
-        app_commands.Choice(name="Ocultista", value="Ocultista"),
-    ],
-    legacy=[
-        app_commands.Choice(name="Anuro", value="Anuro"),
-        app_commands.Choice(name="Draco", value="Draco"),
-        app_commands.Choice(name="Elfe", value="Elfe"),
-        app_commands.Choice(name="Gnomo", value="Gnomo"),
-        app_commands.Choice(name="Humano", value="Humano"),
-        app_commands.Choice(name="Orc", value="Orc"),
-        app_commands.Choice(name="Sanguires", value="Sanguir"),
-        app_commands.Choice(name="Tatsunoko", value="Tatsunoko"),
-        app_commands.Choice(name="Tôra", value="Tôra"),
-        app_commands.Choice(name="Urodelo", value="Urodelo"),
-        app_commands.Choice(name="Walshie", value="Walshie"),
-    ],
-    path=[
-        app_commands.Choice(name="Alquimista", value="Alquimista"),
-        app_commands.Choice(name="Artesão de Guilda", value="Artesão de Guilda"),
-        app_commands.Choice(name="Cavaleiro Tóptero", value="Cavaleiro Tóptero"),
-        app_commands.Choice(name="Comamdante", value="Comandante"),
-        app_commands.Choice(name="Devoto", value="Devoto"),
-        app_commands.Choice(name="Elementarista", value="Elementarista"),
-        app_commands.Choice(name="Guerreiro Koi", value="Guerreiro Koi"),
-        app_commands.Choice(name="Herdeiro Ancestral", value="Herdeiro Ancestral"),
-        app_commands.Choice(name="Magitécnico", value="Magitecnico"),
-        app_commands.Choice(name="Malandro", value="Malandro"),
-        app_commands.Choice(name="Mestre das Armas", value="Mestre das Armas"),
-        app_commands.Choice(name="Mestre das Feras", value="Mestre das Feras"),
-        app_commands.Choice(name="Necromante", value="Necromante"),
-        app_commands.Choice(name="Protetor dos Ermos", value="Protetor dos Ermos"),
-        app_commands.Choice(name="Pugilista", value="Pugilista"),
-        app_commands.Choice(name="Vendedor Ambulante", value="Vendedor Ambulante"),
-    ],
-)
-@xmercury.tree.command(
-    name="mandar_personagem",
-    description="Adiciona um personagem ao banco de dados",
-)
-async def mandar_personagem(
-    interaction: Interaction,
-    nome: str,
-    nickname: Optional[str],
-    level: Optional[int],
-    legacy: Optional[app_commands.Choice[str]],
-    classe: Optional[app_commands.Choice[str]],
-    path: Optional[app_commands.Choice[str]],
-    heritage: Optional[str],
-    melancholy: Optional[str],
-    catarse: Optional[int],
-    pe: Optional[int],
-    hp: int,
-    reducao_de_dano: Optional[int],
-    bonus_de_proficiencia: Optional[int],
-    talentos: Optional[str],
-    passivas: Optional[str],
-    skills: Optional[str],
-    status: str,
-    pontos_de_sombra: Optional[int],
-    resistencia: Optional[str],
-    vulnerabilidade: Optional[str],
-    imunidade: Optional[str],
-    inventario: Optional[str],
-    condicoes: Optional[str],
-    saldo: Optional[int],
-    usuario: Optional[discord.Member],
-):
-
-    def get_ids(elemento, tabela, session):
-        if elemento is not None:
-            lista = elemento.split(", ")
-            lista_id = []
-            for nome_id in lista:
-                uuid_row = str(
-                    session.execute(
-                        f"SELECT id FROM {KEYSPACE}.{tabela} WHERE nome = '{nome_id}' ALLOW FILTERING;"
-                    ).one()
-                )
-                uuid = uuid_row.replace("Row(id=UUID('", "").replace("'))", "")
-                lista_id.append(uuid)
-            return ", ".join(lista_id)
-        else:
-            return "[]"
-
-    if interaction.user.id in ADMS:
-        status_splitado = status.split(" / ")
-
-        forca_string = status_splitado[0].split(", ")
-        forca = []
-        for k in forca_string:
-            forca.append(int(k))
-
-        dex_string = status_splitado[1].split(", ")
-        dexterity = []
-        for k in dex_string:
-            dexterity.append(int(k))
-
-        con_string = status_splitado[2].split(", ")
-        constituicao = []
-        for k in con_string:
-            constituicao.append(int(k))
-
-        int_string = status_splitado[3].split(", ")
-        inteligencia = []
-        for k in int_string:
-            inteligencia.append(int(k))
-
-        wis_string = status_splitado[4].split(", ")
-        sabedoria = []
-        for k in wis_string:
-            sabedoria.append(int(k))
-
-        car_string = status_splitado[5].split(", ")
-        carisma = []
-        for k in car_string:
-            carisma.append(int(k))
-
-        inventario_itens = []
-        inventario_numero = []
-        if inventario is not None:
-            usuario = getattr(usuario, "id", None)
-            classe = getattr(classe, "value", None)
-            path = getattr(path, "value", None)
-            legacy = getattr(legacy, "value", None)
-            inventario_partes = inventario.split(" / ")
-
-            for item_inventario in inventario_partes:
-                item, numero = item_inventario.split(", ")
-                item_id = get_ids(item, "itens", session)
-                inventario_numero.append(int(numero))
-                inventario_itens.append(item_id)
-            it_final = ", ".join(inventario_itens)
-
-            bonus_de_proficiencia = bonus_de_proficiencia or 0
-            level = level or 0
-            catarse = catarse or 0
-            pe = pe or 0
-            saldo = saldo or 0
-            pontos_de_sombra = pontos_de_sombra or 5
-
-        resistencia = resistencia.split(", ") if resistencia else []
-        vulnerabilidade = vulnerabilidade.split(", ") if vulnerabilidade else []
-        imunidade = imunidade.split(", ") if imunidade else []
-        condicoes = condicoes.split(", ") if condicoes else []
-
-        tl_final = get_ids(talentos, "talentos", session)
-        ps_final = get_ids(passivas, "passivas", session)
-        sk_final = get_ids(skills, "skills", session)
-
-        imagem = f"{nickname.lower()}.png"
-
-        limite_de_volume = 0
-        if forca[0] == -3:
-            limite_de_volume = 10
-        elif forca[0] == -2:
-            limite_de_volume = 12
-        elif forca[0] == -1:
-            limite_de_volume = 14
-        elif forca[0] == 0:
-            limite_de_volume = 16
-        elif forca[0] == 1:
-            limite_de_volume = 19
-        elif forca[0] == 2:
-            limite_de_volume = 22
-        elif forca[0] == 3:
-            limite_de_volume = 25
-        elif forca[0] >= 4:
-            limite_de_volume = 25 + ((forca[0] - 3) * 3)
-
-        id = database.personagens.criar_personagem(
-            session,
-            nome,
-            nickname,
-            level,
-            str(legacy),
-            str(classe),
-            str(path),
-            heritage,
-            melancholy,
-            catarse,
-            pe,
-            pe,
-            hp,
-            hp,
-            reducao_de_dano,
-            bonus_de_proficiencia,
-            f"[{tl_final}]",
-            f"[{ps_final}]",
-            f"[{sk_final}]",
-            forca,
-            dexterity,
-            constituicao,
-            inteligencia,
-            sabedoria,
-            carisma,
-            pontos_de_sombra,
-            resistencia,
-            vulnerabilidade,
-            imunidade,
-            f"[{it_final}]",
-            inventario_numero,
-            0,
-            limite_de_volume,
-            condicoes,
-            saldo,
-            imagem,
-            str(usuario),
-        )
-
-        await interaction.response.send_message(
-            f":white_check_mark: PERSONAGEM CRIADO COM SUCESSO :white_check_mark:\nO UUID de {nome} é **{id}**"
-        )
-
-    else:
-        await interaction.response.send_message(
-            "Você não tem permissão para usar esse comando"
-        )
-
-
-@app_commands.choices(
     vantagem=[
         app_commands.Choice(name="Vantagem", value="vantagem"),
         app_commands.Choice(name="Desvantagem", value="desvantagem"),
@@ -506,6 +112,9 @@ async def dado(
 @app_commands.choices(
     personagem=[
         app_commands.Choice(
+            name="Shin NovaChrollo", value="30180fc6-30ba-4f65-a520-53e63bc4ec65"
+        ),
+        app_commands.Choice(
             name="Julius Wick", value="69fa11c2-ca6a-44b7-93c2-b744d0e98554"
         ),
         app_commands.Choice(
@@ -516,6 +125,8 @@ async def dado(
         ),
         app_commands.Choice(name="Vincenzo LeBlanc", value="a"),
         app_commands.Choice(name="Zênite", value="a"),
+        app_commands.Choice(name="Fenrir", value="a"),
+        app_commands.Choice(name="Ashborn", value="a"),
     ]
 )
 @xmercury.tree.command(
@@ -527,10 +138,12 @@ async def ficha(
 ):
     await interaction.response.defer(ephemeral=True)
     if personagem is None:
-        p_id = database.personagens.pegar_id_por_user_id(session, interaction.user.id)
-        p = database.personagens.pegar_personagem_com_id(session, p_id)
+        p_id = str(
+            database.personagens.pegar_id_por_user_id(session, interaction.user.id)
+        )
     else:
-        p = database.personagens.pegar_personagem_com_id(session, personagem.value)
+        p_id = personagem.value
+    p = database.personagens.pegar_personagem_com_id(session, p_id)
     view = PaginaFicha(p)
     embed = view.criar_embed()
     view.send(interaction)
@@ -757,97 +370,51 @@ async def party(interaction: Interaction):
 
 
 @app_commands.choices(
-    acao=[
-        app_commands.Choice(name="Subtrair", value="subtrair"),
-        app_commands.Choice(name="Somar", value="somar"),
-        app_commands.Choice(name="Definir", value="definir"),
-    ],
-    coluna=[
-        app_commands.Choice(name="PE", value="pe_atual"),
-        app_commands.Choice(name="HP", value="hp_atual"),
-        app_commands.Choice(name="PC", value="catarse"),
-        app_commands.Choice(name="PS", value="pontos_de_sombra"),
-        app_commands.Choice(name="Saldo", value="saldo"),
-    ],
-    personagem=[
-        app_commands.Choice(
-            name="Julius Wick", value="69fa11c2-ca6a-44b7-93c2-b744d0e98554"
-        ),
-        app_commands.Choice(
-            name="Adam Andrews", value="1c773acd-295b-436d-b792-8011e739e527"
-        ),
-        app_commands.Choice(
-            name="Gunther Nosferata", value="e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8"
-        ),
-        app_commands.Choice(name="Vincenzo LeBlanc", value="a"),
-        app_commands.Choice(name="Zênite", value="a"),
-    ],
+    vantagem=[
+        app_commands.Choice(name="Vantagem", value="vantagem"),
+        app_commands.Choice(name="Desvantagem", value="desvantagem"),
+    ]
 )
 @xmercury.tree.command(
-    name="cql",
-    description="Modifica número específicos no banco de dados",
+    name="skills",
+    description="Mostra as principais informações da equipe atual",
 )
-async def cql(
+async def skills(
     interaction: Interaction,
-    personagem: app_commands.Choice[str],
-    acao: app_commands.Choice[str],
-    coluna: app_commands.Choice[str],
-    valor: int,
+    vantagem: Optional[app_commands.Choice[str]] = None,
 ):
-    await interaction.response.defer(ephemeral=True)
-    valor_atual_coluna = str(
-        session.execute(
-            f"SELECT {coluna.value} FROM {KEYSPACE}.personagens WHERE id = {personagem.value};"
-        ).one()
+    await interaction.response.defer()
+    if vantagem is not None:
+        vantagem = vantagem.value
+    p_id = str(database.personagens.pegar_id_por_user_id(session, interaction.user.id))
+    personagem = database.personagens.pegar_personagem_com_id(session, p_id)
+
+    string = ""
+    for i, s in enumerate(personagem.skills):
+        string += f"{i + 1} - {s.nome}\n"
+
+    await interaction.followup.send(string)
+
+    def e_inteiro(mensagem: Message) -> bool:
+        try:
+            int(mensagem.content)
+            return True
+        except:
+            return False
+
+    mensagem = await xmercury.wait_for("message", check=e_inteiro, timeout=15.0)
+    skill_selecionada = personagem.skills[int(mensagem.content) - 1]
+    dado = girar_dados_str(skill_selecionada.ataque.split("vs")[0], vantagem)
+    embed = discord.Embed(
+        title=dado.titulo,
+        description=dado.mensagem,
+        colour=discord.Colour.from_str("#226089"),
     )
-    valor_coluna = int(
-        valor_atual_coluna.replace(f"Row({coluna.value}=", "").replace(")", "")
-    )
-    if acao.value == "subtrair":
-        session.execute(
-            f"UPDATE {KEYSPACE}.personagens SET {coluna.value} = {valor_coluna - valor} WHERE id = {personagem.value}"
-        )
-    elif acao.value == "somar":
-        session.execute(
-            f"UPDATE {KEYSPACE}.personagens SET {coluna.value} = {valor_coluna + valor} WHERE id = {personagem.value}"
-        )
-    elif acao.value == "definir":
-        session.execute(
-            f"UPDATE {KEYSPACE}.personagens SET {coluna.value} = {valor} WHERE id = {personagem.value}"
-        )
-    await interaction.followup.send(MARCH, ephemeral=True)
-
-
-@xmercury.tree.command(
-    name="w",
-    description="Manda uma mensagem privada para um usuário",
-)
-async def w(interaction: Interaction, usuario: discord.Member, mensagem: str):
-    if interaction.user.id in ADMS:
-        dm = await usuario.create_dm()
-        await dm.send(mensagem)
-        await interaction.response.send_message(MARCH, ephemeral=True)
+    if dado.gif is not None:
+        # await interaction.followup.send(dado.gif)
+        await interaction.followup.send(embed=embed)
     else:
-        await interaction.response.send_message(
-            "https://tenor.com/view/brawlstars-twins-lawire-larry-larry-and-lawrie-gif-13625901646024351970",
-            ephemeral=True,
-        )
-
-
-@xmercury.tree.command(
-    name="restart_db",
-    description="Reinicia o banco de dados para uma versão estável",
-)
-async def restart_db(interaction: Interaction):
-    if interaction.user.id in ADMS:
-        interaction.response.defer(ephemeral=True)
-        os.system("python database\\database_prompts.py")
-        await interaction.followup.send(MARCH, ephemeral=True)
-    else:
-        await interaction.response.send_message(
-            "https://tenor.com/view/brawlstars-twins-lawire-larry-larry-and-lawrie-gif-13625901646024351970",
-            ephemeral=True,
-        )
+        await interaction.followup.send(embed=embed)
 
 
 xmercury.run(token)

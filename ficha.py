@@ -58,7 +58,7 @@ class PaginaFicha(discord.ui.View):
             )
 
             embed.set_image(
-                url=f"https://raw.githubusercontent.com/Giovani-Costa/project_xmercury/refs/heads/main/characters_images/{self.personagem.imagem}"
+                url=f"https://raw.githubusercontent.com/Giovani-Costa/project_xmercury/refs/heads/main/characters_images/full_images/{self.personagem.imagem}"
             )
             embed.add_field(
                 name="Stataus",

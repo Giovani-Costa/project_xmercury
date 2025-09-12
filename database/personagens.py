@@ -51,11 +51,14 @@ def criar_personagem(
     saldo: int,
     imagem: Optional[str],
     usuario: Optional[int],
+    id: Optional[str] = None,
 ) -> uuid.UUID:
-    id = uuid.uuid4()
+    if id is None:
+        id = uuid.uuid4()
+    else:
+        id = uuid.UUID(id)
     personagem_novo = f"""INSERT INTO {KEYSPACE}.personagens (id, nome, nickname, level, path, classe, legacy, heritage, melancholy, catarse, pe, pe_atual, hp hp_atual, hp_tipo, reducao_de_dano, bonus_de_proficiencia, pericias, talentos, passivas, skills, forca, dexterity, constituicao, inteligencia, sabedoria, carisma, pontos_de_sombra, resistencia, vulnerabilidade, imunidade, inventario_itens, inventario_numero, volume_atual, limite_de_volumes, condicoes, saldo, imagem, usuario)
     VALUES ({id}, '{nome}', '{nickname}', {level}, '{path}', '{classe}', '{legacy}', '{heritage}', '{melancholy}', {catarse}, {pe}, {pe_atual}, {hp}, {hp_atual}, {hp_tipo}, {reducao_de_dano}, {bonus_de_proficiencia}, {pericias}, {talentos}, {passivas}, {skills}, {forca}, {dexterity}, {contituicao}, {inteligencia}, {sabedoria}, {carisma}, {pontos_de_sombra}, {resistencia}, {vulnerabilidade}, {imunidade}, {inventario_itens}, {inventario_numero}, {volume_atual}, {limete_de_volumes}, {condicoes}, {saldo}, '{imagem}', '{usuario}');"""
-    print(personagem_novo)
     session.execute(f"{personagem_novo}\n")
     return id
 
@@ -85,7 +88,6 @@ def pegar_personagem_com_id(
     skills_true = []
     for s in kwargs["skills"]:
         skills_true.append(database.skill.pegar_skills(session, s).model_dump())
-
     kwargs["skills"] = skills_true
 
     passivas_true = []

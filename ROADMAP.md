@@ -10,7 +10,9 @@
     
     [x] Melhorar comunicação entre front-end e database -> fazer comandos para modificar e adicionar elementos dentro de partes específicas do banco de dados, como adicionar um item a um personagem diretamente pelo Discord.
 
-    [ ] Usar skills -> um sistema que os jogadores pudessem escolher um alvo para uma skills e usá-la, causando seus efeitos e fazendo seus cálculos de forma automática.
+    [x] Escudo de Mestre -> um web site em streamlit, um segundo frontend, para o mestre ter um controle maior do banco de dados e etc.
+
+    [ ] Usar skills -> um sistema que os jogadores pudessam escolher um alvo para uma skills e usá-la, causando seus efeitos e fazendo seus cálculos de forma automática.
 
     [ ] Sistema de aplicação de efeitos e condições -> um sistema que com que as condições e efeitos de uma skills seja aplicada e calculada de forma automática.
 

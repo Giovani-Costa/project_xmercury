@@ -9,6 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from constantes import (
     INSERT_CONDICAO,
+    INSERT_DESCRITOR,
     INSERT_ITEM,
     INSERT_PASSIVA,
     INSERT_PERICIA,
@@ -42,6 +43,7 @@ with cluster.connect() as session:
     session.execute(f"DROP TABLE {KEYSPACE}.itens")
     session.execute(f"DROP TABLE {KEYSPACE}.pericias")
     session.execute(f"DROP TABLE {KEYSPACE}.condicoes")
+    session.execute(f"DROP TABLE {KEYSPACE}.descritores")
     session.execute(f"DROP TABLE {KEYSPACE}.party")
 
     session.execute(
@@ -196,7 +198,19 @@ with cluster.connect() as session:
     );
     """
     )
-    print("CONDIÇÕES CRIADA\n")
+    print("CONDIÇÕES CRIADA")
+
+    session.execute(
+        f"""
+    CREATE TABLE {KEYSPACE}.descritores (
+       id UUID PRIMARY KEY,
+       nome TEXT,
+       tipo TEXT,
+       descricao TEXT,
+    );
+    """
+    )
+    print("DESCRITORES CRIADO")
 
     # -------------------------------------------------------------------------------------------
 
@@ -298,7 +312,7 @@ with cluster.connect() as session:
         f"""{INSERT_PERICIA}
     VALUES (89056ec3-8736-4136-a962-e86434799d2c, 'Esgrima', 'O usuário é habilidoso na arte da espada. Ele pode somar seu bônus de proficiência em testes de esgrima.', false, true, ['bonus_de_proficiencia']);"""
     )
-    print("PERÍCIAS ADICIONADAS")
+    print("\nPERÍCIAS ADICIONADAS")
 
     # -------------------------------------------------------------------------------------------
 
@@ -320,6 +334,120 @@ with cluster.connect() as session:
         f"""{INSERT_CONDICAO}
     VALUES (4c382c07-d787-497e-8ef7-1736a95aa072, 'Atordoado', 'Uma criatura atordoada está ***Incapacitada***, não pode se mover e só é capaz de balbuciar.');"""
     )
+    session.execute(
+        f"""{INSERT_CONDICAO}
+    VALUES (f1b03b6e-1e18-4d82-9a9a-3d0e9f8c2f11, 'Caído', 'Uma criatura caída tem como única opção de movimento rastejar, a não ser que se levante, encerrando assim a condição.\nA criatura tem **desvantagem** em jogadas de ataque\nAtaques contra a criatura tem **vantagem**.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR} 
+    VALUES (bf0fa1bd-a29d-4825-a17d-837b6d238caa, 'Contido', 'Descritor de Dano', 'O deslocamento de uma criatura contida se torna 0, e ela não pode se beneficiar de qualquer bônus para seu deslocamento.\nA criatura realiza testes de ataque com desvantagem.\nA criatura não pode realizar componentes somáticos para conjurar magias.\nA criatura está Desprotegida (físicos).');"""
+    )
+
+    print("CONDIÇÕES ADICIONADAS")
+
+    # -------------------------------------------------------------------------------------------
+
+    # PROMPT DE DESCRITORES
+
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (32dfd367-5efa-42eb-bdc8-55a8097e3aaa, 'ORC', 'Descritor de Origem', 'Alcança um espaço adicional (geralmente de adjacente para 1,5m a mais).');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (d364d1b2-d72a-4f32-8745-8d4e3b6f9fa1, 'CONTROLE', 'Descritor de Categoria', 'Habilidades relacionadas a controle de efeito e condições em criaturas ou em uma área.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (1f89cf08-c8a6-40f3-9742-a3f2f05d8be7, 'ALONGADA', 'Descritor de Equipamento', 'Alcança um espaço adicional (geralmente de adjacente para 1,5m a mais).');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (a242b7a7-e4bb-4c05-8864-c4d1d744171b, 'ARREMESSÁVEL', 'Descritor de Equipamento', 'Esse descritor faz com que **TAQUES** a distância possam usar **FOR** para ataque e dano. Elas são arremessadas e caem no mesmo espaço do alvo. O alcance do ataque está descrito na própria arma. Caso uma arma receba esse descritor por outro meio, ela tem 9m de alcance.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (5dc1281b-106a-4f46-9ab3-e7e8c1d6c7f5, 'BARULHENTA', 'Descritor de Equipamento', 'Enquanto for empunhado ou vestido, esse equipamento concede **desvantagem** em todos os testes que envolvam Furtividade.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (a9d2d895-80cd-4823-8606-558059c0236f, 'COMPOSTO', 'Descritor de Equipamento', '*"Ataques à Distância"* realizados com essa arma permitem que você aplique sua **FOR** às jogadas de dano.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (3260452d-890d-4034-af65-f7cabfe08b2c, 'DISPARÁVEL', 'Descritor de Equipamento', 'Esse descritor faz com que **ATAQUES** a distância usem munição, que é perdida depois do **ATAQUE**. Esta arma usa o valor de **DES** em vez de **FOR** para calcular ataque e dano. O alcance do ataque está descrito na própria arma. Caso uma arma receba esse descritor por outro meio, ela tem 9m de alcance.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (0cd312e4-757f-47fc-b60a-31aca5b129a9, 'EFICIENTE', 'Descritor de Equipamento', 'Você recebe **vantagem** no teste da perícia indicada enquanto empunhar a arma.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (2d30fb47-7a24-4556-b147-4004c1d6af10, 'ELIXIR', 'Descritor de Equipamento', 'Representa um preparo alquímico que pode ser consumido para fazer efeito especial.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (da500cc6-51e2-461a-81fd-de7caac9c19a, 'ESPALHAFATOSA', 'Descritor de Equipamento', 'Essa arma faz com que seus ataques afetam até duas criaturas adjacentes ao alvo original do **ATAQUE**.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (230ddf43-b420-4fd6-922e-ad570e20607f, 'GRANADA', 'Descritor de Equipamento', 'Objeto que pode ser arremessado e que causa efeito na criatura que acertar ou espaço que cair.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (5063b1e6-495f-4f26-8b16-00de482db904, 'LEVE', 'Descritor de Equipamento', 'Uma arma ou habilidade com esse descritor pode utilizar **DES** em vez de **FOR** em testes de ataque e dano.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (5168cc66-c65a-451e-bb1e-871d2f6f53de, 'LETAL', 'Descritor de Equipamento', 'Ao ter um acerto crítico com essa arma, você causa um dado de dano adicional (além de dobrar os dados).');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (1ca684f0-66bc-445b-acd5-bf82381e4f4a, 'MONTADA', 'Descritor de Equipamento', 'Feita para ser utilizada por combatentes montados. Personagens montadas que atacarem com essa arma causam +1d6 de dano.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (05602726-6c66-450b-b6ca-d67936a4239d, 'PESADA', 'Descritor de Equipamento', 'Precisa de grande força física para ser utilizada corretamente. Algumas habilidades fazem referência a armas pesadas.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (bde30cc7-1368-4678-9a62-ed49e087ad87, 'POTENTE', 'Descritor de Equipamento', 'Uma arma ou poder com esse descritor realiza ataques de **FOR** contra **CON** do alvo, ao invés de **DES**.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (3fae6002-4924-431f-a8e9-de01d23ebde5, 'PRECISO', 'Descritor de Equipamento', 'O atacante recebe +2 em jogadas de ataque com a arma caso não tenha se movido antes de atacar.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (964389fd-5664-4c07-8359-cfc163dd54e3, 'QUEBRADIÇO', 'Descritor de Equipamento', 'O objeto está quebrando. Se for uma arma, quebra quando o atacante tiver uma falha crítica ou acerto crítico. Se for uma armadura ou escudo, tem sua **redução** reduzida em 1 e quebra quando um atacante conseguir um sucesso crítico.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (2b91f12a-3099-40d4-88be-fe47c1c247a0, 'RETORNÁVEL', 'Descritor de Equipamento', 'A arma retorna para a mão de seu dono no final do turno em que foi arremessada');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (d450025a-891a-4ad4-8880-a0edc9248272, 'SUPERIOR', 'Descritor de Equipamento', 'O atacante é pode adicionar +3 em testes de "Ataque de Superioridade".');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (77f4ec81-5fca-4270-974a-a7666c85d61f, 'VERSÁTIL', 'Descritor de Equipamento', 'Uma arma de uma mão com esta habilidade pode ser usada com as duas mãos para aumentar seu dano (em parênteses).');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (24013dae-ee81-49c2-b65b-f30f9b9a9234, 'ÁCIDO', 'Descritor de Dano', 'Vômitos de criaturas grotescas, substâncias corrosivas e dano relacionado com demônios e diabretes. Dano relacionado com o elemento Terra.');"""
+    )
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (9ef9e5ba-5cc4-4b70-8dc9-8699bdb7bf9f, 'CONTUNDENTE', 'Descritor de Dano', 'Ataques de força e impacto martelos, quedas, constrição e similares causam dano contundente.');"""
+    )
+
+    session.execute(
+        f"""{INSERT_DESCRITOR}
+    VALUES (bc56a097-8858-43ce-81fa-f11221634dd1, 'ALQUÍMICO', 'Descritor Diverso', 'Habilidades, magias ou itens que combinam elementos mágicos, químicos e de engenharia para fabricação de granadas e elixires.');"""
+    )
+
+    print("DESCRITORES ADICIONADOS")
 
     # -------------------------------------------------------------------------------------------
 
@@ -353,11 +481,15 @@ VALUES (d2808e11-146c-49f1-a631-4d365472a303, 'Ataque Poderoso', 'Você treinou 
     )
     session.execute(
         f"""{INSERT_SKILL}
-VALUES (02c0f9f6-a880-496e-98c1-795f4b00c700, 'Ataque de Superioridade', 0, 'acao', 'ATAQUE', '3m.', 'Instantânea.', 'FOR vs FOR', 'Você deve escolher um efeito entre: Deixar o alvo ***Caído***; Pegar um item do alvo; Deixar o alvo ***Agarrado***.', 'None', 'None', 'Você só pode usar essa habilidade em criaturas de seu tamanho ou menor.', 'None', 'Uma criatura.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
+VALUES (02c0f9f6-a880-496e-98c1-795f4b00c700, 'Ataque de Superioridade', 0, 'acao', 'ATAQUE', '2m.', 'Instantânea.', '**FOR** vs **FOR**.', 'Você deve escolher um efeito entre: Deixar o alvo ***Caído***; Pegar um item do alvo; Deixar o alvo ***Agarrado***.', 'None', 'None', 'Você só pode usar essa habilidade em criaturas de seu tamanho ou menor.', 'None', 'Uma criatura.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
     )
     session.execute(
         f"""{INSERT_SKILL}
 VALUES (a4a7564b-37ed-43f5-bc09-df897ef8e7de, 'Ataque em Sequência', 1, 'acao', 'COMBATENTE', 'Pessoal.', 'Instântanea.', 'None', 'None', 'None', 'Você pode realizar uma combinação de duas habilidades dentre "Ataque Corpo a Corpo", "Ataque à Distância" e "Ataque de Superioridade" como <:acao_livre:1326585198892154901> ação livre.', 'None', 'None', 'Você.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
+    )
+    session.execute(
+        f"""{INSERT_SKILL}
+VALUES (aeb4b910-9877-4d55-bdc8-811a96ff9a69, 'Pomonas Treasure', 0, 'acao', 'MÁGICO', 'Toque.', 'Instântanea.', 'None', 'None', 'None', 'Você se torna capaz de criar véus de mana a partir das próprias mãos. Esse véu junta dois ou mais objetos de forma natural e sem resíduos. Podendo juntar até mesmo almas à uma receptáculo', 'None', 'None', 'None', '1', 'None', 'None', 'None', 0, 'None');"""
     )
     session.execute(
         f"""{INSERT_SKILL}
@@ -369,11 +501,15 @@ VALUES (135b9b63-dec7-4378-b2a1-a2bfe1350869, 'Corte com a Masked Death', 0, 'ac
     )
     session.execute(
         f"""{INSERT_SKILL}
-VALUES (08f4b428-a138-4edf-b3b7-a82c16aebb6c, 'Disparo com a Shorty Aemondir', 0, 'acao', 'DISPARO, PERFURANTE, ARMA, ESPALHAFATOSO, ATAQUE', '9m.', 'Instantânea.', '1d20 + {int(destreza[1])} + {bonus_de_proficiencia} vs **DES**.', '2d8 + {bonus_de_proficiencia} + 2 pontos de dano.', 'Caso você erre no teste de acerto, você solta a **ARMA** e terá que gastar sua <:acao_bonus:1326585197004722197> Ação Bônus para pegá-la novamente.', 'O usuário aplica +1 nível de ***Shadow Cover***.', 'None', 'None', 'Uma criatura.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
+VALUES (995f1424-7a51-404f-a8c5-fec283499bff, 'Kamino Fuuga', 2, 'acao', 'ATAQUE, MÁGICO, ÍGNEO', '15m', 'Instântanea.', '1d20 + {int(inteligencia[1])} + {bonus_de_proficiencia} vs **DES**.', '2d6 pontos de dano **ÍGNEO**.', 'Metade do dano.', 'A criatura fica engolfada em chamas. Enquanto estiver dessa forma, ela está **Desprotegida** até usar uma <:acao:1326585196232966225> ação para apagar o fogo.', 'Você só pode usar essa habilidade caso esteja empunhando um pedaço de carvão. Para cada saco de carvão que for gasto nessa habilidade, o ataque ganha 1d10 de dano **ÍGNEO**', 'None', 'Criaturas em uma esfera de 3m de raio dentro do alcance.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
     )
     session.execute(
         f"""{INSERT_SKILL}
-VALUES (dbe7bcff-b5be-46a1-84e3-cbdf1a368283, 'Masked Death: Fools Blood', 1, 'acao', 'ATAQUE, ARMA, NECRÓTICO, MÁGICO', '3m.', 'Instântanea.', '1d20 + {int(forca[1])} + {bonus_de_proficiencia} + 2 vs **DES**', '2d8 + 1d10 + {bonus_de_proficiencia} de dano **NECRÓTICO**.', 'O encantamento acaba', 'None', 'O usuário precisa ativar o encantamento da espada para usar essa habilidade, usando sangue ou algumas gotas de uma poção de cura nela em uma <:acao_bonus:1326585197004722197> Ação Bônus.', 'None', 'Criaturas em um raio de 2m.', '{bonus_de_proficiencia}', 'None', 'None', 'None', 0, 'None');"""
+VALUES (dbe7bcff-b5be-46a1-84e3-cbdf1a368283, 'Masked Death: Fools Blood', 1, 'acao', 'ATAQUE, ARMA, NECRÓTICO, MÁGICO', 'Uma espera de 3m de raio.', 'Instântanea.', '1d20 + {int(forca[1])} + {bonus_de_proficiencia} + 2 vs **DES**', '2d8 + 1d10 + {bonus_de_proficiencia} de dano **NECRÓTICO**.', 'O encantamento acaba', 'None', 'O usuário precisa ativar o encantamento da espada para usar essa habilidade, usando sangue ou algumas gotas de uma poção de cura nela em uma <:acao_bonus:1326585197004722197> Ação Bônus.', 'None', 'Criaturas dentro de alcance.', '{bonus_de_proficiencia}', 'None', 'None', 'None', 0, 'None');"""
+    )
+    session.execute(
+        f"""{INSERT_SKILL}
+VALUES (08f4b428-a138-4edf-b3b7-a82c16aebb6c, 'Disparo com a Shorty Aemondir', 0, 'aca', 'DISPARO, PERFURANTE, ARMA, ESPALHAFATOSO, ATAQUE', '9m.', 'Instantânea.', '1d20 + {int(destreza[1])} + {bonus_de_proficiencia} + 1 vs **DES**.', '2d8 + {bonus_de_proficiencia} + 1 pontos de dano.', 'Caso você erre no teste de acerto, você solta a **ARMA** e terá que gastar sua <:acao_bonus:1326585197004722197> Ação Bônus para pegá-la novamente.', 'None', 'Soma +1 ao número de dados do crítico depois de dobrá-los.', 'None', 'Uma criatura.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
     )
     session.execute(
         f"""{INSERT_SKILL}
@@ -433,35 +569,53 @@ VALUES (21f4bb82-5741-44eb-ac29-4601f2fa2d9a, 'Armadura Espectral de Warpinier',
     )
     session.execute(
         f"""{INSERT_ITEM}
-VALUES (fa359f98-b7a9-44ed-acea-8e1099a34d83, 'Shorty Aemondir', 'Uma escopeta de ação por alavanca mágica de cano curto. Ela foi encontrada no castelo de Warpinier e provavelmente fazia parte do arsenal de Boris Nosferata. "Algo dentro de mim me dizia que eu precisava muito de uma dessa" — disse Chrollo ao contrá-la.', 750, 3);"""
+VALUES (fa359f98-b7a9-44ed-acea-8e1099a34d83, 'Shorty Aemondir', 'Uma escopeta de ação por alavanca mágica de cano curto. Ela foi encontrada no castelo de Warpinier e provavelmente fazia parte do arsenal de Boris Nosferata. "Algo dentro de mim me dizia que eu precisava de uam dessa desde o começo" — disse Chrollo ao contrá-la.', 750, 3);"""
     )
 
-    pericias = []
+    pericias = [
+        "d0f44af5-c299-41c2-9e84-72dd9cdb7351",
+        "89056ec3-8736-4136-a962-e86434799d2c",
+        "98f70eea-9c31-44a4-8c66-2b1eca1a530a",
+        "7b32de93-92b1-402a-93fe-c7a295535490",
+        "eab18040-8a73-41a1-ba35-66918c594f97",
+    ]
     passivas = [
+        "d2808e11-146c-49f1-a631-4d365472a303",
         "d06ff7ac-cad1-49d6-be84-6eb290879dea",
-        "f4e0b395-33f6-4ad2-97de-0a76bf42f968",
-        "429de159-48f9-48ab-870a-850983c4be4b",
+        "c47f8a5f-9531-4a07-8142-a1c2bc080684",
         "60e33837-6378-4ec9-9490-bcc094e15a00",
     ]
-    talentos = []
+    talentos = [
+        "8173f83f-5ae8-4635-802f-d10d3e897b6e",
+        "f4e0b395-33f6-4ad2-97de-0a76bf42f968",
+        "2ab46c0f-d69e-4e65-9285-d13c4b32043c",
+    ]
     skills = [
-        "a4a7564b-37ed-43f5-bc09-df897ef8e7de",
-        "d2808e11-146c-49f1-a631-4d365472a303",
         "02c0f9f6-a880-496e-98c1-795f4b00c700",
+        "a4a7564b-37ed-43f5-bc09-df897ef8e7de",
+        "aeb4b910-9877-4d55-bdc8-811a96ff9a69",
         "00a33d61-0ab6-4637-89fd-ccffac04ab3e",
         "135b9b63-dec7-4378-b2a1-a2bfe1350869",
+        "995f1424-7a51-404f-a8c5-fec283499bff",
         "dbe7bcff-b5be-46a1-84e3-cbdf1a368283",
+        "08f4b428-a138-4edf-b3b7-a82c16aebb6c",
+        "429de159-48f9-48ab-870a-850983c4be4b",
         "f76dc202-536c-47f6-a9e2-cccb400d9102",
+        "bd083bdf-6021-4680-b5c7-36ca4c4c537d",
     ]
     itens = [
         "abb1a0d3-d0ac-4bc1-960b-9defa7dadde6",
         "938f7ffe-b0ff-4824-97dd-9769ccd35aae",
+        "3cb0873e-4ddf-4c3e-861d-aaf6151c7f17",
+        "21f4bb82-5741-44eb-ac29-4601f2fa2d9a",
+        "fa359f98-b7a9-44ed-acea-8e1099a34d83",
     ]
 
     session.execute(
         f"""{INSERT_PERSONAGEM}
-VALUES (30180fc6-30ba-4f65-a520-53e63bc4ec65, 'Shin NovaChrollo', 'Chrollo', {level}, 'Magitécnico', 'Combatente', 'Humano', 'Pomonas Cycle', 'Para Chrollo, o fim é necessário. Assim como a vida, todo ciclo tem um fim.', 0, {pe}, {pe}, 44, 44, 'hp', {reducao_de_dano}, {bonus_de_proficiencia}, [{", ".join(pericias)}], [{", ".join(talentos)}], [{", ".join(passivas)}], [{", ".join(skills)}], [{", ".join(forca)}], [{", ".join(destreza)}], [{", ".join(constituicao)}], [{", ".join(inteligencia)}], [{", ".join(sabedoria)}], [{", ".join(carisma)}], 5, [], [], [], [{", ".join(itens)}], [1, 1, 1], 15, 19, [], 250, 'chrollo.png', '<:chrollo_token:1384691822584135894>', '766039963736866828');"""
+VALUES (30180fc6-30ba-4f65-a520-53e63bc4ec65, 'Shin NovaChrollo', 'Chrollo', {level}, 'Magitécnico', 'Combatente', 'Humano', 'Pomonas Cycle', 'Para Chrollo, o fim é necessário. Assim como a vida, todo ciclo tem um fim.', 0, {pe}, {pe}, 44, 44, 'hp', {reducao_de_dano}, {bonus_de_proficiencia}, [{", ".join(pericias)}], [{", ".join(talentos)}], [{", ".join(passivas)}], [{", ".join(skills)}], [{", ".join(forca)}], [{", ".join(destreza)}], [{", ".join(constituicao)}], [{", ".join(inteligencia)}], [{", ".join(sabedoria)}], [{", ".join(carisma)}], 5, [], [], [], [{", ".join(itens)}], [1, 1, 1, 1, 1], 15, 19, [], 250, 'chrollo.png', '<:chrollo_token:1384691822584135894>', '766039963736866828');"""
     )
+    print("\nCHROLLO ADICIONADO")
 
     # -------------------------------------------------------------------------------------------
 
@@ -486,11 +640,11 @@ VALUES (bb85504b-ff0b-4e3f-ae2c-5e0effb87f2b, 'Disparo com a Red Hunter', 0, 'ac
     )
     session.execute(
         f"""{INSERT_SKILL}
-VALUES (8dea83d1-5beb-4c02-a29f-322205850046, 'Corte com a Masked Death', 0, 'acao', 'ATAQUE, ARMA, CORTANTE, VERSÁTIL, ALONGADA', '2m.', 'Instatânea.', '1d20 + {int(forca[1])} vs **DES**.', '1d8 + 1d10 + 2 pontos de dano **CORTANTE**', 'Caso você erre no teste de acerto, você solta a **ARMA** e terá que gastar sua <:acao_bonus:1326585197004722197> Ação Bônus para pegá-la novamente.', 'O usuário aplica +1 nível de ***Shadow Cover***.', 'None', 'None', 'Uma criatura.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
+VALUES (8dea83d1-5beb-4c02-a29f-322205850046, 'Corte com a Masked Death', 0, 'acao', 'ATAQUE, ARMA, CORTANTE, VERSÁTIL, ALONGADA', '2m.', 'Instatânea.', '1d20 + {int(forca[1])} + {bonus_de_proficiencia} vs **DES**.', '1d8 + 1d10 + {bonus_de_proficiencia} + 2 pontos de dano **CORTANTE**', 'Caso você erre no teste de acerto, você solta a **ARMA** e terá que gastar sua <:acao_bonus:1326585197004722197> Ação Bônus para pegá-la novamente.', 'O usuário aplica +1 nível de ***Shadow Cover***.', 'None', 'None', 'Uma criatura.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
     )
     session.execute(
         f"""{INSERT_SKILL}
-VALUES (b7864548-2ebe-4823-a884-d1a6455d6a7f, 'Masked Death: Fools Blood', 1, 'acao', 'ATAQUE, ARMA, VERSÁTIL, NECRÓTICO, MÁGICO, ALONGADO', '3m.', 'Instântanea.', '1d20 + {int(forca[1])} + 2 vs **DES**', '2d8 + 1d10 + {int(forca[1])} + 2 de dano **NECRÓTICO**.', 'O encantamento acaba', 'None', 'O usuário precisa ativar o encantamento da espada para usar essa habilidade, usando sangue ou algumas gotas de uma poção de cura nela em uma <:acao_bonus:1326585197004722197> Ação Bônus.', 'O usuário aplica +1 nível de ***Shadow Cover***.', 'Criaturas em um raio de 2m.', '{bonus_de_proficiencia}', 'None', 'None', 'None', 0, 'None');"""
+VALUES (b7864548-2ebe-4823-a884-d1a6455d6a7f, 'Masked Death: Fools Blood', 1, 'acao', 'ATAQUE, ARMA, VERSÁTIL, NECRÓTICO, MÁGICO, ALONGADO', '3m.', 'Instântanea.', '1d20 + {int(forca[1])} + {bonus_de_proficiencia} + 2 vs **DES**', '2d8 + 1d10 + {int(forca[1])} {bonus_de_proficiencia} + 2 de dano **NECRÓTICO**.', 'O encantamento acaba', 'None', 'O usuário precisa ativar o encantamento da espada para usar essa habilidade, usando sangue ou algumas gotas de uma poção de cura nela em uma <:acao_bonus:1326585197004722197> Ação Bônus.', 'O usuário aplica +1 nível de ***Shadow Cover***.', 'Criaturas dentro de alcance.', '{bonus_de_proficiencia}', 'None', 'None', 'None', 0, 'None');"""
     )
     session.execute(
         f"""{INSERT_SKILL}
@@ -514,7 +668,7 @@ VALUES (334434be-2ff3-4f94-8813-e1117a017b16, 'Trajado', 'Sempre que estiver ves
     )
     session.execute(
         f"""{INSERT_SKILL}
-VALUES (8dda14ea-561f-48e6-a55e-2706f348b39e, 'Cambalhota Especializada', 1, 'reacao', 'ESPECIALISTA', 'Pessoal.', 'Instantânea.', 'None', 'None', 'None', 'você fica ***Caído*** e recebe **resistência** contra o dano do ataque.', 'Caso tenha a habilidade *“Resistir com Unhas e Dentes”*, você recupera a sua <:reacao:1326585200519544885> reação', 'Você é acertado por um ataque que não tenha sido realizado com **vantagem**.', 'Você.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
+VALUES (8dda14ea-561f-48e6-a55e-2706f348b39e, 'Cambalhota Especializada', 1, 'reacao', 'ESPECIALISTA', 'Pessoal.', 'Instantânea.', 'None', 'None', 'None', 'você fica ***Caído*** e recebe **resistência** contra o dano do ataque.', 'Caso tenha a habilidade *"Resistir com Unhas e Dentes"*, você recupera a sua <:reacao:1326585200519544885> reação', 'Você é acertado por um ataque que não tenha sido realizado com **vantagem**.', 'Você.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
     )
     session.execute(
         f"""{INSERT_SKILL}
@@ -578,7 +732,7 @@ VALUES (7fd8f8ef-19d4-4556-a6ba-058bd51e86b4, 'Núcleo Pesado de Ashborn', 'O n�
     )
     session.execute(
         f"""{INSERT_ITEM}
-VALUES (53a9956b-a1e0-44fc-8d8d-6463afbf3339, 'Tabuleta Sombria', 'Após o grupo sair do domínio de Shadow e voltar à Opath, a mana que antes tomava conta da sala, foi de um estado sólido ao líquido de repente, escorrendo pelas paredes até se reunir uma tabuleta no centro da mesma. A tabuleta possui runas arcanas gravadas por todo seu corpo "ᛏᚼᛄ ᚴᛁᛏᚷᚦᛄᛚ ᚤᚠ ᚷ ᛏᚼᚤᚢᛋᚷᚾᚦ ᚱᚤᚤᛘᛋ".', 0, 2 );"""
+VALUES (53a9956b-a1e0-44fc-8d8d-6463afbf3339, 'Tabuleta Sombria', 'Após o grupo sair do domínio de Shadow e voltar à Opath, a mana que antes tomava conta da sala, foi de um estado sólido ao líquido de repente, escorrendo pelas paredes até se reunir uma tabuleta no centro da mesma. A tabuleta possui runas arcanas gravadas por todo seu corpo "ᚼᚤᛚᛚᚤᚢ ᚴᛁᚦᚷᚦᛄᛚ".', 0, 2 );"""
     )
     session.execute(
         f"""{INSERT_PASSIVA}
@@ -595,7 +749,7 @@ VALUES (a714ddcb-d917-4bc1-a179-97e27661b8f3, 'Hidden Inventory: Solidificar Som
         "a052505a-add0-4717-9d30-e382a0741058",
         "3bc86566-ec94-4459-a7fc-2a5d094a1f39",
         "d28b4723-1177-46ac-b1f2-bf785330b1a9",
-        "c57e4a9b-2e9d-4c97-9f6c-0139cd0ddb44",
+        "89056ec3-8736-4136-a962-e86434799d2c",
     ]
     passivas = [
         "e4d7675d-3cb7-4395-8de0-5c4c17a8cc83",
@@ -643,95 +797,151 @@ VALUES (69fa11c2-ca6a-44b7-93c2-b744d0e98554, 'Julius Wick', 'Julius', {level}, 
 
     # PROMPT ADAM
 
-    #     session.execute(
-    #         f"""{INSERT_PASSIVA}
-    # VALUES (aeadbead-f668-46be-9469-b2eecff9cf16, 'Ataque Poderoso', 'Você treinou seu corpo para ser capaz de desferir ataques poderosíssimos sempre que ataca. Seus **ATAQUES** com **ARMAS** recebem a seguinte modificação:', 'reacao', 'AMPLIAR + 15', '**Acerto:** você causa +1d8 pontos de dano do mesmo tipo.', 0, 'PE');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_SKILL}
-    # VALUES (04df13c9-c079-4d4d-b7a7-6b5264a59114, 'Ataque de Superioridade', 0, 'acao', 'ATAQUE', '3m.', 'Instantânea.', 'FOR vs FOR', 'Você deve escolher um efeito entre: Deixar o alvo ***Caído***; Pegar um item do alvo; Deixar o alvo ***Agarrado***.', 'None', 'None', 'Você só pode usar essa habilidade em criaturas de seu tamanho ou menor.', 'None', 'Uma criatura.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_SKILL}
-    # VALUES (e7a3b8d2-4f5c-4d91-90b0-3a8e6f9c7d2f, 'Ataque com o Martelo de Guerra', 0, 'acao', 'ATAQUE, CONTUNDENTE, PESADO', '8m.', 'Instatânea.', '1d20 + Bônus de FOR.', '1d16 + Bônus de FOR', 'Caso você erre no teste de acerto, você solta a **ARMA** e terá que gastar sua <:acao_bonus:1326585197004722197> ação bônus para pegá-la novamente.', 'None', 'None', 'None', 'Uma criatura.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_SKILL}
-    # VALUES (f3b9a7c1-2d8e-4f6a-bc21-7e9d5a1d8e54, 'Soco Desarmado', 0, 'acao', 'ARMA, ATAQUE, CONTUNDENTE, LEVE', '3m.', 'Instatânea.', '1d20 + Bônus de FOR.', '1d8 + Bônus de FOR', 'None', 'None', 'None', 'None', 'Uma criatura.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_SKILL}
-    # VALUES (b2a9d7f3-8e4d-6c1d-bc71-3e9f7a5d8e54, 'Soco com Manopla', 0, 'acao', 'ARMA, ATAQUE, CONTUNDENTE, PESADO', '5m.', 'Instatânea.', '1d20 + Bônus de FOR.', '1d10 + Bônus de FOR + 2', 'None', 'None', 'Essa habilidade só pode ser usada se o usário tiver usado "*Modificar com Sangue: Conjurar Manoplas"* antes.', 'None', 'Uma criatura.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_SKILL}
-    # VALUES (3cabe054-e4e3-4a6a-9158-965cf976d10f, 'Rápido como um Raio', 0, 'reacao', 'PUGILISTA', 'Pessoal.', 'None', 'None', 'None', 'None', 'Realiza um _“Ataque corpo a corpo”_  adicional com seu ataque desarmado como uma <:acao_livre:1326585198892154901> ação livre contra uma criatura dentro do seu alcance.', 'Só é possível realizar esse ataque extra uma quantidade de vezes por rodada igual ao seu **bônus de proficiência** e seu custo aumenta em 1 ponto de ênfase para cada vez que for utilizado na mesma rodada.', 'O usuário faz um _“Ataque corpo a corpo”_ como **ATAQUE**', 'None', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_PASSIVA}
-    # VALUES (14bcc54c-e187-4954-abd2-785b01d93e33, 'Combate Desarmado', 'Você torna-se proficiente em um tipo especial de ataques desarmados. Enquanto estiver com pelo menos uma mão livre, seus ataques desarmados recebem os descritores  **ARMA**, **CONTUNDENTE** e **LEVE** e causam 1d6 pontos de dano. Você considera que está empunhando seu ataque desarmado e ele recebe o descritor **ARMA** se estiver com pelo menos uma mão livre.', 'None', 'None', '0', 0, 'None');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_PASSIVA}
-    # VALUES (de754406-5a1b-4889-ae1b-229f7461b919, 'Façanha Desarmada', 'Você sabe golpear de maneira veloz, atacando com manobras perigosas. Seus ataques desarmados recebem a seguinte modificação:', 'reacao', 'ADICIONA', '**Acerto:** após acertar o **ATAQUE**, você pode fazer um "*Ataque de Superioridade"* como <:acao_livre:1326585198892154901> ação livre.', 0, 'None');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_TALENTO}
-    # VALUES (3a51e8cf-92b1-43f6-9876-f93a4d7e57f1, 'Presas de Warpinier', 'Seu sangue maldito fez com que suas presas se tornassem verdadeiras armas, que podem ser usadas em momentos de adrenalina. Seus **ATAQUES** com o descritor **ARMA** recebem a seguinte modificação:', 'reacao', 'ADICIONA', '**Acerto:** +1d6 pontos de dano **PERFURANTE** e você recebe todos benefícios da característica "*Sangue Maldito"*, mas o alvo não fica com **desvantagem** em testes.', 2, 'PE');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_SKILL}
-    # VALUES (4cd48055-f7db-4211-9280-5f973711b24a, 'Liderar por Exemplo', 1, 'acao bonus', 'ORC, INSPIRAÇÃO, VOZ', '20m.', '2 turnos.', 'None', 'None', 'None', 'Escolha um atributo. O alvo fica ***Inspirado***. Enquanto estiver ***Inspirado***, ele recebe vantagem sempre que realizar um teste com o atributo.', 'None', 'None', 'Criaturas a sua escolha.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_PASSIVA}
-    # VALUES (7986f0dc-c082-4906-838a-36d991dad853, 'Cólera Ardente', 'Seu sangue quente é capaz de servir como combustível para sua ira controlada. Enquanto estiver ***Machucado***, seus **ATAQUES** recebem a seguinte modificação:', 'reacao', 'ADICIONA', '**Acerto:** Além do normal, você causa +1d6 pontos de dano.\n**Especial:** A partir do 5º nível, você pode aplicar essa modificação quantas vezes quiser.', 1, 'PE');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_PASSIVA}
-    # VALUES (3f9c1b74-8d2e-4a56-bb1c-2e7f5d8a90e3, 'Sangue Maldito', 'Seu sangue impregnado com a essência de Warpinier concede alguns privilégios. O usuário tem **resistência** a dano **ÁCIDO** e **NECRÓTICO**. Além disso, o usuário recebe a habilidade "*Sede de sangue"*.', 'None', 'None', '0', 0, 'None');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_SKILL}
-    # VALUES (a7d5f3c2-9b8e-4d6a-bc21-3e9f7a1d8e54, 'Modificar com Sangue', 1, 'acao bonus', 'SANGUIR', 'Toque.', 'Uma cena.', 'None', 'None', 'None', 'O equipamento afetado recebe um descritor de equipamento a sua escolha.', 'Você só pode usar essa habilidade uma  vez por cena.', 'None', 'Uma arma.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_SKILL}
-    # VALUES (27135a3f-ffe8-447a-a810-9aa424b1196c, 'Modificar com Sangue: Conjurar Manoplas', 0, 'acao livre', 'SANGUIR, ARMA, MÁGICO', 'Pessoal.', 'Uma cena.', 'None', 'None', 'None', 'O usuário conjura suas manoplas se sangue.', 'None', 'None', 'None', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_SKILL}
-    # VALUES (9c521e05-28b3-43ee-9e74-c912ae77b6ff, 'Echo of Pomona: Mashing Impact', 4, 'eop', 'EOP, VOZ', '2m.', 'No mínimo 3 turnos.', 'None', 'None', 'None', 'Adam fica em um estado de ***Concentração Extrema*** por no mínimo três turnos. Após o fim desse tempo, deve ser feito um teste no começo de cada rodada para determinar se o efeito continuará naquele turno.', 'None', 'None', 'Uma criatura.', '1', 'None', 'None', 'None', 0, 'None');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_TALENTO}
-    # VALUES (65f11dac-d301-4f22-ad47-d9624e817a54, 'Renegociar', 'Para tudo existe um jeitinho, incluindo negociações. Você tem **vantagem** em testes de **CAR**.', 'None', 'None', '0', 0, 'None');"""
-    #     )
-    #     session.execute(
-    #         f"""{INSERT_ITEM}
-    # VALUES (f151bcbc-7fba-49f1-8ce9-90518c919078, 'Martelo de Guerra de Ferro Varmaniano', 'Um grande martelo de guerra pesado e contundente feito com ferro varmaniano, ideal para destruição. "Slk Adam, coitado do meninux, ficou parecendo o Perna Longa amassado, mas com um pouquinho a mais de gore..." — Disse Chrollo no final da batalha do Quebra-copos.', 322, 5);"""
-    #     )
-    #     session.execute(
-    #         """INSERT INTO xmercury.personagens (id, nome, nickname, level, path, classe, legacy, heritage, melancholy, catarse, pe, pe_atual, hp, hp_atual, hp_tipo, reducao_de_dano, bonus_de_proficiencia, pericias, talentos, passivas, skills, forca, dexterity, constituicao, inteligencia, sabedoria, carisma, pontos_de_sombra, resistencia, vulnerabilidade, imunidade, inventario_itens, inventario_numero, volume_atual, limite_de_volumes, condicoes, saldo, imagem, token, usuario)
-    # VALUES (1c773acd-295b-436d-b792-8011e739e527, 'Adam Andrews', 'Adam', 4, 'Pugilista', 'Combatente', 'Orc Sanguir', 'Griphon', 'Você é cria da Fúria, a deusa engolfada em chamas. Por vezes, seu temperamento poderá traí-lo, fazendo com que seja tomado pelo mesmo fogo que consome tudo à sua volta.', 2, 12, 38, 2, 2, [], [65f11dac-d301-4f22-ad47-d9624e817a54], [aeadbead-f668-46be-9469-b2eecff9cf16, 14bcc54c-e187-4954-abd2-785b01d93e33, de754406-5a1b-4889-ae1b-229f7461b919, 3f9c1b74-8d2e-4a56-bb1c-2e7f5d8a90e3], [04df13c9-c079-4d4d-b7a7-6b5264a59114, e7a3b8d2-4f5c-4d91-90b0-3a8e6f9c7d2f, f3b9a7c1-2d8e-4f6a-bc21-7e9d5a1d8e54, b2a9d7f3-8e4d-6c1d-bc71-3e9f7a5d8e54, 3cabe054-e4e3-4a6a-9158-965cf976d10f, 4cd48055-f7db-4211-9280-5f973711b24a, a7d5f3c2-9b8e-4d6a-bc21-3e9f7a1d8e54, 27135a3f-ffe8-447a-a810-9aa424b1196c], [12, 2], [11, 1], [13, 3], [11, 1], [11, 1], [9, -1], 5, ['ÁCIDO', 'NECRÓTICO'], [], [], [0beb39c2-123a-4d40-b2eb-e011b55028fb, f151bcbc-7fba-49f1-8ce9-90518c919078], [1, 1], [], 100, 'adam.png', '1239326132327944313');"""
-    #     )
-    #     print("ADAM ADICIONADO")
+    forca = ["12", "2"]
+    destreza = ["11", "1"]
+    constituicao = ["13", "3"]
+    inteligencia = ["11", "1"]
+    sabedoria = ["10", "0"]
+    carisma = ["9", "-1"]
 
-    #     # --------------------------------------------------------------------------------------------
+    session.execute(
+        f"""{INSERT_PASSIVA}
+VALUES (aeadbead-f668-46be-9469-b2eecff9cf16, 'Ataque Poderoso', 'Você treinou seu corpo para ser capaz de desferir ataques poderosíssimos sempre que ataca. Seus **ATAQUES** com **ARMAS** recebem a seguinte modificação:', 'reacao', 'AMPLIAR + 15', '**Acerto:** você causa +{ataque_poderoso} pontos de dano do mesmo tipo.', 0, 'PE');"""
+    )
+    session.execute(
+        f"""{INSERT_SKILL}
+VALUES (04df13c9-c079-4d4d-b7a7-6b5264a59114, 'Ataque de Superioridade', 0, 'acao', 'ATAQUE, ARMA', '2m.', 'Instantânea.', '1d20 + {int(forca[1])} + {bonus_de_proficiencia} vs **FOR**', 'Você deve escolher um efeito entre: Deixar o alvo ***Caído***; Pegar um item do alvo; Deixar o alvo ***Agarrado***.', 'None', 'None', 'Caso escolher agarrar o inimigo, poderá sugar parte do seu sangue com suas presas, recuperando 5 pontos de vida, eliminando uma condição ruim aplicada a você e deixando o alvo em **desvantagem** no próximo teste. Além disso, só pode usar essa habilidade em criaturas de seu tamanho ou menor.', 'None', 'Uma criatura.', 'Ilimitado.', 'reacao', 'ADICIONA', '**Acerto:** Você causa +1d6 + 1 pontos de dano quand está ***Machucado***.\n**Especial:** A partir do 5º nível, você pode aplicar essa modificação quantas vezes quiser.', 1, 'PE');"""
+    )
+    session.execute(
+        f"""{INSERT_SKILL}
+VALUES (e7a3b8d2-4f5c-4d91-90b0-3a8e6f9c7d2f, 'Ataque com o Martelo de Guerra', 0, 'acao', 'ATAQUE, CONTUNDENTE, PESADO, ARMA', '2m.', 'Instatânea.', '1d20 + {int(forca[1])} + {bonus_de_proficiencia} VS **DES**.', '1d12 + {int(forca[1])} + {bonus_de_proficiencia}', 'Caso você erre no teste de acerto, você solta a **ARMA** e terá que gastar sua <:acao_bonus:1326585197004722197> ação bônus para pegá-la novamente.', 'None', 'None', 'None', 'Uma criatura.', 'Ilimitado.', 'reacao', 'ADICIONA', '**Acerto:** Você causa +1d6 + 1 pontos de dano quand está ***Machucado***.\n**Especial:** A partir do 5º nível, você pode aplicar essa modificação quantas vezes quiser.', 1, 'PE');"""
+    )
+    session.execute(
+        f"""{INSERT_SKILL}
+VALUES (f3b9a7c1-2d8e-4f6a-bc21-7e9d5a1d8e54, 'Soco Desarmado', 0, 'acao', 'ARMA, ATAQUE, CONTUNDENTE, LEVE', '2m.', 'Instatânea.', '1d20 + {int(forca[1])} + {bonus_de_proficiencia}.', '1d8 + {int(forca[1])} {bonus_de_proficiencia}.', 'None', 'None', 'Após acertar esse ataque, você pode fazer um *Ataque de Superioridade*.', 'None', 'Uma criatura.', 'Ilimitado.', 'reacao', 'ADICIONA', '**Acerto:** Você causa +1d6 + 1 pontos de dano quand está ***Machucado***.\n**Especial:** A partir do 5º nível, você pode aplicar essa modificação quantas vezes quiser.', 1, 'PE');"""
+    )
+    session.execute(
+        f"""{INSERT_SKILL}
+VALUES (b2a9d7f3-8e4d-6c1d-bc71-3e9f7a5d8e54, 'Soco com Manopla', 0, 'acao', 'ARMA, ATAQUE, CONTUNDENTE, PESADO', '2m.', 'Instatânea.', '1d20 + {int(forca[1])}', '1d10 + {int(forca[1])} + 2', 'None', 'None', 'Após acertar esse ataque, você pode fazer um *Ataque de Superioridade*. Essa habilidade só pode ser usada se o usário tiver usado "*Modificar com Sangue: Conjurar Manoplas"* antes.', 'None', 'Uma criatura.', 'Ilimitado.', 'reacao', 'ADICIONA', '**Acerto:** Você causa +1d6 + 1 pontos de dano quand está ***Machucado***.\n**Especial:** A partir do 5º nível, você pode aplicar essa modificação quantas vezes quiser.', 1, 'PE');"""
+    )
+    session.execute(
+        f"""{INSERT_SKILL}
+VALUES (3cabe054-e4e3-4a6a-9158-965cf976d10f, 'Rápido como um Raio', 0, 'reacao', 'PUGILISTA', 'Pessoal.', 'None', 'None', 'None', 'None', 'Realiza um *"Ataque corpo a corpo"* adicional como uma <:acao_livre:1326585198892154901> ação livre contra uma criatura dentro do seu alcance.', 'None', 'None', 'None', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
+    )
+    session.execute(
+        f"""{INSERT_PASSIVA}
+VALUES (65f11dac-d301-4f22-ad47-d9624e817a54, 'Renegociar', 'Para tudo existe um jeitinho, incluindo negociações. Você tem **vantagem** em testes de **CAR**.', 'None', 'None', '0', 0, 'None');"""
+    )
+    session.execute(
+        f"""{INSERT_PASSIVA}
+VALUES (14bcc54c-e187-4954-abd2-785b01d93e33, 'Combate Desarmado', 'Você torna-se proficiente em um tipo especial de ataques desarmados. Enquanto estiver com pelo menos uma mão livre, seus ataques desarmados recebem os descritores  **ARMA**, **CONTUNDENTE** e **LEVE**.', 'None', 'None', '0', 0, 'None');"""
+    )
+    session.execute(
+        f"""{INSERT_PASSIVA}
+VALUES (de754406-5a1b-4889-ae1b-229f7461b919, 'Façanha Desarmada', 'Você sabe golpear de maneira veloz, atacando com manobras perigosas. Seus ataques desarmados recebem a seguinte modificação:', 'reacao', 'ADICIONA', '**Acerto:** após acertar o **ATAQUE**, você pode fazer um "*Ataque de Superioridade"* como <:acao_livre:1326585198892154901> ação livre.', 0, 'None');"""
+    )
+    session.execute(
+        f"""{INSERT_TALENTO}
+VALUES (8b441c67-847a-4794-a1be-62b458b96caa, 'Presas de Warpinier', 'Seu sangue maldito fez com que suas presas se tornassem verdadeiras armas, que podem ser usadas em momentos de adrenalina. Seus **ATAQUES** com o descritor **ARMA** recebem a seguinte modificação:', 'reacao', 'ADICIONA', '**Acerto:** +1d6 pontos de dano **PERFURANTE** e você recebe todos benefícios da característica *"Sangue Maldito"*, mas o alvo não fica com **desvantagem** em testes.', 2, 'PE');"""
+    )
+    session.execute(
+        f"""{INSERT_TALENTO}
+VALUES (e51b04de-be2f-45dd-b0ac-2be1df797d20, 'Mata Dragão', 'Você recebe **vantagem** em *"Ataques de Superioridade"*. Ao acertar um **ATAQUE** contra uma criatura que você estiver Agarrando, você causa +2d6 pontos de dano **CONTUNDENTE**. Por fim, você pode agarrar criaturas maiores que você', 'None', 'None', 'None', 0, 'None');"""
+    )
+    session.execute(
+        f"""{INSERT_SKILL}
+VALUES (4cd48055-f7db-4211-9280-5f973711b24a, 'Liderar por Exemplo', 1, 'acao bonus', 'ORC, INSPIRAÇÃO, VOZ', '20m.', 'Até o começo do seu próximo turno.', 'None', 'None', 'None', 'Escolha um atributo, a equipe fica ***Inspirada***, enquanto estiver ***Inspirado***, ela recebe **vantagem** sempre que realizar um teste com o atributo.', 'None', 'None', 'Criaturas a sua escolha.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
+    )
+    session.execute(
+        f"""{INSERT_PASSIVA}
+VALUES (7986f0dc-c082-4906-838a-36d991dad853, 'Cólera Ardente', 'Seu sangue quente é capaz de servir como combustível para sua ira controlada. Enquanto estiver ***Machucado***, seus **ATAQUES** recebem a seguinte modificação:', 'reacao', 'ADICIONA', '**Acerto:** Além do normal, você causa +1d6 pontos de dano.\n**Especial:** A partir do 5º nível, você pode aplicar essa modificação quantas vezes quiser.', 1, 'PE');"""
+    )
+    session.execute(
+        f"""{INSERT_PASSIVA}
+VALUES (3f9c1b74-8d2e-4a56-bb1c-2e7f5d8a90e3, 'Sangue Maldito', 'Seu sangue impregnado com a essência de Warpinier concede alguns privilégios. O usuário tem **resistência** a dano **ÁCIDO** e **NECRÓTICO**.', 'None', 'None', '0', 0, 'None');"""
+    )
+    session.execute(
+        f"""{INSERT_SKILL}
+VALUES (a7d5f3c2-9b8e-4d6a-bc21-3e9f7a1d8e54, 'Modificar com Sangue', 1, 'acao bonus', 'SANGUIR', 'Toque.', 'Uma cena.', 'None', 'None', 'None', 'O equipamento afetado recebe um **descritor de equipamento** a sua escolha.', 'Você só pode usar essa habilidade uma vez por cena.', 'None', 'Uma arma.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
+    )
+    session.execute(
+        f"""{INSERT_SKILL}
+VALUES (27135a3f-ffe8-447a-a810-9aa424b1196c, 'Modificar com Sangue: Conjurar Manoplas', 0, 'acao bonus', 'SANGUIR, MÁGICO', 'Pessoal.', 'Uma cena.', 'None', 'None', 'None', 'O usuário conjura suas manoplas se sangue.', 'None', 'None', 'None', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
+    )
+    session.execute(
+        f"""{INSERT_SKILL}
+VALUES (9c521e05-28b3-43ee-9e74-c912ae77b6ff, 'Echo of Pomona: Mashing Impact', 4, 'eop', 'EOP, VOZ', 'Pessoal.', 'No mínimo 3 turnos.', 'None', 'None', 'None', 'Adam fica em um estado de ***Concentração Extrema*** por no mínimo três turnos. Após o fim desse tempo, os ataques passam a precisar de testes, mas enquanto não errar no teste de ataque, os ataques continuam sendo críticos.', 'None', 'None', 'Você.', '1.', 'None', 'None', 'None', 0, 'None');"""
+    )
+    session.execute(
+        f"""{INSERT_ITEM}
+VALUES (f151bcbc-7fba-49f1-8ce9-90518c919078, 'Martelo de Guerra de Ferro  Varmaniano', 'Um grande martelo de guerra pesado e contundente feito com ferro varmaniano, ideal para destruição. "Slk Adam, coitado do meninux, ficou parecendo o Perna Longa amassado, mas com um pouquinho a mais de gore..." — Disse Chrollo no final da batalha do Quebra-copos.', 322, 3);"""
+    )
 
-    #     # PROMPT GUNTHER
+    pericias = [
+        "c7482295-cb98-49fe-92fd-8266c8675121",
+        "62ef595a-2f6e-475c-8152-3f36a5c4e695",
+        "802584f3-85a5-4851-988c-eebe5e1a6d12",
+        "0222604e-cd4d-4077-b19f-7eb7c4e8c927",
+        "ebaea72e-3d09-487e-a809-360077352a5c",
+    ]
+    passivas = [
+        "aeadbead-f668-46be-9469-b2eecff9cf16",
+        "65f11dac-d301-4f22-ad47-d9624e817a54",
+        "14bcc54c-e187-4954-abd2-785b01d93e33",
+        "de754406-5a1b-4889-ae1b-229f7461b919",
+        "7986f0dc-c082-4906-838a-36d991dad853",
+        "3f9c1b74-8d2e-4a56-bb1c-2e7f5d8a90e3",
+    ]
+    talentos = [
+        "8b441c67-847a-4794-a1be-62b458b96caa",
+        "e51b04de-be2f-45dd-b0ac-2be1df797d20",
+    ]
+    skills = [
+        "04df13c9-c079-4d4d-b7a7-6b5264a59114",
+        "e7a3b8d2-4f5c-4d91-90b0-3a8e6f9c7d2f",
+        "f3b9a7c1-2d8e-4f6a-bc21-7e9d5a1d8e54",
+        "b2a9d7f3-8e4d-6c1d-bc71-3e9f7a5d8e54",
+        "3cabe054-e4e3-4a6a-9158-965cf976d10f",
+        "9c521e05-28b3-43ee-9e74-c912ae77b6ff",
+        "a7d5f3c2-9b8e-4d6a-bc21-3e9f7a1d8e54",
+        "27135a3f-ffe8-447a-a810-9aa424b1196c",
+        "4cd48055-f7db-4211-9280-5f973711b24a",
+        "a7d5f3c2-9b8e-4d6a-bc21-3e9f7a1d8e54",
+        "27135a3f-ffe8-447a-a810-9aa424b1196c",
+        "9c521e05-28b3-43ee-9e74-c912ae77b6ff",
+    ]
+    itens = [
+        "f151bcbc-7fba-49f1-8ce9-90518c919078",
+    ]
+
+    #     session.execute(
+    #         f"""{INSERT_PERSONAGEM}
+    # VALUES (1c773acd-295b-436d-b792-8011e739e527, 'Adam Andrews', 'Adam', {level}, 'Pugilista', 'Combatente', 'Orc Sanguir', 'Griphon Byotr', 'Você é cria da Fúria, a deusa engolfada em chamas. Por vezes, seu temperamento poderá traí-lo, fazendo com que seja tomado pelo mesmo fogo que consome tudo à sua volta. Sempre que entrar no estado de cólera ardente, ganha 1 ponto de catarse.', 0, {pe}, {pe}, 49, 49, hp, {reducao_de_dano}, {bonus_de_proficiencia}, [{", ".join(pericias)}], [{", ".join(talentos)}], [{", ".join(passivas)}], [{", ".join(skills)}], [{", ".join(forca)}], [{", ".join(destreza)}], [{", ".join(constituicao)}], [{", ".join(inteligencia)}], [{", ".join(sabedoria)}], [{", ".join(carisma)}], 5, ['ÁCIDO', 'NECRÓTICO'], [], [], {", ".join(itens)}], [1], 3, 22 [], 100, 'adam.png', <:adam_token:1394716537956466788>, '1239326132327944313');"""
+    #     )
+    print("ADAM ADICIONADO")
+
+    # --------------------------------------------------------------------------------------------
+
+    # PROMPT GUNTHER
+
+    #     forca = ["10", "0"]
+    #     destreza = ["12", "2"]
+    #     constituicao = ["13", "3"]
+    #     inteligencia = ["9", "-1"]
+    #     sabedoria = ["11", "1"]
+    #     carisma = ["11", "1"]
 
     #     session.execute(
     #         f"""{INSERT_PASSIVA}
-    # VALUES (5bc5ecad-03dd-4e0d-abfe-5fa8bbb80771, 'Ataque Especializado', 'Você aprendeu a se virar em combate usando astúcia e conhecimento com suas armas. Seus **ATAQUES** com **vantagem** que causam dano recebem a seguinte modificação:', 'reacao', 'ADICIONA', '**Acerto:**  Você causa +1d6 pontos de dano do mesmo tipo.\n**Especial:** Você só pode causar esse dano adicional uma vez por turno.', 0, 'PE');"""
+    # VALUES (5bc5ecad-03dd-4e0d-abfe-5fa8bbb80771, 'Ataque Especializado', 'Você aprendeu a se virar em combate usando astúcia e conhecimento com suas armas. Seus **ATAQUES** com **vantagem** que causam dano recebem a seguinte modificação:', 'reacao', 'ADICIONA', '**Acerto:**  Você causa +{ataque_especializado} pontos de dano do mesmo tipo.\n**Especial:** Você só pode causar esse dano adicional uma vez por turno.', 0, 'PE');"""
     #     )
     #     session.execute(
     #         f"""{INSERT_SKILL}
-    # VALUES (12cccd1a-79fa-44ac-be51-e2c8ea5c22a3, 'Corte com a Foice e Corrente', 0, 'acao', 'LEVE, ARREMESÁVEL, ATAQUE, CORTANTE, VERSÁTIL, SUPERIOR', '6m.', 'Instatânea.', '1d20 + Bônus de FOR vs FOR.', '1d6 + Bônus de FOR', 'Caso você erre no teste de acerto, você solta a **ARMA** e terá que gastar sua <:acao_bonus:1326585197004722197> Ação Bônus para pegá-la novamente.', 'None', 'None', 'None', 'Uma criatura.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
+    # VALUES (12cccd1a-79fa-44ac-be51-e2c8ea5c22a3, 'Corte com a Foice e Corrente', 0, 'acao', 'LEVE, ARREMESÁVEL, ATAQUE, CORTANTE, VERSÁTIL, SUPERIOR', '6m.', 'Instatânea.', '1d20 + {int(forca[1])} vs **FOR**.', '1d6 + 1d8 + {int(forca[1])}.', 'Caso você erre no teste de acerto, você solta a **ARMA** e terá que gastar sua <:acao_bonus:1326585197004722197> Ação Bônus para pegá-la novamente.', 'None', 'None', 'None', 'Uma criatura.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
     #     )
     #     session.execute(
     #         f"""{INSERT_SKILL}
-    # VALUES (f53836e1-914b-4ca1-b713-cecd9d518e06, 'Infligir Ferimentos', 1, 'acao', 'SUPERFICIAL, OFENSIVO, ATAQUE, MÁGICO, NECRÓTICO', 'Alcance.', 'Instântanea.', 'Mágico vs CON.', '3d10 pontos de dano **NECRÓTICO**.', 'O alvo sofre metade do dano.', 'None', 'None', 'None', 'Uma criatura.', 'Ilimitado.', 'reacao', 'ADICIONA', '**Acerto:** Aumenta o dano adicional em +2d10. Você pode aplicar essa modificação quantas vezes quiser', 2, 'PE');"""
+    # VALUES (f53836e1-914b-4ca1-b713-cecd9d518e06, 'Infligir Ferimentos', 1, 'acao', 'SUPERFICIAL, OFENSIVO, ATAQUE, MÁGICO, NECRÓTICO', 'Toque.', 'Instântanea.', '1d20 + {int(carisma[1])} vs **CON**.', '3d10 + pontos de dano **NECRÓTICO**.', 'O alvo sofre metade do dano.', 'None', 'None', 'None', 'Uma criatura.', 'Ilimitado.', 'reacao', 'ADICIONA', '**Acerto:** Aumenta o dano adicional em +2d10. Você pode aplicar essa modificação quantas vezes quiser', 2, 'PE');"""
     #     )
     #     session.execute(
     #         f"""{INSERT_SKILL}
@@ -750,6 +960,10 @@ VALUES (69fa11c2-ca6a-44b7-93c2-b744d0e98554, 'Julius Wick', 'Julius', {level}, 
     # VALUES (45c0cd6c-13e5-48fd-af3e-9bd8e98c564f, 'Sangue Maldito', 'Seu sangue impregnado com a essência de Warpinier concede alguns privilégios. O usuário tem **resistência** a dano **ÁCIDO** e **NECRÓTICO**. Além disso, o usuário recebe a habilidade "*Sede de sangue"*.', 'None', 'None', '0', 0, 'None');"""
     #     )
     #     session.execute(
+    #         f"""{INSERT_TALENTO}
+    # VALUES (6b2c8b3b-4c75-4daf-a2de-3f6a0a7a8d83, 'Presas de Warpinier', 'Seu sangue maldito fez com que suas presas se tornassem verdadeiras armas, que podem ser usadas em momentos de adrenalina. Seus **ATAQUES** com o descritor **ARMA** recebem a seguinte modificação:', 'reacao', 'ADICIONA', '**Acerto:** +1d6 pontos de dano **PERFURANTE** e você recebe todos benefícios da característica *"Sangue Maldito"*, mas o alvo não fica com **desvantagem** em testes.', 2, 'PE');"""
+    #     )
+    #     session.execute(
     #         f"""{INSERT_SKILL}
     # VALUES (cd6acb0f-d656-429b-acf2-4987a61d00dc, 'Modificar com Sangue', 1, 'acao bonus', 'SANGUIR', 'Toque.', 'Uma cena.', 'None', 'None', 'None', 'O equipamento afetado recebe um descritor de equipamento a sua escolha.', 'Você só pode usar essa habilidade uma  vez por cena.', 'None', 'Uma arma.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
     #     )
@@ -762,12 +976,16 @@ VALUES (69fa11c2-ca6a-44b7-93c2-b744d0e98554, 'Julius Wick', 'Julius', {level}, 
     # VALUES (ccbeb133-a5d9-4ad0-a4d9-00a29b2a6998, 'Alimentos das Chamas', 2, 'acao', 'BENÇÃO, MÁGICO', 'Visão.', 'Instântanea.', 'Mágico vs **CAR**.', 'O usuário descobre o que aquela criatura mais deseja (naquela cena).', 'O usuário só pode usar essa habilidade se tiver usado a habilidade "*Receber Benção"*', 'Nenhuma outra personagem ou criatura sabe que você usou essa habilidade.', 'None', 'None', 'Uma criatura.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
     #     )
     #     session.execute(
-    #         """INSERT INTO xmercury.passivas (id, nome, descricao, modificador_execucao, modif icador_nome, modificador_descricao, modificador_gasto, modificador_gasto_tipo)
+    #         f"""{INSERT_PASSIVA}
     # VALUES (66eed95f-1301-4121-a334-1526177cc8c5, 'Adequar-se ao Meio', 'Após usar a habilidade "*Receber Benção"*,o usuário recebe vantagem em todos os testes que envolvam esconder-se ou misturar-se a multidões.', 'None', 'None', '0', 0, 'None');"""
     #     )
     #     session.execute(
     #         f"""{INSERT_TALENTO}
     # VALUES (d34c41e1-2f59-4fb9-9429-7dd122e62b19, 'Crítico Forçado', 'Ao acertar um **ATAQUE**, você pode dever um favor maior para fazer com que esse acerto conte como um acerto crítico. Esse talento só pode ser usado uma vez por dia.', 'None', 'None', '0', 0, 'None');"""
+    #     )
+    #     session.execute(
+    #         f"""{INSERT_TALENTO}
+    # VALUES (656ed8ac-b6ec-4577-a240-3f63e744242b, 'Especialização Máxima', 'Sempre que você ou um aliado usar seu dado de *"Ataque Especializado"*, você pode dever um favor menor para fazer com que o dado tenha seu valor máximo, sem precisar ser jogado.', 'None', 'None', '0', 0, 'None');"""
     #     )
     #     session.execute(
     #         f"""{INSERT_SKILL}
@@ -791,11 +1009,32 @@ VALUES (69fa11c2-ca6a-44b7-93c2-b744d0e98554, 'Julius Wick', 'Julius', {level}, 
     #     )
     #     session.execute(
     #         f"""{INSERT_SKILL}
-    # VALUES (309f9471-f79c-41b6-a6dc-ad3b02ab3155, 'Presença de Lumine', 0, 'acao bonus', 'PACTUADO, MÁGICO', 'Pessoal.', 'Instantânea.', 'None', 'None', 'Caso algum teste com Lumine de um erro crítico (1), ela não falará com você até o começo da próxima rodada.', 'Através dos símbolos em suas mãos, você possui conexão com Lumine, uma entidade poderosa. Caso você agrade Lumine, poderá pedir favores à ela; podendo pedir itens, pontos de ênfase, pontos de catarse, pontos de vida, etc:\n\nFavores pequenos -> itens básicos, pontos de vida (1d6), informação básica da cena. (todas essas recompensas são apenas para o usuário):\n- Entregar um item básico (Lumine pode aceitar ou não dependendo do item ou da quantidade).\n- Eliminar um inimigo ({vida do inimigo} >= 35)\n- Fazer uma ação honrável\n...\n\nFavores maiores ->  item raro, pontos de vida(2d4 + 2), pontos de catarse(1d3), pontos de ênfase(1d4), informação importante da cena. (todos essas recompensas podem ser para qualquer pessoa da equipe)\n- Entregar um item raro/importante/valioso (Lumine pode aceitar ou não dependendo do item ou da quantidade)\n- Eliminar um inimigo ({vida do inimigo} <= 35)\n - Passar um dia com um combate sem tomar dano\n- Fazer Lumine rir. Para fazer esse favor existe dois meios: O usuário pode contar uma piada ao mestre, se o mestre achar engraçado, o usuário pode pedir sua recompensa; O usuário faz um teste de 1d20 + bônus de **CAR** (podendo usar catarse ou buffs), se o resultado for maior ou igual a 16, o usuário pode pedir sua recompensa.', 'O jogador pode tentar negociar outro favores com o mestre. Caso as duas mãos do usuários sejam danificadas de forma extrema ou coberta com algo espeço, a conexão com Lumine pode ser perdida. Mas caso apenas uma das mãos seja danificada, o usuário fica com **desvantagem** nos testes da habilidade.', 'None', 'None', '4', 'None', 'None', 'None', 0, 'None');"""
+    # VALUES (309f9471-f79c-41b6-a6dc-ad3b02ab3155, 'Presença de Lumine', 0, 'acao bonus', 'PACTUADO, MÁGICO', 'Pessoal.', 'Instantânea.', 'None', 'None', 'Caso algum teste com Lumine de um erro crítico (1), ela não falará com você até o começo da próxima rodada.', 'Através dos símbolos em suas mãos, você possui conexão com Lumine, uma entidade poderosa. Caso você agrade Lumine, poderá pedir favores à ela; podendo pedir itens, pontos de ênfase, pontos de catarse, pontos de vida, etc:\n\nFavores pequenos -> itens básicos, pontos de vida (1d6), informação básica da cena. (todas essas recompensas são apenas para o usuário):\n- Entregar um item básico (Lumine pode aceitar ou não dependendo do item ou da quantidade).\n- Eliminar um inimigo ({{vida do inimigo}} >= 35)\n- Fazer uma ação honrável\n...\n\nFavores maiores ->  item raro, pontos de vida(2d4 + 2), pontos de catarse(1d3), pontos de ênfase(1d4), informação importante da cena. (todos essas recompensas podem ser para qualquer pessoa da equipe)\n- Entregar um item raro/importante/valioso (Lumine pode aceitar ou não dependendo do item ou da quantidade)\n- Eliminar um inimigo ({{vida do inimigo}} <= 35)\n - Passar um dia com um combate sem tomar dano\n- Fazer Lumine rir. Para fazer esse favor existe dois meios: O usuário pode contar uma piada ao mestre, se o mestre achar engraçado, o usuário pode pedir sua recompensa; O usuário faz um teste de 1d20 + bônus de **CAR** (podendo usar catarse ou buffs), se o resultado for maior ou igual a 16, o usuário pode pedir sua recompensa.', 'O jogador pode tentar negociar outro favores com o mestre. Caso as duas mãos do usuários sejam danificadas de forma extrema ou coberta com algo espeço, a conexão com Lumine pode ser perdida. Mas caso apenas uma das mãos seja danificada, o usuário fica com **desvantagem** nos testes da habilidade.', 'None', 'None', '4', 'None', 'None', 'None', 0, 'None');"""
     #     )
+
+    #     pericias = [
+    #         "7b32de93-92b1-402a-93fe-c7a295535490",
+    #         "98f70eea-9c31-44a4-8c66-2b1eca1a530a",
+    #         "d28b4723-1177-46ac-b1f2-bf785330b1a9",
+    #         "50e3508e-335c-42ef-97cf-1db7a07962c4",
+    #         "e95b8d53-07d4-47bf-9d99-e23368c2dcba",
+    #         "0222604e-cd4d-4077-b19f-7eb7c4e8c927",
+    #     ]
+    #     pericias = []
+    #     passivas = ["5bc5ecad-03dd-4e0d-abfe-5fa8bbb80771"]
+    #     talentos = [
+    #         "d34c41e1-2f59-4fb9-9429-7dd122e62b19",
+    #         "656ed8ac-b6ec-4577-a240-3f63e744242b",
+    #     ]
+    #     skills = []
+    #     itens = [
+    #         "f151bcbc-7fba-49f1-8ce9-90518c919078",
+    #     ]
+
     #     session.execute(
-    #         """INSERT INTO xmercury.personagens (id, nome, nickname, level, path, classe, legacy, heritage, melancholy, catarse, pe, pe_atual, hp hp_atual, reducao_de_dano, bonus_de_proficiencia, pericias, talentos, passivas, skills, forca, dexterity, constituicao, inteligencia, sabedoria, carisma, pontos_de_sombra, resistencia, vulnerabilidade, imunidade, inventario_itens, inventario_numero, volume_atual, limite_de_volumes, condicoes, saldo, imagem, usuario)
-    # VALUES (e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8, 'Gunther Nosferata', 'Gunther', 4, 'Pactudo', 'Especialista', 'Sanguir', 'Byotir', 'Você precisa ser convidado para entrar em qualquer propriedade que não lhe pertença, a menos que tenha deixado algum objeto pessoal seu lá dentro, sob o cuidado de outra pessoa do local.', 1, 12, 36, 2, 2, [7b32de93-92b1-402a-93fe-c7a295535490, 98f70eea-9c31-44a4-8c66-2b1eca1a530a, d28b4723-1177-46ac-b1f2-bf785330b1a9, 50e3508e-335c-42ef-97cf-1db7a07962c4, e95b8d53-07d4-47bf-9d99-e23368c2dcba, 0222604e-cd4d-4077-b19f-7eb7c4e8c927], [d34c41e1-2f59-4fb9-9429-7dd122e62b19], [45c0cd6c-13e5-48fd-af3e-9bd8e98c564f, 66eed95f-1301-4121-a334-1526177cc8c5], [12cccd1a-79fa-44ac-be51-e2c8ea5c22a3, f53836e1-914b-4ca1-b713-cecd9d518e06, d9f9dab4-913f-416c-9cf6-3690ba853f05, 9b195835-4b3b-4d07-9a80-fa4497b61676, 59951d9d-3c3e-496b-9491-e7b7554c04ef, cd6acb0f-d656-429b-acf2-4987a61d00dc, 88a87ee1-e31f-4985-914e-a040408cf8af, ccbeb133-a5d9-4ad0-a4d9-00a29b2a6998, e7c94b4a-28cb-4a44-956b-1c7ebcf1a0a0, 10d0b1df-e399-4d2f-bd8f-01e0f1ad6b89], [10, 0], [12, 2], [13, 3], [9, -1], [11, 1], [11, 1], 5, ['ÁCIDO', 'NECRÓTICO'], [], [], [e6fa95b9-b04c-4f40-88e0-195a0488f0de, 9b8e370b-29f3-470f-bd50-e52f8719f76a, 5f219452-0438-40e4-ba90-d28ff16144c9, 92dd4242-217d-495c-b761-6d097fd464ec, 0beb39c2-123a-4d40-b2eb-e011b55028fb], [1, 1, 1, 2, 2], [], 960, 'gunther.png', '813254664241414144');"""
+    #         f"""{INSERT_PERSONAGEM}
+    # VALUES (1c773acd-295b-436d-b792-8011e739e527, 'Gunther Nosferata', 'Gunther', {level}, 'Pactuado', 'Especialista', 'Sanguir', 'Byotr', 'Você precisa ser convidado para entrar em qualquer propriedade que não lhe pertença, a menos que tenha deixado algum objeto pessoal seu lá dentro, sob o cuidado de outra pessoa do local. Sempre que for convidado para entrar em algum local, ganha 1 ponto de catarse', 0, {pe}, {pe}, 49, 49, hp, {reducao_de_dano}, {bonus_de_proficiencia}, [{", ".join(pericias)}], [{", ".join(talentos)}], [{", ".join(passivas)}], [{", ".join(skills)}], [{", ".join(forca)}], [{", ".join(destreza)}], [{", ".join(constituicao)}], [{", ".join(inteligencia)}], [{", ".join(sabedoria)}], [{", ".join(carisma)}], 5, ['ÁCIDO', 'NECRÓTICO'], [], [], {", ".join(itens)}], [1], 3, 22 [], 100, 'adam.png', '<:adam_token:1394716537956466788>', '1239326132327944313');
+    # VALUES (e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8, 'Gunther Nosferata', 'Gunther', 4, 'Pactudo', 'Especialista', 'Sanguir', 'Byotir', 'Você precisa ser convidado para entrar em qualquer propriedade que não lhe pertença, a menos que tenha deixado algum objeto pessoal seu lá dentro, sob o cuidado de outra pessoa do local.', 1, 12, 36, 2, 2, [], [], [45c0cd6c-13e5-48fd-af3e-9bd8e98c564f, 66eed95f-1301-4121-a334-1526177cc8c5], [12cccd1a-79fa-44ac-be51-e2c8ea5c22a3, f53836e1-914b-4ca1-b713-cecd9d518e06, d9f9dab4-913f-416c-9cf6-3690ba853f05, 9b195835-4b3b-4d07-9a80-fa4497b61676, 59951d9d-3c3e-496b-9491-e7b7554c04ef, cd6acb0f-d656-429b-acf2-4987a61d00dc, 88a87ee1-e31f-4985-914e-a040408cf8af, ccbeb133-a5d9-4ad0-a4d9-00a29b2a6998, e7c94b4a-28cb-4a44-956b-1c7ebcf1a0a0, 10d0b1df-e399-4d2f-bd8f-01e0f1ad6b89], [10, 0], [12, 2], [13, 3], [9, -1], [11, 1], [11, 1], 5, ['ÁCIDO', 'NECRÓTICO'], [], [], [e6fa95b9-b04c-4f40-88e0-195a0488f0de, 9b8e370b-29f3-470f-bd50-e52f8719f76a, 5f219452-0438-40e4-ba90-d28ff16144c9, 92dd4242-217d-495c-b761-6d097fd464ec, 0beb39c2-123a-4d40-b2eb-e011b55028fb], [1, 1, 1, 2, 2], [], 960, 'gunther.png', '813254664241414144');"""
     #     )
     #     print("GUNTHER ADICIONADO")
 
@@ -829,7 +1068,7 @@ VALUES (69fa11c2-ca6a-44b7-93c2-b744d0e98554, 'Julius Wick', 'Julius', {level}, 
     #     )
     #     session.execute(
     #         f"""{INSERT_SKILL}
-    # VALUES (0f45f5a1-341a-4b80-8850-813c8493a327, 'Comandar Companheiro: Atacar e Machucar', 1, 'acao bonus', 'MESTRE DAS FERAS, VOZ', '18m.', 'Instantânea.', 'None', 'None', 'None', 'Faça um teste de **SAB** vs **DES** para encontrar uma criatura escondida no seu alcance. Se você vencer o teste, seu companheiro animal se desloca para um espaço adjacente ao da criatura e realizar um _“Comandar Companheiro: Atacar e  Machucar”_ como  <:acao_livre:1326585198892154901> ação livre.', 'None', 'None', 'None', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
+    # VALUES (0f45f5a1-341a-4b80-8850-813c8493a327, 'Comandar Companheiro: Atacar e Machucar', 1, 'acao bonus', 'MESTRE DAS FERAS, VOZ', '18m.', 'Instantânea.', 'None', 'None', 'None', 'Faça um teste de **SAB** vs **DES** para encontrar uma criatura escondida no seu alcance. Se você vencer o teste, seu companheiro animal se desloca para um espaço adjacente ao da criatura e realizar um _"Comandar Companheiro: Atacar e  Machucar"_ como  <:acao_livre:1326585198892154901> ação livre.', 'None', 'None', 'None', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
     #     )
     #     session.execute(
     #         f"""{INSERT_SKILL}
@@ -841,7 +1080,7 @@ VALUES (69fa11c2-ca6a-44b7-93c2-b744d0e98554, 'Julius Wick', 'Julius', {level}, 
     #     )
     #     session.execute(
     #         f"""{INSERT_SKILL}
-    # VALUES (a37db676-097e-4b8a-854d-8e1115522647, 'Inspirar Através de Palavras', 1, 'reacao', 'ESPECIALISTA, INSPIRAÇÃO, VOZ', '18m.', 'Uma cena.', 'None', 'None', 'None', 'Você inspira o aliado. Enquanto estiver ***Inspirado*** dessa maneira, o aliado pode usar seu dado de _“Ataque Especializado”_ como bônus para um teste a sua escolha. Se o fizer, ele deixa de estar ***Inspirado***.', 'você recupera o uso da sua <:reacao:1326585200519544885> reação. Você só pode usar essa habilidade uma vez por rodada.', 'Você foi bem-sucedido em um teste.', 'Um aliado.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
+    # VALUES (a37db676-097e-4b8a-854d-8e1115522647, 'Inspirar Através de Palavras', 1, 'reacao', 'ESPECIALISTA, INSPIRAÇÃO, VOZ', '18m.', 'Uma cena.', 'None', 'None', 'None', 'Você inspira o aliado. Enquanto estiver ***Inspirado*** dessa maneira, o aliado pode usar seu dado de _"Ataque Especializado"_ como bônus para um teste a sua escolha. Se o fizer, ele deixa de estar ***Inspirado***.', 'você recupera o uso da sua <:reacao:1326585200519544885> reação. Você só pode usar essa habilidade uma vez por rodada.', 'Você foi bem-sucedido em um teste.', 'Um aliado.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');"""
     #     )
     #     session.execute(
     #         f"""{INSERT_SKILL}
@@ -884,13 +1123,20 @@ VALUES (69fa11c2-ca6a-44b7-93c2-b744d0e98554, 'Julius Wick', 'Julius', {level}, 
     # """
     #     )
 
-    #     # --------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------
 
     #     # PROMPT DO TSUKU
 
+    #     forca = ["13", "3"]
+    #     destreza = ["11", "1"]
+    #     constituicao = ["13", "3"]
+    #     inteligencia = ["12", "2"]
+    #     sabedoria = ["10", "0"]
+    #     carisma = ["9", "-1"]
+
     #     session.execute(
     #         f"""{INSERT_PASSIVA}
-    # VALUES (7de3b1c4-8f3e-4296-8de1-319e0e794dca, 'Ataque Poderoso', 'Você treinou seu corpo para ser capaz de desferir ataques poderosíssimos sempre que ataca. Seus **ATAQUES** com **ARMAS** recebem a seguinte modificação:', 'reacao', 'AMPLIAR + 15', '**Acerto:** você causa +1d8 pontos de dano do mesmo tipo.', 0, 'PE');"""
+    # VALUES (7de3b1c4-8f3e-4296-8de1-319e0e794dca, 'Ataque Poderoso', 'Você treinou seu corpo para ser capaz de desferir ataques poderosíssimos sempre que ataca. Seus **ATAQUES** com **ARMAS** recebem a seguinte modificação:', 'reacao', 'AMPLIAR + 15', '**Acerto:** você causa +{ataque_poderoso} pontos de dano do mesmo tipo.', 0, 'PE');"""
     #     )
     #     session.execute(
     #         f"""{INSERT_SKILL}
@@ -911,14 +1157,6 @@ VALUES (69fa11c2-ca6a-44b7-93c2-b744d0e98554, 'Julius Wick', 'Julius', {level}, 
     #     session.execute(
     #         f"""{INSERT_SKILL}
     # VALUES (fe9dbd56-2cef-4e91-acdb-f3af604fbb6e, 'Quinta Forma: Scorching Flow', 1, 'acao bonus', 'ELEMENTARISTA, ÍGNEO, MANOBRA ELEMENTAL', '9m.', 'Até o final do seu próximo turno.', 'None', 'None', 'None', 'O próximo **ATAQUE** que a criatura acertar causa +1d8 pontos de dano **ÍGNEO** com o qual você está em afinidade.', 'O usuário precisa estar em afinidade elemental para usar essa habilidade.', 'None', 'Uma criatura voluntária.', 'Ilimitado.', 'None', 'None', 'None', 0, 'None');      """
-    #     )
-    #     session.execute(
-    #         """
-    # """
-    #     )
-    #     session.execute(
-    #         """
-    # """
     #     )
     #     session.execute(
     #         f"""{INSERT_SKILL}
@@ -945,17 +1183,110 @@ VALUES (69fa11c2-ca6a-44b7-93c2-b744d0e98554, 'Julius Wick', 'Julius', {level}, 
     # VALUES (97245586-3669-47a1-87ec-3feeebed3fa6, 'Yedo', 'Espada tradicional de Novahorizon, longa e ligeiramente curva.', 100, 2);"""
     #     )
 
-    # --------------------------------------------------------------------------------------------
+    #     pericias = [
+    #         "7b32de93-92b1-402a-93fe-c7a295535490",
+    #         "98f70eea-9c31-44a4-8c66-2b1eca1a530a",
+    #         "d28b4723-1177-46ac-b1f2-bf785330b1a9",
+    #         "50e3508e-335c-42ef-97cf-1db7a07962c4",
+    #         "e95b8d53-07d4-47bf-9d99-e23368c2dcba",
+    #         "0222604e-cd4d-4077-b19f-7eb7c4e8c927",
+    #     ]
+    #     passivas = [
+    #         "7de3b1c4-8f3e-4296-8de1-319e0e794dca",
+    #         "1b3bc403-8932-43b4-a244-e4dd5c134e4c",
+    #         "4e784780-03b5-4805-a2c3-602911cb6b5a",
+    #         "3b4d28a9-02eb-4b85-a32b-58987db123a5",
+    #     ]
+    #     talentos = [
+    #         "15034448-5eef-4996-bb93-e26f241c26bf",
+    #     ]
+    #     skills = [
+    #         "fd7382c2-dda4-4101-b0b0-4b17c7c5daef",
+    #         "798ba218-6874-48fe-bde8-3264b263291b",
+    #         "158702ec-4a4c-495b-8880-eb58f9dc811f",
+    #         "92b15962-8e60-4fef-9e9c-2301648aa461",
+    #         "fe9dbd56-2cef-4e91-acdb-f3af604fbb6e",
+    #         "1ebb3ce6-f374-4cae-a7d1-0f4a820a8afc",
+    #     ]
+    #     itens = [
+    #         "97245586-3669-47a1-87ec-3feeebed3fa6",
+    #     ]
 
-    # PROMPT DE ZÊNITE
+    #     session.execute(
+    #         f"""{INSERT_PERSONAGEM}
+    # VALUES (7eac7b56-f4d4-4177-89d6-748da17b531c, 'Gunther Nosferata', 'Gunther', {level}, 'Pactuado', 'Especialista', 'Sanguir', 'Byotr', 'Você precisa ser convidado para entrar em qualquer propriedade que não lhe pertença, a menos que tenha deixado algum objeto pessoal seu lá dentro, sob o cuidado de outra pessoa do local. Sempre que for convidado para entrar em algum local, ganha 1 ponto de catarse', 0, {pe}, {pe}, 49, 49, hp, {reducao_de_dano}, {bonus_de_proficiencia}, [{", ".join(pericias)}], [{", ".join(talentos)}], [{", ".join(passivas)}], [{", ".join(skills)}], [{", ".join(forca)}], [{", ".join(destreza)}], [{", ".join(constituicao)}], [{", ".join(inteligencia)}], [{", ".join(sabedoria)}], [{", ".join(carisma)}], 5, ['ÁCIDO', 'NECRÓTICO'], [], [], [{", ".join(itens)}], [1], 3, 22 [], 100, 'tsuku.png', '<:adam_token:1394716537956466788>', '1296616660454604830');"""
+    #     )
 
-    # -------------------------------------------------------------------------------------------
+    #     # --------------------------------------------------------------------------------------------
 
-    # PROMPT FENRIR
+    #     # PROMPT DO CORVO
 
-    # --------------------------------------------------------------------------------------------
+    #     forca = ["11", "1"]
+    #     destreza = ["12", "2"]
+    #     constituicao = ["11", "1"]
+    #     inteligencia = ["11", "1"]
+    #     sabedoria = ["13", "3"]
+    #     carisma = ["9", "-1"]
 
-    # PROMPT ASHBORN
+    #     reducao_de_dano = 2
+
+    #     #     session.execute(
+    #     #         f"""{INSERT_PERSONAGEM}
+    #     # VALUES (e3c79d34-cfb3-418f-b382-32b12fe2dafa, 'Julius Wick', 'Julius', {level}, 'Necromante das Sombras', 'Especialista', 'Humano', 'Pomonas Cycle', 'Para Julius, o fim é necessário. Assim como a vida, todo ciclo tem um fim.', 0, {pe}, {pe}, 38, 38, 'hp', {reducao_de_dano}, {bonus_de_proficiencia}, [{", ".join(pericias)}], [{", ".join(talentos)}], [{", ".join(passivas)}], [{", ".join(skills)}], [{", ".join(forca)}], [{", ".join(destreza)}], [{", ".join(constituicao)}], [{", ".join(inteligencia)}], [{", ".join(sabedoria)}], [{", ".join(carisma)}], 5, [], [], [], [{", ".join(itens)}], [1, 1, 1, 1, 1, 1], 15, 19, [], 250, 'julius.png', '<:julius_token:1384691827654918268>', '921158705075077150');"""
+    #     #     )
+    #     #     print("CORVO ADICIONADO")
+
+    #     # --------------------------------------------------------------------------------------------
+
+    #     # PROMPT DE ZÊNITE
+
+    #     # -------------------------------------------------------------------------------------------
+
+    #     # PROMPT FENRIR
+
+    #     forca = ["13", "3"]
+    #     destreza = ["14", "2"]
+    #     constituicao = ["11", "1"]
+    #     inteligencia = ["8", "-2"]
+    #     sabedoria = ["10", "0"]
+    #     carisma = ["11", "1"]
+
+    #     reducao_de_dano = 0
+
+    #     pericias = [
+    #         "c7482295-cb98-49fe-92fd-8266c8675121",
+    #         "a052505a-add0-4717-9d30-e382a0741058",
+    #         "ebaea72e-3d09-487e-a809-360077352a5c",
+    #     ]
+
+    #     session.execute(
+    #         f"""{INSERT_PERSONAGEM}
+    # VALUES (73939ac9-83ac-481e-a855-ca02380ba48f, 'Fenrir, o Lobo do Ragnarok', 'Fenrir', {level}, 'Sombra', 'Combatente', 'Echo Sombrio', 'Aprisionado', 'Para Echos sombrios aprisionados, nada dói mais do que ver aliados sofrendo. Caso um aliado seja derrotado enquando um echo sombrio estiver em campo, o grupo inteiro ganha 1 **ponto de catarse**.', 0, {pe}, {pe}, 3, 3, 'carga', {reducao_de_dano}, {bonus_de_proficiencia}, [{", ".join(pericias)}], [{", ".join(talentos)}], [{", ".join(passivas)}], [{", ".join(skills)}], [{", ".join(forca)}], [{", ".join(destreza)}], [{", ".join(constituicao)}], [{", ".join(inteligencia)}], [{", ".join(sabedoria)}], [{", ".join(carisma)}], 0, ['ELÉTRICO'], [], ['VENENOSO'], [{", ".join(itens)}], [1], 4, 19, [], 250, 'fenrir.png', '<:fenrir_token:1394716544507838624>', 'None');"""
+    #     )
+
+    #     # --------------------------------------------------------------------------------------------
+
+    #     # PROMPT ASHBORN
+
+    #     forca = ["12", "2"]
+    #     destreza = ["18", "5"]
+    #     constituicao = ["10", "0"]
+    #     inteligencia = ["10", "0"]
+    #     sabedoria = ["16", "3"]
+    #     carisma = ["12", "2"]
+
+    #     reducao_de_dano = 0
+
+    #     pericias = [
+    #         "d0f44af5-c299-41c2-9e84-72dd9cdb7351",
+    #         "a052505a-add0-4717-9d30-e382a0741058",
+    #         "3bc86566-ec94-4459-a7fc-2a5d094a1f39",
+    #     ]
+
+    #     session.execute(
+    #         f"""{INSERT_PERSONAGEM}
+    # VALUES (0add69b7-771e-4580-a11b-bf1a75d35aa9, 'Ashborn, o Guardião do Darkhold I', 'Ashborn', {level}, 'Sombra', 'Ocultista', 'Echo Sombrio', 'Aprisionado', 'Para Echos sombrios aprisionados, nada dói mais do que ver aliados sofrendo. Caso um aliado seja derrotado enquando um echo sombrio estiver em campo, o grupo inteiro ganha 1 **ponto de catarse**.', 0, {pe}, {pe}, 5, 5, 'carga', {reducao_de_dano}, {bonus_de_proficiencia}, [{", ".join(pericias)}], [{", ".join(talentos)}], [{", ".join(passivas)}], [{", ".join(skills)}], [{", ".join(forca)}], [{", ".join(destreza)}], [{", ".join(constituicao)}], [{", ".join(inteligencia)}], [{", ".join(sabedoria)}], [{", ".join(carisma)}], 0, ['ELÉTRICO'], [], ['VENENOSO'], [{", ".join(itens)}], [1], 4, 19, [], 250, 'ashborn.png', '<:ashborn_token:1394716539915079731>', 'None');"""
+    #     )
 
     # --------------------------------------------------------------------------------------------
 

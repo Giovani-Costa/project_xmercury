@@ -21,7 +21,7 @@ class Atributos(BaseModel):
 class Skill(BaseModel):
     id: UUID
     nome: str
-    custo: Optional[int]
+    custo: int
     execucao: str
     descritores: Optional[str]
     alcance: Optional[str]
@@ -88,6 +88,13 @@ class Pericia(BaseModel):
 class Condicao(BaseModel):
     id: UUID
     nome: str
+    descricao: str
+
+
+class Descritor(BaseModel):
+    id: UUID
+    nome: str
+    tipo: str
     descricao: str
 
 

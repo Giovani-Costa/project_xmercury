@@ -1,4 +1,5 @@
 import random
+import re
 from enum import Enum, auto
 from typing import Optional
 
@@ -94,3 +95,22 @@ def girar_dados(
         gif=gif,
         tipo=tipo,
     )
+
+
+def girar_dados_str(string: str, vantagem: Optional[str]) -> DadoResultado:
+    regex = r"(\d+)d(\d+)(.*)"
+    match = re.match(regex, string)
+
+    if match:
+        dados = int(match.group(1))
+        numero = int(match.group(2))
+        bonus = eval(match.group(3))
+
+        return girar_dados(numero, dados, vantagem, bonus)
+    else:
+        return DadoResultado(
+            titulo="Erro no banco de dados",
+            mensagem="Erro no banco de dados",
+            tipo=TipoDadoResultado.ERRO,
+            gif="https://tenor.com/view/helpies-gif-3682755414895971819",
+        )
