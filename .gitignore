@@ -1,9 +1,8 @@
-/key.py
-sfx/ulquiorra.mp3
-sfx/ult_template.mp4
+/assets/sfx/ulquiorra.mp3
+/assets/sfx/ult_template.mp4
 *__pycache__
 /.env
-/database/xmercury-token.json
-/database/secure-connect-xmercury.zip
+/src/database/xmercury-token.json
+/src/database/secure-connect-xmercury.zip
 /map
-/LOG.md
+/assets/songs

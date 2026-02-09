@@ -1,0 +1,9 @@
+discord.py
+pydantic
+streamlit==1.46.1
+cassandra-driver
+pandas
+dotenv
+PyNaCl
+psycopg2
+redis

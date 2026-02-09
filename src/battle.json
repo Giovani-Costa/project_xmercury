@@ -1,0 +1,16 @@
+{
+    "batalha": [
+        {
+            "id": "69fa11c2-ca6a-44b7-93c2-b744d0e98554",
+            "iniciativa": 1
+        },
+        {
+            "id": "30180fc6-30ba-4f65-a520-53e63bc4ec65",
+            "iniciativa": 100
+        },
+        {
+            "id": "a",
+            "iniciativa": 10
+        }
+    ]
+}

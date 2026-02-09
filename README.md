@@ -1,5 +1,15 @@
-Olá, bom, esse é foi meu primeiro projeto de 2025; um bot de discord para facilitar minhas mesas de RPG.
-Hoje, 16/03/2025; com ajuda do meu professor, consegui terminar as conceitos iniciais do bot:
-  - Sistema de ficha: Uma versão das fichas completas dos personagens, que antes eram de papel e agora os usuários podem acessar de uma maneira mais dinâmica
-  - Rolagem de dados: Um sistema que gira um quantidade de dados que o usuário pedir e soma tudo no final
-  - Comunicação estável com o banco de dados: Nesse momento, o bot possui uma ótima comunicação entre os comandos e o servidor do banco de dados
+XMercury é um bot que automatiza e facilita minha campanha de RPG, girando dados, mostrando fichas, tocando músicas e etc. Os principais sistemas em funcionamentos são:
+  
+  - Rolagem de dados: Rola qualquer quantidade de dados com qualquer quantidade de lados. O resultado do dado por ser alterado por alguns elementos, como **vantagem**, **desvantagem** ou **bônus**. O sistema de dados participa diretamente do conjunto de comandos *Discord Bot*, mas também faz parte de outros sistemas e comandos, como o de perícias e ataques.
+  - Sonoplastia: O *Discord Bot* reproduz efeitos sonoros e  músicas na call que está ocorrendo a campanha do RPG, podendo ser o tema de alguem personagem, música de algum ambiente ou a playlist de batalha. O mestre controla o efeito sonoro que irá tocar com um comando no próprio Discord.
+  - Banco de Dados: O projeto utiliza um banco de dados em PostgreSQL, com o seguinte mapeamento:
+    - skills(nome, custo, execucao, descritores, alcance, duracao, ataque, acerto, erro, efeito, especial, gatilho, alvo, carga, modifidadores)
+    - talentos()
+    - passivas()
+    - modificadores()
+    - personagens()
+    - itens()
+    - pericias()
+    - condicoes()
+    - descritores()
+    - party()

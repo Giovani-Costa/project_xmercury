@@ -12,7 +12,7 @@
 
     [x] Escudo de Mestre -> um web site em streamlit, um segundo frontend, para o mestre ter um controle maior do banco de dados e etc.
 
-    [ ] Usar skills -> um sistema que os jogadores pudessam escolher um alvo para uma skills e usá-la, causando seus efeitos e fazendo seus cálculos de forma automática.
+    [ ] Usar skills -> um sistema que os jogadores pudessam escolher uma skills e usá-la.
 
     [ ] Sistema de aplicação de efeitos e condições -> um sistema que com que as condições e efeitos de uma skills seja aplicada e calculada de forma automática.
 
@@ -21,6 +21,10 @@
     [ ] Sistema de iniciativa -> um sistema que organizaria a ordem de ação de todos os jogadores da party e as calcularia automaticamente.
 
     [ ] Sistema de turnos -> um sistema que os jogadores pudessem ver as ações que ainda podem fazer naquele turno e fizessem-as.
+    
+    [ ] Usar skills 2.0 -> um sistema que os jogadores pudessam escolher um alvo para uma skills e usá-la, causando seus efeitos e fazendo seus cálculos de forma automática.
+
+    [x] Docker
 
     [ ] Sistema de mapa completo -> finalizar o sistema de mapa, adicionar um movimentação descente, sistema de zoom?.
 
@@ -33,3 +37,5 @@
     [ ] Sistema de loja -> um sistema que permite aos jogadores comprarem itens um comércio/loja específico em certo momentos da campanha.
 
     [ ] Sistema de site para administração do mestre -> um sistema onde haveria um site para o mestre configurar e administrar melhor informações e evento da campanha.
+
+    [ ] Parar de usar path como string

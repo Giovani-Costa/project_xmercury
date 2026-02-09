@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  discord_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: discord_bot
+    container_name: discord_bot
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - xmercury-network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 512M
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+
+
+  escudo_de_mestre:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: escudo_de_mestre
+    container_name: escudo_de_mestre
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8501:8501"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - xmercury-network
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - xmercury-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # command: >
+    #   postgres -c log_statement=all -c log_destination=stderr
+    ports:
+      - "5432:5432"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    restart: unless-stopped
+    networks:
+      - xmercury-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "6379:6379"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 64M
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  xmercury-network:
+    driver: bridge
