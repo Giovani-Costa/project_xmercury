@@ -629,7 +629,7 @@ VALUES ('dd1e2e42-46c3-4ae7-b88d-624589d5fbd2', 'reacao', 'ADICIONA', '**Acerto:
     cursor.execute(
         f"""{constantes.INSERT_PASSIVA}
 VALUES ('5bc5ecad-03dd-4e0d-abfe-5fa8bbb80771', 'Ataque Especializado', 'Você aprendeu a se virar em combate usando astúcia e conhecimento com suas armas. Seus **ATAQUES** com **vantagem** que causam dano recebem uma nova modificação.', 'e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8'),
-       ('45c0cd6c-13e5-48fd-af3e-9bd8e98c564f', 'Sangue Maldito', 'Seu sangue impregnado com a essência de Warpinier concede alguns privilégios. O usuário tem **resistência** a dano **ÁCIDO** e **NECRÓTICO**. Além disso, o usuário recebe a habilidade *"Sede de sangue"*.', 'e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8'),
+       ('45c0cd6c-13e5-48fd-af3e-9bd8e98c564f', 'Sangue Maldito', 'Seu sangue impregnado com a essência de Warpinier concede alguns privilégios. O usuário tem **resistência** a dano **ÁCIDO** e **NECRÓTICO**. Além disso, o usuário recebe a habilidade *"Sede de Sangue"*.', 'e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8'),
        ('66eed95f-1301-4121-a334-1526177cc8c5', 'Adequar-se ao Meio', 'Após usar a habilidade "*Receber Benção"*,o usuário recebe vantagem em todos os testes que envolvam esconder-se ou misturar-se a multidões.', 'e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8'),
        ('3764ae33-efde-4191-92c2-d5455c4394e1', 'Hidden Inventory', 'Você é capaz de guardar um item em sua sombra. Seu limite de peso aumentou em +4.', 'e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8');"""
     )
@@ -641,7 +641,7 @@ VALUES ('12cccd1a-79fa-44ac-be51-e2c8ea5c22a3', 'Corte com a Foice com Corrente'
        ('9b195835-4b3b-4d07-9a80-fa4497b61676', 'Convocar Lumine', 1, 'acao', 'TRUQUE, UTILITÁRIO, MÁGICA, CRIAÇÃO', '9m.', 'Uma cena.', NULL, NULL, NULL, 'Lumine usa seu chapéu para voltar para o plano material. Do chapéu, surge algumas patinhas, garras e um pequeno olho brilhante. Ela permanece pela duração da magia ou até quando ela queira ir embora. Você pode usar sua <:acao_livre:1326585198892154901> Ação Livre para pedir que ela faça algo, podendo interagir com itens e com o ambiente. Ela pode se distânciar de você em até 9m.', 'Ela não pode atacar, ativar itens mágicos ou carregar mais de 5 volumes. Além disso, ela  desaparece se ficar a mais de 9m do conjurador ou se você conjurar a magia novamente.', NULL, 'Ponto no alcance.', 'Ilimitado.', 'e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8'),
        ('59951d9d-3c3e-496b-9491-e7b7554c04ef', 'Transmutar Pacto em Arma', 2, 'acao', 'PACTUADO, MÁGICO', 'Toque.', 'Uma cena.', NULL, NULL, NULL, 'Você canaliza a força de Lumine no objeto. Ele se transforma numa arma que você seja proficiente e você pode usar seu **bônus de proficiência**, em vez de **FOR** ou **DES**, para as jogadas de ataque e dano com ela.', NULL, NULL, 'Um objeto mundano que você esteja empunhando.', 'Ilimitado.', 'e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8'),
        ('cd6acb0f-d656-429b-acf2-4987a61d00dc', 'Modificar com Sangue', 1, 'acao bonus', 'SANGUIR', 'Toque.', 'Uma cena.', NULL, NULL, NULL, 'O equipamento afetado recebe um descritor de equipamento a sua escolha.', 'Você só pode usar essa habilidade uma  vez por cena.', NULL, 'Uma arma.', 'Ilimitado.', 'e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8'),
-       ('88a87ee1-e31f-4985-914e-a040408cf8af', 'Sede de sangue', 0, 'acao bonus', 'ATAQUE, SANGUIR', 'Toque.', 'Instântanea.', '1d20 + {int(forca[1])} vs **FOR**', NULL, NULL, 'O usuário morde o alvo no pescoço, infectando-o com a essência de Warpinier, o alvo fica com *desvantagens** em todos os testes por 24 horas. Além disso, o usuário restaura 5 pontos de HP temporários e pode escolher uma doença, um veneno ou uma  condição (entre _**Atordoado**_, _**Desorientado**_, _**Encantado**_, _**Envenenado**_ ou _**Paralisado**_) que esteja afetando o usuário. Você encerra seu efeito.', NULL, NULL, 'Uma criatura humanoide.', 'Ilimitado.', 'e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8'),
+       ('88a87ee1-e31f-4985-914e-a040408cf8af', 'Sede de Sangue', 0, 'acao bonus', 'ATAQUE, SANGUIR', 'Toque.', 'Instântanea.', '1d20 + {int(forca[1])} vs **FOR**', NULL, NULL, 'O usuário morde o alvo no pescoço, infectando-o com a essência de Warpinier, o alvo fica com *desvantagens** em todos os testes por 24 horas. Além disso, o usuário restaura 5 pontos de HP temporários e pode escolher uma doença, um veneno ou uma  condição (entre _**Atordoado**_, _**Desorientado**_, _**Encantado**_, _**Envenenado**_ ou _**Paralisado**_) que esteja afetando o usuário. Você encerra seu efeito.', NULL, NULL, 'Uma criatura humanoide.', 'Ilimitado.', 'e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8'),
        ('e684f3b6-b5ff-44f7-8507-aa8f2e9f9085', 'Cambalhota Especializada!', 1, 'reacao', 'ESPECIALISTA', 'Pessoal.', 'Instatânea.', NULL, NULL, NULL, 'Você fica ***Caído*** e recebe **resistência** contra o dano do ataque.', NULL, 'Você é acertado por um ataque que não tenha sido realizado com **vantagem**.', 'Você.', 'Ilimitado.', 'e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8'),
        ('ccbeb133-a5d9-4ad0-a4d9-00a29b2a6998', 'Alimentos das Chamas', 2, 'acao', 'BENÇÃO, MÁGICO', 'Visão.', 'Instântanea.', '1d20 + {bonus_de_proficiencia} vs **CAR**.', 'O usuário descobre o que aquela criatura mais deseja (naquela cena).', 'O usuário só pode usar essa habilidade se tiver usado a habilidade "*Receber Benção"*', 'Nenhuma outra personagem ou criatura sabe que você usou essa habilidade.', NULL, NULL, 'Uma criatura.', 'Ilimitado.', 'e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8'),
        ('10d0b1df-e399-4d2f-bd8f-01e0f1ad6b89', 'Corte com Morganas Deathmetal', 0, 'acao', 'ATAQUE, CORTANTE, PESADO, ARMA', '6m.', 'Instântanea.', '1d20 + {int(forca[1])}', '2d6 + {bonus_de_proficiencia} de pontos de dano.', 'A espada cai', NULL, 'Se o usuário estiver ***Machucado***, ele ganha +1 em testes de ataque.', NULL, 'Uma criatura', '2', 'e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8'),
@@ -915,22 +915,22 @@ VALUES ('c0c3a5dd-a713-4992-9759-5e83d50cd4f5', '143fec26-003e-4aa8-b714-ec772d8
 
 #     # PROMPT DO MAX
 
-#     reducao_de_dano = 2
-#     forca = ["11", "1"]
-#     destreza = ["12", "2"]
-#     constituicao = ["11", "1"]
-#     inteligencia = ["10", "0"]
-#     sabedoria = ["13", "3"]
-#     carisma = ["9", "-1"]
+    reducao_de_dano = 2
+    forca = ["11", "1"]
+    destreza = ["12", "2"]
+    constituicao = ["11", "1"]
+    inteligencia = ["10", "0"]
+    sabedoria = ["13", "3"]
+    carisma = ["9", "-1"]
 
 
-#     f"""{constantes.INSERT_PERSONAGEM}
-# VALUES (e3c79d34-cfb3-418f-b382-32b12fe2dafa, 'Max', 'Max', {level}, 'Protetor do Arquipélago', 'Ocultista', 'Corvino', 'Vigília', 'malancolia.', 0, {pe}, {pe}, {calc_hp(int(constituicao[1])), 2}, {calc_hp(int(constituicao[1])), 2}, 'hp', {reducao_de_dano}, {bonus_de_proficiencia}, {int(forca[0])}, {int(forca[1])}, {int(destreza[0])}, {int(destreza[1])}, {int(constituicao[0])}, {int(constituicao[1])}, {int(inteligencia[0])}, {int(inteligencia[1])}, {int(sabedoria[0])}, {int(sabedoria[1])}, {int(carisma[0])}, {int(carisma[1])}, , {calc_liimite_peso(int(forca[1]))}, NULL, NULL, NULL, 100, 'max.png', '<>', '862452682107387904', '8a87e68e-cd9d-46e5-953a-35942487ef1b');"""
-#     cursor.execute(
-#         f"""{constantes.INSERT_SKILL}
-# VALUES ('543c5e5f-34af-4c11-88f1-1c3e3da8c2d3', 'Estocada com Tridente', 0, 'acao', 'PERFURANTE', '1m.', 'Instantânea.', '1d20 ', 'acerto', 'erro', 'efeito', 'especial', 'gatilho', 'alvo.', 'Ilimitado.', '');"""
-#     )
-#     print("MAX ADICIONADO")
+    f"""{constantes.INSERT_PERSONAGEM}
+VALUES ('e3c79d34-cfb3-418f-b382-32b12fe2dafa', 'Max ', 'Max', {level}, 'Protetor do Arquipélago', 'Ocultista', 'Corvino', 'Vigília', 'Corvinos sofrem com um impulso constante de subir, observar o mundo do alto e buscar padrões, sinais e presságios. Essa compulsão os afasta emocionalmente das pessoas ao redor, tornando-os espectadores da própria existência. Uma vez por cena, você ganha 1 **ponto de catarse** sempre que seguir esse impulso colocar você ou seus aliados em perigo, ou gerar um momento dramático significativo.', 0, {pe}, {pe}, {calc_hp(int(constituicao[1])), 2}, {calc_hp(int(constituicao[1])), 2}, 'hp', {reducao_de_dano}, {bonus_de_proficiencia}, {int(forca[0])}, {int(forca[1])}, {int(destreza[0])}, {int(destreza[1])}, {int(constituicao[0])}, {int(constituicao[1])}, {int(inteligencia[0])}, {int(inteligencia[1])}, {int(sabedoria[0])}, {int(sabedoria[1])}, {int(carisma[0])}, {int(carisma[1])}, , {calc_liimite_peso(int(forca[1]))}, NULL, NULL, NULL, 100, 'max.png', '<:max_token:1472605633508540678>', '862452682107387904', '8a87e68e-cd9d-46e5-953a-35942487ef1b');"""
+    cursor.execute(
+        f"""{constantes.INSERT_SKILL}
+VALUES ('543c5e5f-34af-4c11-88f1-1c3e3da8c2d3', 'Estocada com Tridente', 0, 'acao', 'PERFURANTE', '1m.', 'Instantânea.', '1d20 ', 'acerto', 'erro', 'efeito', 'especial', 'gatilho', 'alvo.', 'Ilimitado.', '');"""
+    )
+    print("MAX ADICIONADO")
 
     # --------------------------------------------------------------------------------------------
 

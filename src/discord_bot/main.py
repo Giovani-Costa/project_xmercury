@@ -210,9 +210,9 @@ async def ficha(
         )
     else:
         p_id = personagem.value
-    print(p_id)
+    # print(p_id)
     personagem = database.personagens.pegar_personagem_com_id(postgres_db, p_id)
-    print(personagem)
+    # print(personagem)
     view = PaginaFicha(personagem)
     embed = view.criar_ficha()
     view.send(interaction)
@@ -583,7 +583,7 @@ async def tocar_proximo(interaction: discord.Interaction):
 
     voice = interaction.guild.voice_client
     source = discord.FFmpegPCMAudio(musica_atual)
-    audio_com_volume = discord.PCMVolumeTransformer(source, volume=0.1)
+    audio_com_volume = discord.PCMVolumeTransformer(source)
     voice.play(
         audio_com_volume,
         after=lambda _: asyncio.run_coroutine_threadsafe(
@@ -592,14 +592,13 @@ async def tocar_proximo(interaction: discord.Interaction):
     )
     musica_inicio = time.time()
 
-
 @xmercury.tree.command(
     name="playlist",
     description="Inicia a playlist de batalha do RPG em ordem aleatória na call",
 )
 async def playlist(interaction: Interaction, start: Optional[str]):
     if start is not None:
-        redis_client.rpush(start)
+        redis_client.lpush("queue", f"/code/assets/songs/{start}.mp3")
 
     try:
         if interaction.user.voice:
