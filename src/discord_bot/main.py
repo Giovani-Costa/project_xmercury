@@ -9,7 +9,7 @@ from time import sleep
 from typing import Optional
 
 import discord
-from dado import TipoDadoResultado, girar_dados, girar_dados_str
+from dado import TipoDadoResultado, girar_dados, girar_sentenca
 from discord import FFmpegPCMAudio, Interaction, app_commands
 from discord.ext.commands import Bot
 from dotenv import load_dotenv
@@ -151,6 +151,35 @@ async def dado(
     if vantagem is not None:
         vantagem = vantagem.value
     dado = girar_dados(numero, dados, vantagem, bonus)
+    embed = discord.Embed(
+        title=dado.titulo,
+        description=dado.mensagem,
+        colour=discord.Colour.from_str("#226089"),
+    )
+    if dado.gif is not None:
+        await interaction.response.send_message(dado.gif)
+        await interaction.followup.send(embed=embed)
+    else:
+        await interaction.response.send_message(embed=embed)
+
+@app_commands.choices(
+    vantagem=[
+        app_commands.Choice(name="Vantagem", value="vantagem"),
+        app_commands.Choice(name="Desvantagem", value="desvantagem"),
+    ]
+)
+@xmercury.tree.command(
+    name="dice_sentence",
+    description="Gira múltiplos dados de uma única vez. Exemplo de uso: 4d8 + 2d6",
+)
+async def dice_sentence(
+    interaction: Interaction,
+    sentenca: str,
+    vantagem: Optional[app_commands.Choice[str]] = None,
+):
+    if vantagem is not None:
+        vantagem = vantagem.value
+    dado = girar_sentenca(sentenca, vantagem)
     embed = discord.Embed(
         title=dado.titulo,
         description=dado.mensagem,

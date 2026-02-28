@@ -1,8 +1,7 @@
-/assets/sfx/ulquiorra.mp3
-/assets/sfx/ult_template.mp4
 *__pycache__
 /.env
 /src/database/xmercury-token.json
 /src/database/secure-connect-xmercury.zip
-/map
+/src/map
 /assets/songs
+/assets/sfx

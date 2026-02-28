@@ -81,7 +81,7 @@ class PaginaFicha(discord.ui.View):
             embed.add_field(
                 name="Heritage:", value=f"{self.personagem.heritage}", inline=True
             )
-            embed.add_field(name="HP:", value=f"{self.personagem.hp}", inline=True)
+            embed.add_field(name=f"HP ({self.personagem.hp_tipo}):", value=f"{self.personagem.hp}", inline=True)
             embed.add_field(name="PE:", value=f"{self.personagem.pe}", inline=True)
             embed.add_field(
                 name="Catarse:", value=f"{self.personagem.catarse}", inline=True
@@ -101,26 +101,27 @@ class PaginaFicha(discord.ui.View):
                 value=f"{self.personagem.pontos_de_sombra}",
                 inline=True,
             )
-            embed.add_field(
-                name="Saldo:", value=f"{self.personagem.saldo} T$", inline=True
-            )
+            if self.personagem.saldo is not None:
+                embed.add_field(
+                    name="Saldo:", value=f"{self.personagem.saldo} T$", inline=True
+                )
 
             if self.personagem.resistencia is not None:
                 embed.add_field(
                     name="Resistência:",
-                    value=f"{', '.join(self.personagem.resistencia)}",
+                    value=f"{self.personagem.resistencia}",
                     inline=True,
                 )
             if self.personagem.vulnerabilidade is not None:
                 embed.add_field(
                     name="Vulnerabilidade:",
-                    value=f"{', '.join(self.personagem.vulnerabilidade)}",
+                    value=f"{self.personagem.vulnerabilidade}",
                     inline=True,
                 )
             if self.personagem.imunidade is not None:
                 embed.add_field(
                     name="Imunidade:",
-                    value=f"{', '.join(self.personagem.imunidade)}",
+                    value=f"{self.personagem.imunidade}",
                     inline=True,
                 )
             # if self.personagem.condicoes is not None:

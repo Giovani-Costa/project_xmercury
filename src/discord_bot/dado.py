@@ -99,21 +99,35 @@ def girar_dados(
     )
 
 
-def girar_dados_str(string: str, vantagem: Optional[str]) -> DadoResultado:
-    regex = r"(\d+)d(\d+)(.*)"
-    match = re.match(regex, string)
+def girar_sentenca(string: str, vantagem: Optional[str]) -> DadoResultado:
+    strings = string.split(" + ")
+    resultados = []
+    bonus = 0
+    regex = r"(\d+)d(\d+)"
 
-    if match:
-        dados = int(match.group(1))
-        numero = int(match.group(2))
-        bonus = eval(match.group(3))
+    for s in strings:
+        match = re.match(regex, s)
+        if match:
+            dados = match.group(1)
+            numero = match.group(2)    
+            resultados.append(girar_dados(int(numero), int(dados), vantagem, 0).valor_total)
+        else: 
+            bonus += int(s)
 
-        return girar_dados(numero, dados, vantagem, bonus)
-    else:
-        return DadoResultado(
-            titulo="Erro no banco de dados",
-            mensagem="Erro no banco de dados",
-            valor_total=None,
-            tipo=TipoDadoResultado.ERRO,
-            gif="https://tenor.com/view/helpies-gif-3682755414895971819",
-        )
+    resultado_final = sum(resultados) + bonus
+
+    return DadoResultado(
+        titulo=f"{string}",
+        mensagem=f"**:game_die:  O TOTAL É {resultado_final}  :game_die:**\n({' + '.join([str(r) for r in resultados])})" + (f" + {bonus}" if bonus != 0 else ""),
+        valor_total=resultado_final,
+        tipo=TipoDadoResultado.NORMAL,
+        gif=None,
+    )
+    # else:
+    #     return DadoResultado(
+    #         titulo="Erro no banco de dados",
+    #         mensagem="Erro no banco de dados",
+    #         valor_total=None,
+    #         tipo=TipoDadoResultado.ERRO,
+    #         gif="https://tenor.com/view/helpies-gif-3682755414895971819",
+    #     )

@@ -812,8 +812,8 @@ VALUES ('4ce34a98-ee22-4dc1-b17b-933d6b1f1e8d', 'Golpe Ainda Mais Poderoso', 'Se
     cursor.execute(
         f"""{constantes.INSERT_ITEM}
 VALUES ('97245586-3669-47a1-87ec-3feeebed3fa6', 'Yedo', 'Espada tradicional do Dojo Enken-ryū, longa e ligeiramente curva.', 100, 2),
-       ('e8149810-d9c4-4e2b-903a-5ee1c13f9094', 'Armadura de Couro Batido', 'Proteção comum entre mercenários e aventureiros inexperientes, reforçada com pequenas placas de couro em locais estratégicos.', 40, 3);"""
-    )
+       ('e8149810-d9c4-4e2b-903a-5ee1c13f9094', 'Armadura de Couro Batido', 'Proteção comum entre mercenários e aventureiros inexperientes, reforçada com pequenas placas de couro em locais estratégicos.', 40, 3),
+       ('31cf55b9-4452-4754-bb42-7459eafc6c13', 'Telemóvel', 'Um dispositivo moderno que, enquanto em contato com sinal e bateria carregada, permite comunicação entre dispositivos, captura e visualização de fotos, transações bancárias e navegação na teia nacional.', 500, 0);""")
     cursor.execute(
         f"""{constantes.INSERT_ITENS_PERSONAGENS}
 VALUES ('97245586-3669-47a1-87ec-3feeebed3fa6', '7eac7b56-f4d4-4177-89d6-748da17b531c', 1),
@@ -913,7 +913,7 @@ VALUES ('c0c3a5dd-a713-4992-9759-5e83d50cd4f5', '143fec26-003e-4aa8-b714-ec772d8
 
     # --------------------------------------------------------------------------------------------
 
-#     # PROMPT DO MAX
+    # PROMPT DO MAX
 
     reducao_de_dano = 2
     forca = ["11", "1"]
@@ -925,11 +925,36 @@ VALUES ('c0c3a5dd-a713-4992-9759-5e83d50cd4f5', '143fec26-003e-4aa8-b714-ec772d8
 
 
     f"""{constantes.INSERT_PERSONAGEM}
-VALUES ('e3c79d34-cfb3-418f-b382-32b12fe2dafa', 'Max ', 'Max', {level}, 'Protetor do Arquipélago', 'Ocultista', 'Corvino', 'Vigília', 'Corvinos sofrem com um impulso constante de subir, observar o mundo do alto e buscar padrões, sinais e presságios. Essa compulsão os afasta emocionalmente das pessoas ao redor, tornando-os espectadores da própria existência. Uma vez por cena, você ganha 1 **ponto de catarse** sempre que seguir esse impulso colocar você ou seus aliados em perigo, ou gerar um momento dramático significativo.', 0, {pe}, {pe}, {calc_hp(int(constituicao[1])), 2}, {calc_hp(int(constituicao[1])), 2}, 'hp', {reducao_de_dano}, {bonus_de_proficiencia}, {int(forca[0])}, {int(forca[1])}, {int(destreza[0])}, {int(destreza[1])}, {int(constituicao[0])}, {int(constituicao[1])}, {int(inteligencia[0])}, {int(inteligencia[1])}, {int(sabedoria[0])}, {int(sabedoria[1])}, {int(carisma[0])}, {int(carisma[1])}, , {calc_liimite_peso(int(forca[1]))}, NULL, NULL, NULL, 100, 'max.png', '<:max_token:1472605633508540678>', '862452682107387904', '8a87e68e-cd9d-46e5-953a-35942487ef1b');"""
+VALUES ('e3c79d34-cfb3-418f-b382-32b12fe2dafa', 'Max Avery', 'Max', {level}, 'Protetor do Arquipélago', 'Ocultista', 'Corvino', 'Vigília', 'Corvinos sofrem com um impulso constante de subir, observar o mundo do alto e buscar padrões, sinais e presságios. Essa compulsão os afasta emocionalmente das pessoas ao redor, tornando-os espectadores da própria existência. Uma vez por cena, você ganha 1 **ponto de catarse** sempre que seguir esse impulso colocar você ou seus aliados em perigo, ou gerar um momento dramático significativo.', 0, {pe}, {pe}, {calc_hp(int(constituicao[1])), 2}, {calc_hp(int(constituicao[1])), 2}, 'hp', {reducao_de_dano}, {bonus_de_proficiencia}, {int(forca[0])}, {int(forca[1])}, {int(destreza[0])}, {int(destreza[1])}, {int(constituicao[0])}, {int(constituicao[1])}, {int(inteligencia[0])}, {int(inteligencia[1])}, {int(sabedoria[0])}, {int(sabedoria[1])}, {int(carisma[0])}, {int(carisma[1])}, , {calc_liimite_peso(int(forca[1]))}, NULL, NULL, NULL, 100, 'max.png', '<:max_token:1472605633508540678>', '862452682107387904', '8a87e68e-cd9d-46e5-953a-35942487ef1b');"""
+    cursor.execute(
+    f"""{constantes.INSERT_MODIFICADOR}
+VALUES ('', 'nome', 'descricao', 'execucao', gasto, 'PE');"""
+    )
     cursor.execute(
         f"""{constantes.INSERT_SKILL}
-VALUES ('543c5e5f-34af-4c11-88f1-1c3e3da8c2d3', 'Estocada com Tridente', 0, 'acao', 'PERFURANTE', '1m.', 'Instantânea.', '1d20 ', 'acerto', 'erro', 'efeito', 'especial', 'gatilho', 'alvo.', 'Ilimitado.', '');"""
+VALUES ('543c5e5f-34af-4c11-88f1-1c3e3da8c2d3', 'Estocada com Tridente', 0, 'acao', 'PERFURANTE', '1m.', 'Instantânea.', '1d20 + {int(forca[1])}', '1d20 + {int(forca[1])}', 'erro', 'efeito', 'especial', 'gatilho', 'alvo.', 'Ilimitado.', '');"""
     )
+    cursor.execute(
+        f"""{constantes.INSERT_PASSIVA}
+VALUES ('', '', '', '');"""
+    )
+    cursor.execute(
+        f"""{constantes.INSERT_TALENTO}
+VALUES ('', '', '', '');"""
+    )
+    cursor.execute(
+        f"""{constantes.INSERT_ITEM}
+VALUES ('31cf55b9-4452-4754-bb42-7459eafc6c13', 'Telemóvel', 'Um dispositivo moderno que, enquanto em contato com sinal e bateria carregada, permite comunicação entre dispositivos, captura e visualização de fotos, transações bancárias e navegação na teia nacional.', 500, 0),;"""
+    )
+    cursor.execute(
+        f"""{constantes.INSERT_ITENS_PERSONAGENS}
+VALUES ('', '', 0);"""
+    )
+    cursor.execute(
+        f"""{constantes.INSERT_MODIFICADOR_SKILLS}
+VALUES ('', '');"""
+    )    
+    
     print("MAX ADICIONADO")
 
     # --------------------------------------------------------------------------------------------
