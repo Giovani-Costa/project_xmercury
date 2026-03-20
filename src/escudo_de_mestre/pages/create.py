@@ -2,7 +2,8 @@ import uuid
 
 import streamlit as st
 
-from database import condicoes, descritores, item, passivas_talentos, skills
+from utils import calc_limite_peso, calc_hp
+from database import condicoes, descritores, itens, passivas_talentos, skills, modificadores, party, constantes
 from database import pericias as pericia
 from database import personagens
 from database import descritores
@@ -25,7 +26,7 @@ def atualizar_uuid_passiva_talento():
 
 
 def atualizar_uuid_item():
-    st.session_state.uuid_passiva_talento = str(uuid.uuid4())
+    st.session_state.uuid_item = str(uuid.uuid4())
 
 
 def atualizar_uuid_pericia():
@@ -39,12 +40,18 @@ def atualizar_uuid_condicao():
 def atualizar_uuid_descritor():
     st.session_state.uuid_descritor = str(uuid.uuid4())
 
+def atualizar_uuid_modificador():
+    st.session_state.uuid_modificador = str(uuid.uuid4())
+
 
 def atualizar_uuid_personagens():
     st.session_state.uuid_personagem = str(uuid.uuid4())
 
+def atualizar_uuid_party():
+    st.session_state.uuid_party = str(uuid.uuid4())
 
-with st.expander("Mandar Skill"):
+
+with st.expander("Criar Skill"):
     skill_esquerda, skill_direita = st.columns(2)
     with skill_esquerda:
         skill_uuid = st.text_input(
@@ -55,28 +62,28 @@ with st.expander("Mandar Skill"):
             value=None,
         )
     with skill_direita:
-        st.button("Gerara UUID aleatório", on_click=atualizar_uuid_skill)
+        st.button("Gerar UUID aleatório para Skill", on_click=atualizar_uuid_skill)
 
     skill_nome = st.text_input("Nome da skill")
-    skill_custo = st.number_input("Custo da skill", step=1)
+    skill_custo = st.number_input("Custo da skill", step=1, value=0)
     skill_execucao = st.selectbox(
-        "Execução", ["Ação", "Ação Bônus", "Ação Livre", "Reação", "Ultimate"]
+        "Execução", ["Ação", "Ação Bônus", "Ação Livre", "Reação", "Ultimate"], index=0
     )
     skill_descritores = st.multiselect(
         "Descritores", [d.nome for d in descritores.pegar_todos_os_descritores(st.session_state["db_session"])]
     )
-    skill_alcance = st.text_input("Alcance da skill", value=None)
-    skill_duracao = st.text_input("Duração da skill", value=None)
-    skill_ataque = st.text_input("Ataque da skill", value=None)
-    skill_acerto = st.text_input("Acerto da skill", value=None)
-    skill_erro = st.text_input("Erro da skill", value=None)
-    skill_efeito = st.text_input("Efeito da efeito", value=None)
-    skill_especial = st.text_input("Especial da skill", value=None)
-    skill_gatilho = st.text_input("Gatilho da skill", value=None)
-    skill_alvo = st.text_input("Alvo da skill", value=None)
-    skill_carga = st.text_input("Carga da skill", value=None)
+    skill_alcance = st.text_input("Alcance da skill", value="NULL")
+    skill_duracao = st.text_input("Duração da skill", value="NULL")
+    skill_ataque = st.text_input("Ataque da skill", value="NULL")
+    skill_acerto = st.text_input("Acerto da skill", value="NULL")
+    skill_erro = st.text_input("Erro da skill", value="NULL")
+    skill_efeito = st.text_input("Efeito da efeito", value="NULL")
+    skill_especial = st.text_input("Especial da skill", value="NULL")
+    skill_gatilho = st.text_input("Gatilho da skill", value="NULL")
+    skill_alvo = st.text_input("Alvo da skill", value="NULL")
+    skill_carga = st.text_input("Carga da skill", value="NULL")
     skill_personagem = st.selectbox("Personagem da Skill", [p.nome for p in lista_personagens])
-    if st.button("Mandar Skill"):
+    if st.button("Criar Skill"):
         uuid_criado = skills.criar_skill(
             st.session_state["db_session"],
             skill_nome,
@@ -97,10 +104,10 @@ with st.expander("Mandar Skill"):
             skill_uuid,
         )
         st.success(
-            f'''session.execute(\n\t\tf"""{{INSERT_SKILL}}\nVALUES ({skill_uuid}, '{skill_nome}', {skill_custo}, '{skill_execucao}', '{','.join(skill_descritores)}', '{skill_alcance}', '{skill_duracao}', '{skill_ataque}', '{skill_acerto}', '{skill_erro}', '{skill_efeito}', '{skill_especial}', '{skill_gatilho}', '{skill_alvo}', '{skill_carga}, '{mapa_nome_id_personagem[skill_personagem]}');""");"""\n\t)'''
+            f"({skill_uuid}, '{skill_nome}', {skill_custo}, '{skill_execucao}', '{','.join(skill_descritores)}', '{skill_alcance}', '{skill_duracao}', '{skill_ataque}', '{skill_acerto}', '{skill_erro}', '{skill_efeito}', '{skill_especial}', '{skill_gatilho}', '{skill_alvo}', '{skill_carga}, '{mapa_nome_id_personagem[skill_personagem]}'),"
         )
 
-with st.expander("Mandar Passiva/Talento"):
+with st.expander("Criar Passiva/Talento"):
     pt_esquerda, pt_direita = st.columns(2)
     with pt_esquerda:
         pt_uuid = st.text_input(
@@ -110,12 +117,12 @@ with st.expander("Mandar Passiva/Talento"):
             key="uuid_passiva_talento",
         )
     with pt_direita:
-        st.button("Gerar UUID aleatório", on_click=atualizar_uuid_passiva_talento)
+        st.button("Gerar UUID aleatório para Passiva/Talento", on_click=atualizar_uuid_passiva_talento)
     pt = st.selectbox("Tabela", ["Talentos", "Passivas"])
     pt_nome = st.text_input("Nome da Passiva/Talento")
     pt_descricao = st.text_area("Descrição da Passiva/Talento")
     pt_personagem = st.selectbox("Personagem da Passiva/Talento", [p.nome for p in lista_personagens])
-    if st.button("Mandar Passiva/Talento"):
+    if st.button("Criar Passiva/Talento"):
         uuid_criado = passivas_talentos.criar_passiva_talento(
             st.session_state["db_session"],
             pt,
@@ -125,10 +132,10 @@ with st.expander("Mandar Passiva/Talento"):
             pt_uuid,
         )
         st.success(
-            f'''session.execute(\n\t\tf"""{{INSERT_{pt.upper()}}}\nVALUES ({uuid_criado}, '{pt_nome}', '{pt_descricao}', '{mapa_nome_id_personagem[pt_personagem]}');"""\n\t)'''
+            f"('{uuid_criado}', '{pt_nome}', '{pt_descricao}', '{mapa_nome_id_personagem[pt_personagem]}')"
         )
 
-with st.expander("Mandar Item"):
+with st.expander("Criar Item"):
     item_esquerda, item_direita = st.columns(2)
     with item_esquerda:
         item_uuid = st.text_input(
@@ -141,8 +148,8 @@ with st.expander("Mandar Item"):
     item_descricao = st.text_area("Descrição")
     item_volume = st.number_input("Volume", step=1)
     item_preco = st.number_input("Preço", step=1)
-    if st.button("Mandar Item"):
-        uuid_criado = item.criar_item(
+    if st.button("Criar Item"):
+        uuid_criado = itens.criar_item(
             st.session_state["db_session"],
             item_nome,
             item_descricao,
@@ -151,10 +158,21 @@ with st.expander("Mandar Item"):
             item_uuid,
         )
         st.success(
-            f'''session.execute(\n\t\tf"""{{INSERT_ITEM}}\nVALUES ({uuid_criado}, '{item_nome}', '{item_descricao}', {item_preco}, {item_volume});"""\n\t)'''
+            f"('{uuid_criado}', '{item_nome}', '{item_descricao}', {item_preco}, {item_volume}),"
         )
 
-with st.expander("Mandar Perícia"):
+with st.expander("Criar Perícia"):
+    # Tentar automatizar isso depois
+    atributos_somaticos = ["Bônus de Proficiência", "Bônus de Força", "Bônus de Constituição", "Bônus de Destreza", "Bônus de Inteligência", "Bônus de Sabedoria", "Bônus de Carisma"]
+    atributos_somaticos_mapa = {
+        "Bônus de Proficiência": "bonus_de_proficiencia",
+        "Bônus de Força": "forca",
+        "Bônus de Constituição": "constituicao",
+        "Bônus de Destreza": "destreza",
+        "Bônus de Inteligência": "inteligencia",
+        "Bônus de Sabedoria": "sabedoria",
+        "Bônus de Carisma": "carisma",}
+    
     pericia_esquerda, pericia_direita = st.columns(2)
     with pericia_esquerda:
         pericia_uuid = st.text_input(
@@ -165,17 +183,29 @@ with st.expander("Mandar Perícia"):
 
     pericia_nome = st.text_input("Nome do Perícia")
     pericia_descricao = st.text_area("Descrição da Perícia")
-    if st.button("Mandar Perícia"):
-        uuid_criado = pericia.pegar_pericia(
+    pericia_vantagem = st.toggle('Vantagem?', value=False)
+    pericia_atributo = st.toggle("Somar Atributo?", value=False)
+    if pericia_atributo:
+        pericia_soma = st.multiselect("Atributos somados", atributos_somaticos)
+        pericia_soma = str("'" + '{"'+ '","'.join([atributos_somaticos_mapa[attr] for attr in pericia_soma]) + '"}' + "'")
+    else:
+        pericia_soma = "NULL"
+
+    if st.button("Criar Perícia"):
+        print(pericia_soma)
+        uuid_criado = pericia.criar_pericia(
             st.session_state["db_session"],
             pericia_nome,
             pericia_descricao,
+            pericia_vantagem,
+            pericia_atributo,
+            pericia_soma
         )
         st.success(
-            f'''session.execute(\n\t\tf"""{{INSERT_PERICIA}}\nVALUES ({uuid_criado}, '{pericia_nome}', '{pericia_descricao}');"""\n\t)'''
+            f"('{uuid_criado}', '{pericia_nome}', '{pericia_descricao}', {str(pericia_vantagem).lower()}, {str(pericia_atributo).lower()}, {pericia_soma}),"
         )
 
-with st.expander("Mandar Condição"):
+with st.expander("Criar Condição"):
     condicao_esquerda, condicao_direita = st.columns(2)
     with condicao_esquerda:
         condicao_uuid = st.text_input(
@@ -191,17 +221,17 @@ with st.expander("Mandar Condição"):
 
     pericia_nome = st.text_input("Nome do Condição")
     pericia_descricao = st.text_area("Descrição da Condição")
-    if st.button("Mandar Condição"):
+    if st.button("Criar Condição"):
         uuid_criado = condicoes.criar_condicao(
             st.session_state["db_session"],
             pericia_nome,
             pericia_descricao,
         )
-        st.html(
-            f'''session.execute(\n\t\tf"""{{INSERT_CONDIÇÃO}}\nVALUES ({uuid_criado}, '{pericia_nome}', '{pericia_descricao}');"""\n\t)'''
+        st.success(
+            f'''('{uuid_criado}', '{pericia_nome}', '{pericia_descricao}'),'''
         )
 
-with st.expander("Mandar Descritor"):
+with st.expander("Criar Descritor"):
     descritor_esquerda, descritor_direita = st.columns(2)
     with descritor_esquerda:
         descritor_uuid = st.text_input(
@@ -227,18 +257,68 @@ with st.expander("Mandar Descritor"):
         ],
     )
     descritor_descricao = st.text_area("Descrição da Descritor")
-    if st.button("Mandar Descritor"):
+    if st.button("Criar Descritor"):
         uuid_criado = descritores.criar_descritor(
             st.session_state["db_session"],
-            pericia_nome,
+            descritor_nome,
             descritor_tipo,
             descritor_descricao,
         )
         st.success(
-            f'''session.execute(\n\t\tf"""{{INSERT_DESCRITOR}}\nVALUES ({uuid_criado}, '{descritor_nome}', '{descritor_tipo}', '{descritor_descricao}');"""\n\t)'''
+            f"('{uuid_criado}', '{descritor_nome}', '{descritor_tipo}', '{descritor_descricao}'),")
+        
+with st.expander("Criar Modificador"):
+    execucao = ["Ação", "Ação Bônus", "Ação Livre", "Reação", "Ultimate"]
+    atributos_somaticos_mapa = {
+        "Ação": "acao",
+        "Ação Bônus": "acao bonus",
+        "Ação Livre": "acao livre",
+        "Reação": "reacao",
+        "Ultimate": "ultimate",}
+    
+    modificador_esquerda, modificador_direita = st.columns(2)
+    with modificador_esquerda:
+        modificador_uuid = st.text_input(  
+            "UUID",
+            label_visibility="collapsed",
+            placeholder="UUID",
+            key="uuid_modificador",
+        )
+    with modificador_direita:
+        st.button(
+            "Gerar UUID Aleatório para Modificador", on_click=atualizar_uuid_modificador
         )
 
-with st.expander("Mandar Personagem"):
+    modificador_tipo = st.selectbox(
+        "Tipo de Modificador",
+        ["ADICIONA", "MUDA", "Outro..."],
+    )
+    if modificador_tipo == "Outro...":
+        modificador_tipo = st.text_input("Outro tipo de Modificador")
+    modificador_descricao = st.text_area("Descrição da Modificador")
+    modificador_execucao = st.selectbox(
+        "Execução", ["Ação", "Ação Bônus", "Ação Livre", "Reação", "Ultimate"], index=3
+    )
+    modificador_gasto = st.number_input("Gasto do Modificador", step=1)
+    modificador_gasto_tipo = st.selectbox(
+        "Tipo de Gasto do Modificador",
+        ["PE", "PC"], index=0,
+    ).lower()
+
+    if st.button("Criar Modificador"):
+        uuid_criado = modificadores.criar_modificador(
+            st.session_state["db_session"],
+            modificador_tipo,
+            modificador_descricao,
+            modificador_execucao,
+            modificador_gasto,
+            modificador_gasto_tipo,
+            modificador_uuid,
+        )
+        st.success(
+            f"('{uuid_criado}', '{modificador_tipo}', '{modificador_descricao}', '{modificador_execucao}', {modificador_gasto}, '{modificador_gasto_tipo}', '{modificador_uuid}'),")
+
+with st.expander("Criar Personagem"):
     lista_skills = skills.pegar_todas_as_skills(st.session_state["db_session"])
     mapa_skills_id = {s.nome: s.id_skill for s in lista_skills}
 
@@ -252,8 +332,8 @@ with st.expander("Mandar Personagem"):
     )
     mapa_talentos_id = {t.nome: t.id_talento for t in lista_talentos}
 
-    lista_pericias = pericia.pegar_todas_as_pericias(st.session_state["db_session"])
-    mapa_pericias_id = {p.nome: p.id_pericia for p in lista_pericias}
+    # lista_pericias = pericia.pegar_todas_as_pericias(st.session_state["db_session"])
+    # mapa_pericias_id = {p.nome: p.id_pericia for p in lista_pericias}
 
     personagem_esquerda, personagem_direita = st.columns(2)
     with personagem_esquerda:
@@ -271,25 +351,35 @@ with st.expander("Mandar Personagem"):
         )
 
     personagem_nome = st.text_input("Nome do Personagem")
-    personagem_nickname = st.text_input("Nickname do Personagem")
-    personagem_level = st.number_input("Level do Personagem", step=1)
-    personagem_legacy = st.text_input("Legacy do Personagem")
-    personagem_classe = st.text_input("Classe do Personagem")
-    personagem_heritage = st.text_input("Heritage do Personagem")
-    personagem_melancholu = st.text_area("Melancolia do Personagem")
-    personagem_pe = st.number_input("PE do Personagem", step=1)
-    personagem_hp = st.number_input("HP do Personagem", step=1)
+    personagem_nickname = st.text_input("Nickname do Personagem", value="NULL")
+    personagem_level = st.number_input("Level do Personagem", step=1, value=constantes.LEVEL)
+    personagem_legacy = st.text_input("Legado do Personagem", value="NULL")
+    personagem_heritage = st.text_input("Heritage do Personagem", value="NULL")
+    personagem_classe = st.text_input("Classe do Personagem", value="NULL")
+    personagem_path = st.text_input("Trilha do Personagem", value="NULL")
+    personagem_melancolia = st.text_area("Melancolia do Personagem", value="NULL")
+    personagem_pe = st.number_input("PE do Personagem", step=1, value=constantes.PE)
+    personagem_hp = st.toggle("Calcular HP Automático?", value=True)
+    personagem_hp_tipo = st.radio("Tipo de HP", options=["HP", "Carga"], index=0)
     personagem_reducao_de_dano = st.number_input(
-        "Redução de Dano do Personagem", step=1
+        "Redução de Dano do Personagem", step=1, value=0
     )
     personagem_bonus_de_proficiencia = st.number_input(
-        "Bônus de Proficiência do Personagem", step=1
+        "Bônus de Proficiência do Personagem", step=1, value=constantes.BONUS_DE_PROFICIENCIA
     )
-    skills = st.multiselect("Skills", list(mapa_skills_id.keys()))
-    passivas = st.multiselect("Passivas", list(mapa_passivas_id.keys()))
-    talentos = st.multiselect("Talentos", list(mapa_talentos_id.keys()))
-    pericias = st.multiselect("Pericias", list(mapa_pericias_id.keys()))
-
+    personagem_pontos_de_sombra = st.number_input(
+        "Pontos de Sombra do Personagem", step=1, max_value=5
+    )
+    personagem_catarse = st.number_input(
+        "Pontos de Catarse do Personagem", step=1, max_value=5
+    )
+    personagem_resistencia = st.text_input("Resistência do Personagem", value="NULL")
+    personagem_vulnerabilidade = st.text_input("Vulnerabilidade do Personagem", value="NULL")
+    personagem_imunidade = st.text_input("Imunidade do Personagem", value="NULL")
+    personagem_volume_atual = st.number_input("Volume Atual do Personagem", step=1, value=0)
+    personagem_limite_de_volume = st.toggle("Limite de Volume Automático?", value=True)
+    if not personagem_limite_de_volume:
+        personagem_limite_de_volume = st.number_input("Limite de Volume do Personagem", step=1, value=0)
     coluna_forca_esqueda, coluna_forca_direita = st.columns(2)
     with coluna_forca_esqueda:
         personagem_forca_protecao = st.number_input("Força Proteção", step=1, value=10)
@@ -326,11 +416,133 @@ with st.expander("Mandar Personagem"):
     with coluna_carisma_direita:
         personagem_carisma_bonus = st.number_input("Carisma Bônus", step=1)
 
-    personagem_pontos_de_sombra = st.number_input(
-        "Pontos de Sombra do Personagem", step=1, max_value=5
-    )
+    if not personagem_hp:
+        personagem_hp = st.number_input("HP do Personagem", step=1, value=0)
+    else:
+        personagem_classe_numero = 1
+        if personagem_classe == "Combatente":
+            personagem_classe_numero = 0
+        elif personagem_classe == "Especialista":
+            personagem_classe_numero = 1
+        elif personagem_classe == "Ocultista":
+            personagem_classe_numero = 2
+        personagem_hp = calc_hp(personagem_constituicao_bonus, personagem_classe_numero, personagem_level)
 
-    skills_id = [str(mapa_skills_id[s]) for s in skills]
-    passivas_id = [str(mapa_passivas_id[p]) for p in passivas]
-    talentos_id = [str(mapa_talentos_id[t]) for t in talentos]
-    pericias_id = [str(mapa_pericias_id[p]) for p in pericias]
+    personagem_saldo = st.number_input("Saldo do Personagem", step=1, value=100)
+    personagem_tokenn = st.text_input("Token do Personagem", value="NULL")
+    personagem_usuario = st.text_input("Usuário do Personagem", value="NULL")
+    personagem_party = st.selectbox("Party do Personagem", [p.nome for p in party.pegar_todas_as_parties(st.session_state["db_session"])], index=0)
+    personagem_party_mapa = {p.nome: p.id_party for p in party.pegar_todas_as_parties(st.session_state["db_session"])}
+    personagem_party = personagem_party_mapa[personagem_party]
+    personagem_imagem = f"{personagem_nickname}.png"
+
+    if st.button("Criar Personagem"):
+        if personagem_limite_de_volume == True:
+            personagem_limite_de_volume = calc_limite_peso(personagem_forca_bonus)
+        uuid_criado = personagens.criar_personagem(
+            st.session_state["db_session"],
+            personagem_nome,
+            personagem_nickname,
+            personagem_level,
+            personagem_legacy,
+            personagem_classe,
+            personagem_path,
+            personagem_heritage,
+            personagem_melancolia,
+            personagem_catarse,
+            personagem_pe,
+            personagem_pe,
+            personagem_hp,
+            personagem_hp,
+            personagem_hp_tipo.lower(),
+            personagem_reducao_de_dano,
+            personagem_bonus_de_proficiencia,
+            personagem_pontos_de_sombra,
+            personagem_forca_protecao,
+            personagem_forca_bonus,
+            personagem_destreza_protecao,
+            personagem_destreza_bonus,
+            personagem_constituicao_protecao,
+            personagem_constituicao_bonus,
+            personagem_inteligencia_protecao,
+            personagem_inteligencia_bonus,
+            personagem_sabedoria_protecao,
+            personagem_sabedoria_bonus,
+            personagem_carisma_protecao,
+            personagem_carisma_bonus,
+            personagem_volume_atual,
+            personagem_limite_de_volume,
+            personagem_resistencia,
+            personagem_vulnerabilidade,
+            personagem_imunidade,
+            personagem_saldo,
+            personagem_imagem,
+            personagem_tokenn,
+            personagem_usuario,
+            personagem_party,
+            personagem_uuid,
+        )
+        st.success(
+            f"('{personagem_uuid}', '{personagem_nome}', '{personagem_nickname}', {personagem_level}, '{personagem_legacy}', '{personagem_classe}', '{personagem_path}', '{personagem_heritage}', '{personagem_melancolia}', {personagem_catarse}, {personagem_pe}, {personagem_pe}, {personagem_hp}, {personagem_hp}, '{personagem_hp_tipo}', {personagem_reducao_de_dano}, {personagem_bonus_de_proficiencia}, {personagem_pontos_de_sombra}, {personagem_forca_protecao}, {personagem_forca_bonus}, {personagem_destreza_protecao}, {personagem_destreza_bonus}, {personagem_constituicao_protecao}, {personagem_constituicao_bonus}, {personagem_inteligencia_protecao}, {personagem_inteligencia_bonus}, {personagem_sabedoria_protecao}, {personagem_sabedoria_bonus}, {personagem_carisma_protecao}, {personagem_carisma_bonus}, {personagem_volume_atual}, {personagem_limite_de_volume}, '{personagem_resistencia}', '{personagem_vulnerabilidade}', '{personagem_imunidade}', {personagem_saldo}, '{personagem_imagem}', '{personagem_tokenn}', '{personagem_usuario}', '{ personagem_party}'),")
+
+with st.expander("Criar Party"):
+    party_esquerda, party_direita = st.columns(2)
+    with party_esquerda:
+        party_uuid = st.text_input(
+            "UUID", label_visibility="collapsed", placeholder="UUID", key="uuid_party"
+        )
+    with party_direita:
+        st.button("Gerar UUID Aleatório para Party", on_click=atualizar_uuid_party)
+
+    party_nome = st.text_input("Nome da Party")
+    if st.button("Criar Party"):
+        uuid_criado = party.criar_party(
+            st.session_state["db_session"],
+            party_nome,
+            party_uuid,
+        )
+        st.success(
+            f"('{uuid_criado}', '{party_nome}'),"
+        )
+
+with st.expander("Criar Relação entre Personagem e Item"):
+    personagem_item_personagem = st.selectbox("Personagem do Item", [p.nome for p in lista_personagens])
+    lista_itens = itens.pegar_todos_os_itens(st.session_state["db_session"])
+    mapa_itens_id = {i.nome: i.id_item for i in lista_itens}
+    personagem_item_item = st.selectbox("Item", list(mapa_itens_id.keys()))
+    personagem_item_quantidade = st.number_input("Quantidade do Item", step=1, value=1)
+    if st.button("Criar Relação entre Personagem e Item"):
+        uuid_criado = personagens.criar_relacao_personagem_item(
+            st.session_state["db_session"],
+            mapa_nome_id_personagem[personagem_item_personagem],
+            mapa_itens_id[personagem_item_item],
+            personagem_item_quantidade,
+        )
+
+with st.expander("Criar Relação entre Personagem e Perícia"):
+    personagem_pericia_personagem = st.selectbox("Personagem da Perícia", [p.nome for p in lista_personagens])
+    lista_pericias = pericia.pegar_todas_as_pericias(st.session_state["db_session"])
+    mapa_pericias_id = {p.nome: p.id_pericia for p in lista_pericias}
+    personagem_pericia_pericia = st.selectbox("Perícia", list(mapa_pericias_id.keys()))
+    personagem_pericia_nivel = st.number_input("Nível da Perícia", step=1, value=1)
+    if st.button("Criar Relação entre Personagem e Perícia"):
+        uuid_criado = personagens.criar_relacao_personagem_pericia(
+            st.session_state["db_session"],
+            mapa_nome_id_personagem[personagem_pericia_personagem],
+            mapa_pericias_id[personagem_pericia_pericia],
+            personagem_pericia_nivel,
+        )
+
+with st.expander("Criar Relação entre Modificador e Skill"):
+    lista_modificadores = modificadores.pegar_todos_os_modificadores(st.session_state["db_session"])
+    mapa_modificadores_id = {m.id_modificador: m.descricao for m in lista_modificadores}
+    modificador_skill_modificador = st.selectbox("Modificador", list(mapa_modificadores_id.keys()))
+    lista_skills = skills.pegar_todas_as_skills(st.session_state["db_session"])
+    mapa_skills_id = {s.nome: s.id_skill for s in lista_skills}
+    modificador_skill_skill = st.selectbox("Skill", list(mapa_skills_id.keys()))
+    if st.button("Criar Relação entre Modificador e Skill"):
+        uuid_criado = modificadores.criar_relacao_modificador_skill(
+            st.session_state["db_session"],
+            mapa_modificadores_id[modificador_skill_modificador],
+            mapa_skills_id[modificador_skill_skill],
+        )

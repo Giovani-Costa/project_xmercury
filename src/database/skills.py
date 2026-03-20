@@ -5,8 +5,8 @@ from typing import Optional
 
 import database.models
 from database.connect_postgres import PostgresDB
-from database.constantes import INSERT_SKILL
-from database.modificador import pegar_modificador
+from database.constantes import INSERT_SKILL, INSERT_MODIFICADORES_SKILLS
+from database.modificadores import pegar_modificador
 
 
 def criar_skill(
@@ -14,18 +14,18 @@ def criar_skill(
     nome: str,
     custo: int,
     execucao: str,
-    descritores: Optional[str],
-    alcance: Optional[str],
-    duracao: Optional[str],
-    ataque: Optional[str],
-    acerto: Optional[str],
-    erro: Optional[str],
-    efeito: Optional[str],
-    especial: Optional[str],
-    gatilho: Optional[str],
-    alvo: Optional[str],
-    carga: Optional[str],
-    id_personagem: Optional[str],
+    descritores: Optional[str] = 'NULL',
+    alcance: Optional[str] = 'NULL',
+    duracao: Optional[str] = 'NULL',
+    ataque: Optional[str] = 'NULL',
+    acerto: Optional[str] = 'NULL',
+    erro: Optional[str] = 'NULL',
+    efeito: Optional[str] = 'NULL',
+    especial: Optional[str] = 'NULL',
+    gatilho: Optional[str] = 'NULL',
+    alvo: Optional[str] = 'NULL',
+    carga: Optional[str] = 'NULL',
+    id_personagem: Optional[str] = 'NULL',
     id: Optional[str] = None,
 ) -> uuid.UUID:
     if id is None:
@@ -68,3 +68,12 @@ def pegar_todas_as_skills(conexao: PostgresDB) -> list[database.models.Skill]:
     with conexao.get_cursor() as cursor:
         cursor.execute("SELECT id_skill FROM skills ORDER BY nome;")
         return [pegar_skill(conexao, r["id_skill"]) for r in cursor.fetchall()]
+    
+def criar_relacao_skill_modificador(
+        conexao: PostgresDB, id_skill: uuid.UUID | str, id_modificador: uuid.UUID | str
+):
+    with conexao.get_cursor() as cursor:
+        skill_modificador_novo = f"""{INSERT_MODIFICADORES_SKILLS}
+VALUES ('{id_skill}', '{id_modificador}');"""
+        cursor.execute(f"{skill_modificador_novo}\n")
+    return skill_modificador_novo

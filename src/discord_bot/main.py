@@ -19,7 +19,7 @@ from skills import PaginaSkills
 
 import database.condicoes
 import database.descritores
-import database.item
+import database.itens
 import database.models
 import database.party
 import database.passivas_talentos
@@ -45,7 +45,6 @@ redis_client = Redis(host=redis_host, port=redis_port, decode_responses=True)
 ADMS = [766039963736866828, 1119222124368896020, 921158705075077150, 813254664241414144]
 MARCH = "<:march:1302059770785824861>"
 token = os.getenv("DISCORD_TOKEN")
-KEYSPACE = os.getenv("KEYSPACE")
 redis_client.set("estado_nd", 10)
 redis_client.set("turno", 0)
 

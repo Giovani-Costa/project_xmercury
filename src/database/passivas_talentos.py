@@ -5,7 +5,6 @@ from typing import Optional
 
 import database.models
 from database.connect_postgres import PostgresDB
-from database.constantes import KEYSPACE
 
 
 def criar_passiva_talento(

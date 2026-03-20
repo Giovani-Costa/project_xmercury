@@ -20,9 +20,9 @@
 
     [ ] Configurar Git -> ajustar o projeto ao Git para o grupo do PRI/TCC.
 
-    [ ] Comando de roll-sentence -> um comando no bot para girar uma sentença de dados. Ex: 4d12 + 3d8.
+    [x] Comando de roll-sentence -> um comando no bot para girar uma sentença de dados. Ex: 4d12 + 3d8.
 
-    [ ] Perícias NxN -> mapear corretamente as perícias no banco de dados (criar outra tabela para relacionar as personagens e perícias).
+    [x] Perícias NxN -> mapear corretamente as perícias no banco de dados (criar outra tabela para relacionar as personagens e perícias).
 
     [ ] Começar a mudança para Django -> fazer o tutorial da documentação e pensar como fazer a página.
 

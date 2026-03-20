@@ -5,7 +5,7 @@ from typing import Optional
 
 import database.models
 from database.connect_postgres import PostgresDB
-from database.constantes import KEYSPACE
+from database.constantes import INSERT_ITEM
 
 
 def criar_item(
@@ -20,8 +20,21 @@ def criar_item(
         id = uuid.uuid4()
     else:
         id = uuid.UUID(id)
-    item_novo = f"""INSERT INTO itens (id, nome, descricao, preco, volume)
-VALUES ('{id}', '{nome}', '{descricao}', {preco}, {volume});"""
+    if nome is None:
+        nome = "NULL"
+    else:
+        nome = "'" + nome + "'"
+    if descricao is None:
+        descricao = "NULL"
+    else:
+        descricao = "'" + descricao + "'"
+    if preco is None:
+        preco = "NULL"
+    if volume is None:
+        volume = "NULL"
+    
+    item_novo = f"""{INSERT_ITEM}
+VALUES ('{id}', {nome}, {descricao}, {preco}, {volume});"""
     with conexao.get_cursor() as cursor:
         cursor.execute(item_novo)
         print(f"{item_novo}\n")
@@ -42,3 +55,4 @@ def pegar_todos_os_itens(conexao: PostgresDB) -> list[database.models.Item]:
     with conexao.get_cursor() as cursor:
         cursor.execute("SELECT * FROM itens;")
         return [database.models.Item(**r) for r in cursor.fetchall()]
+    

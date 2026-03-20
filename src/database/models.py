@@ -116,7 +116,7 @@ class Personagem(BaseModel):
     hp_tipo: str
     reducao_de_dano: Optional[int]
     bonus_de_proficiencia: Optional[int]
-    pericias: Optional[list[Pericia]]
+    pericias: Optional[list[PericiaPersonagem]]
     talentos: Optional[list[Talento]]
     passivas: Optional[list[Passiva]]
     skills: Optional[list[Skill]]
@@ -137,4 +137,5 @@ class Personagem(BaseModel):
 
 class Party(BaseModel):
     id_party: UUID
+    nome: str
     personagens_jogaveis: list[Personagem]

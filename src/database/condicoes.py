@@ -16,8 +16,19 @@ def criar_condicao(
         id = uuid.uuid4()
     else:
         id = uuid.UUID(id)
+
+    if nome is None:
+        nome = "NULL"
+    else:
+        nome = "'" + nome + "'"
+        
+    if descricao is None:
+        descricao = "NULL"
+    else:        
+        descricao = "'" + descricao + "'"
+
     condicao_novo = f"""{INSERT_CONDICAO}
-VALUES ('{id}', '{nome}', '{descricao}');"""
+VALUES ('{id}', {nome}, {descricao});"""
     with conexao.get_cursor() as cursor:
         cursor.execute(condicao_novo)
         print(f"{condicao_novo}\n")

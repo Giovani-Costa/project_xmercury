@@ -2,7 +2,6 @@ import os
 
 import streamlit as st
 
-KEYSPACE = os.getenv("KEYSPACE")
 
 st.set_page_config(
     page_title="Update Page",
@@ -26,7 +25,7 @@ with st.expander("CQL"):
         valor_atual_coluna = str(
             st.session_state["db_session"]
             .execute(
-                f"SELECT {mapa_coluna[coluna]} FROM {KEYSPACE}.personagens WHERE id = {mapa_personagem_id[personagem]};"
+                f"SELECT {mapa_coluna[coluna]} FROM personagens WHERE id = {mapa_personagem_id[personagem]};"
             )
             .one()
         )
@@ -37,13 +36,13 @@ with st.expander("CQL"):
         )
         if operacao.lower() == "subtrair":
             st.session_state["db_session"].execute(
-                f"UPDATE {KEYSPACE}.personagens SET {mapa_coluna[coluna]} = {valor_coluna - int(valor)} WHERE id = {mapa_personagem_id[personagem]}"
+                f"UPDATE personagens SET {mapa_coluna[coluna]} = {valor_coluna - int(valor)} WHERE id = {mapa_personagem_id[personagem]}"
             )
         elif operacao.lower() == "somar":
             st.session_state["db_session"].execute(
-                f"UPDATE {KEYSPACE}.personagens SET {mapa_coluna[coluna]} = {valor_coluna + int(valor)} WHERE id = {mapa_personagem_id[personagem]}"
+                f"UPDATE personagens SET {mapa_coluna[coluna]} = {valor_coluna + int(valor)} WHERE id = {mapa_personagem_id[personagem]}"
             )
         elif operacao.lower() == "definir":
             st.session_state["db_session"].execute(
-                f"UPDATE {KEYSPACE}.personagens SET {mapa_coluna[coluna]} = {int(valor)} WHERE id = {mapa_personagem_id[personagem]}"
+                f"UPDATE personagens SET {mapa_coluna[coluna]} = {int(valor)} WHERE id = {mapa_personagem_id[personagem]}"
             )

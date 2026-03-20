@@ -3,7 +3,7 @@ from typing import Optional
 
 import database.models
 from database.connect_postgres import PostgresDB
-from database.constantes import INSERT_CONDICAO
+from database.constantes import INSERT_CONDICAO, INSERT_DESCRITOR
 
 
 def criar_descritor(
@@ -17,11 +17,27 @@ def criar_descritor(
         id = uuid.uuid4()
     else:
         id = uuid.UUID(id)
-    descritor_novo = f"""{INSERT_CONDICAO}
-VALUES ({id}, '{nome}', '{tipo}', '{descricao}');"""
+
+    if nome is None:
+        nome = "NULL"
+    else:
+        nome = "'" + nome + "'"
+
+    if tipo is None:
+        tipo = "NULL"
+    else:
+        tipo = "'" + tipo + "'"
+
+    if descricao is None:
+        descricao = "NULL"
+    else:
+        descricao = "'" + descricao + "'"
+    
+    descritor_novo = f"""{INSERT_DESCRITOR}
+VALUES ('{id}', {nome}, {tipo}, {descricao});"""
+    print(f"{descritor_novo}\n")
     with conexao.get_cursor() as cursor:
         cursor.execute(descritor_novo)
-        print(f"{descritor_novo}\n")
     return id
 
 

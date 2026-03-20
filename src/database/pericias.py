@@ -12,7 +12,7 @@ def criar_pericia(
     descricao: str,
     e_vantagem: bool,
     e_soma: bool,
-    somar: list[str],
+    somar: str,
     id: Optional[str] = None,
 ) -> uuid.UUID:
     if id is None:
@@ -21,9 +21,9 @@ def criar_pericia(
         id = uuid.UUID(id)
     pericia_nova = f"""{INSERT_PERICIA}
 VALUES ('{id}', '{nome}', '{descricao}', {str(e_vantagem).lower()}, {str(e_soma).lower()}, {somar});"""
+    print(f"{pericia_nova}\n")
     with conexao.get_cursor() as cursor:
         cursor.execute(pericia_nova)
-        print(f"{pericia_nova}\n")
     return id
 
 

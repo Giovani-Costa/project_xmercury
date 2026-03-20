@@ -4,7 +4,7 @@ from typing import Optional
 
 
 import database.constantes
-import database.item
+import database.itens
 import database.models
 import database.passivas_talentos
 import database.pericias
@@ -30,7 +30,6 @@ def criar_personagem(
     hp_tipo: Optional[str],
     reducao_de_dano: Optional[int],
     bonus_de_proficiencia: Optional[int],
-    pericias: Optional[list[uuid.UUID]],
     pontos_de_sombra: Optional[int],
     protecao_forca: int,
     bonus_forca: int,
@@ -61,7 +60,8 @@ def criar_personagem(
     else:
         id = uuid.UUID(id)
     personagem_novo = f"""{database.constantes.INSERT_PERSONAGEM}
-    VALUES ('{id}', '{nome}', '{nickname}', {level}, '{legacy}', '{classe}', '{path}', '{heritage}', '{melancholy}', {catarse}, {pe}, {pe_atual}, {hp}, {hp_atual}, '{hp_tipo}', {reducao_de_dano}, {bonus_de_proficiencia}, ARRAY['{"', '".join(pericias)}']::UUID[], {pontos_de_sombra}, {protecao_forca}, {bonus_forca}, {protecao_destreza}, {bonus_destreza}, {protecao_contituicao}, {bonus_contituicao}, {protecao_inteligencia}, {bonus_inteligencia}, {protecao_sabedoria}, {bonus_sabedoria}, {protecao_carisma}, {bonus_carisma}, {volume_atual}, {limete_de_volumes}, '{resistencia}', '{vulnerabilidade}', '{imunidade}', {saldo}, '{imagem}', '{tokenn}', '{usuario}', '{id_party}');"""
+    VALUES ('{id}', '{nome}', '{nickname}', {level}, '{legacy}', '{classe}', '{path}', '{heritage}', '{melancholy}', {catarse}, {pe}, {pe_atual}, {hp}, {hp_atual}, '{hp_tipo}', {reducao_de_dano}, {bonus_de_proficiencia}, {pontos_de_sombra}, {protecao_forca}, {bonus_forca}, {protecao_destreza}, {bonus_destreza}, {protecao_contituicao}, {bonus_contituicao}, {protecao_inteligencia}, {bonus_inteligencia}, {protecao_sabedoria}, {bonus_sabedoria}, {protecao_carisma}, {bonus_carisma}, {volume_atual}, {limete_de_volumes}, '{resistencia}', '{vulnerabilidade}', '{imunidade}', {saldo}, '{imagem}', '{tokenn}', '{usuario}', '{id_party}');"""
+    print(f"{personagem_novo}\n")
     with conexao.get_cursor() as cursor:
         cursor.execute(f"{personagem_novo}\n")
     return id
@@ -86,8 +86,8 @@ def pegar_personagem_com_id(
         cursor.execute(f"SELECT * FROM itens_personagens WHERE id_personagem='{id}'")
         resultado_itens_personagens = cursor.fetchall()
 
-        # cursor.execute(f"SELECT * FROM pericias_personagens WHERE id_personagem='{id}'")
-        # resultado_pericias_personagens = cursor.fetchall()
+        cursor.execute(f"SELECT * FROM pericias_personagens WHERE id_personagem='{id}'")
+        resultado_pericias_personagens = cursor.fetchall()
 
     kwargs = {}
     for k in [
@@ -174,7 +174,7 @@ def pegar_personagem_com_id(
 
     itens_true = []
     for i in resultado_itens_personagens:
-        item = database.item.pegar_item(conexao, i["id_item"]).model_dump()
+        item = database.itens.pegar_item(conexao, i["id_item"]).model_dump()
         itens_true.append(
             database.models.ItemDeInventario(
                 item=item, quantidade=i["quantidade"]
@@ -183,8 +183,13 @@ def pegar_personagem_com_id(
     kwargs["inventario"] = itens_true
 
     pericias_true = []
-    for p in resultado_personagem["pericias"][1:-1].split(","):
-        pericias_true.append(database.pericias.pegar_pericia(conexao, p).model_dump())
+    for p in resultado_pericias_personagens:
+        pericia = database.pericias.pegar_pericia(conexao, p["id_pericia"]).model_dump()
+        pericias_true.append(
+            database.models.PericiaPersonagem(
+                personagem_pericia=pericia, nivel=p["nivel"]
+            ).model_dump()
+        )
     kwargs["pericias"] = pericias_true
 
     return database.models.Personagem(**kwargs)
@@ -222,3 +227,22 @@ def pegar_id_por_user_id(conexao: PostgresDB, user_id: int):
         resultado = cursor.fetchone()
     id_personagem = resultado["id_personagem"]
     return id_personagem
+
+def criar_relacao_personagem_pericia(
+        conexao: PostgresDB, id_personagem: uuid.UUID | str, id_pericia: uuid.UUID | str, nivel: int
+):
+    with conexao.get_cursor() as cursor:
+        personagem_pericia_novo = f"""INSERT INTO pericias_personagens (id_personagem, id_pericia, nivel) 
+VALUES ('{id_personagem}', '{id_pericia}', {nivel});"""
+        cursor.execute(f"{personagem_pericia_novo}\n")
+    return personagem_pericia_novo
+
+def criar_relacao_personagem_item(
+        conexao: PostgresDB, id_personagem: uuid.UUID | str, id_item: uuid.UUID | str, quantidade: int
+):
+    with conexao.get_cursor() as cursor:
+        volume_item = database.itens.pegar_item(conexao, id_item).volume
+        personagem_item_novo = f"""INSERT INTO itens_personagens (id_personagem, id_item, quantidade) 
+VALUES ('{id_personagem}', '{id_item}', {quantidade});"""
+        cursor.execute(f"{personagem_item_novo}\nUPDATE personagens SET volume_atual = volume_atual + {volume_item * quantidade} WHERE id_personagem = '{id_personagem}';")
+    return personagem_item_novo

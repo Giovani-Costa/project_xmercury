@@ -145,8 +145,8 @@ class PaginaFicha(discord.ui.View):
             )
             for k in self.personagem.pericias:
                 embed.add_field(
-                    name=f"{k.nome}",
-                    value=f"{k.descricao}",
+                    name=f"{k.personagem_pericia.nome} ({k.nivel})",
+                    value=f"{k.personagem_pericia.descricao}",
                     inline=False,
                 )
 

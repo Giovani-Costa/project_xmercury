@@ -27,7 +27,7 @@ class PaginaSkills(discord.ui.View):
             return "<:acao_livre:1326585198892154901>"
         elif acao == "reacao":
             return "<:reacao:1326585200519544885>"
-        elif acao == "eop":
+        elif acao == "ultimate":
             return "<:eop:1327039605790343168>"
         else:
             print(f'Erro no banco de dados: Ação "{acao}" não reconhecida.')
