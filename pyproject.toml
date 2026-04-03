@@ -1,0 +1,14 @@
+[project]
+name = "project-xmercury"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "discord-py>=2.7.1",
+    "dotenv>=0.9.9",
+    "pandas>=3.0.2",
+    "psycopg2>=2.9.11",
+    "pydantic>=2.12.5",
+    "redis>=7.4.0",
+]

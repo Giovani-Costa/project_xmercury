@@ -32,8 +32,49 @@ def criar_skill(
         id = uuid.uuid4()
     else:
         id = uuid.UUID(id)
+    if alcance is None or alcance == "":
+        alcance = 'NULL'
+    else:
+        alcance = f"'{alcance}'"
+    if duracao is None or duracao == "":
+        duracao = 'NULL'
+    else:
+        duracao = f"'{duracao}'"
+    if ataque is None or ataque == "":
+        ataque = 'NULL'
+    else:
+        ataque = f"'{ataque}'"
+    if acerto is None or acerto == "":
+        acerto = 'NULL'
+    else:
+        acerto = f"'{acerto}'"
+    if erro is None or erro == "":
+        erro = 'NULL'
+    else:
+        erro = f"'{erro}'"
+    if efeito is None or efeito == "":
+        efeito = 'NULL'
+    else:
+        efeito = f"'{efeito}'"
+    if especial is None or especial == "":
+        especial = 'NULL'
+    else:
+        especial = f"'{especial}'"
+    if gatilho is None or gatilho == "":
+        gatilho = 'NULL'
+    else:
+        gatilho = f"'{gatilho}'"
+    if alvo is None or alvo == "":
+        alvo = 'NULL'
+    else:
+        alvo = f"'{alvo}'"
+    if carga is None or carga == "":
+        carga = 'NULL'
+    else:
+        carga = f"'{carga}'"
+
     skill_nova = f"""{INSERT_SKILL}
-VALUES ('{id}', '{nome}', {custo}, '{execucao}', '{descritores}', '{alcance}', '{duracao}', '{ataque}', '{acerto}', '{erro}', '{efeito}', '{especial}', '{gatilho}', '{alvo}', '{carga}', '{id_personagem}');"""
+VALUES ('{id}', '{nome}', {custo}, '{execucao}', '{descritores}', {alcance}, {duracao}, {ataque}, {acerto}, {erro}, {efeito}, {especial}, {gatilho}, {alvo}, {carga}, '{id_personagem}');"""
     print(skill_nova)
     with conexao.get_cursor() as cursor:
         cursor.execute(skill_nova)

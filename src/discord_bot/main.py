@@ -193,35 +193,8 @@ async def dice_sentence(
 
 @app_commands.choices(
     personagem=[
-        app_commands.Choice(
-            name="Shin NovaChrollo", value="30180fc6-30ba-4f65-a520-53e63bc4ec65"
-        ),
-        app_commands.Choice(
-            name="Julius Wick", value="69fa11c2-ca6a-44b7-93c2-b744d0e98554"
-        ),
-        app_commands.Choice(
-            name="Hyller Wick", value="a38675f6-b1d5-427b-b5a6-dbb46eefee16"
-        ),
-        app_commands.Choice(
-            name="Adam Andrews", value="1c773acd-295b-436d-b792-8011e739e527"
-        ),
-        app_commands.Choice(
-            name="Max", value="e3c79d34-cfb3-418f-b382-32b12fe2dafa"
-        ),
-        app_commands.Choice(
-            name="Gunther Nosferata", value="e3f9a5b4-8c6d-4a70-94ff-2b6d2c42e6c8"
-        ),
-        app_commands.Choice(
-            name="Vincenzo LeBlanc", value="a69e5fee-70c8-47d2-b8f8-6364f08b87d0"
-        ),
-        app_commands.Choice(
-            name="Tsuko Hangetsu", value="7eac7b56-f4d4-4177-89d6-748da17b531c"
-        ),
-        app_commands.Choice(
-            name="Zênite", value="3328a565-9f71-48f1-a0ef-dbdc403e8640"
-        ),
-        app_commands.Choice(name="Fenrir", value="73939ac9-83ac-481e-a855-ca02380ba48f"),
-        app_commands.Choice(name="Ashborn", value="0add69b7-771e-4580-a11b-bf1a75d35aa9"),
+        app_commands.Choice(name=p.nome, value=str(p.id_personagem))
+        for p in database.personagens.pegar_todos_os_personagens(postgres_db)
     ]
 )
 @xmercury.tree.command(
@@ -458,7 +431,7 @@ async def girar_pericias(interaction: Interaction, pericia: app_commands.Choice[
 async def party(interaction: Interaction):
     await interaction.response.defer(ephemeral=True)
     party = database.party.pegar_party(
-        postgres_db, "8a87e68e-cd9d-46e5-953a-35942487ef1b"
+        postgres_db, "50282f93-2701-43b7-83e5-664d2a1251be"
     )
     embed = discord.Embed(
         title="Party",

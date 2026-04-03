@@ -41,7 +41,7 @@ def criar_modificador(
         gasto_tipo = "'" + gasto_tipo + "'"
 
     modificador_novo = f"""{INSERT_MODIFICADOR}
-VALUES ('{id}', {nome}, {descricao}, {execucao}, {gasto}, {gasto_tipo});"""
+VALUES ('{id}', {execucao}, {nome}, {descricao}, {gasto}, {gasto_tipo});"""
     with conexao.get_cursor() as cursor:
         cursor.execute(modificador_novo)
         print(f"{modificador_novo}\n")

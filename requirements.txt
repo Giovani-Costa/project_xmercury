@@ -5,5 +5,6 @@ cassandra-driver
 pandas
 dotenv
 PyNaCl
+davey
 psycopg2
 redis

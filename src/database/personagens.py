@@ -59,8 +59,56 @@ def criar_personagem(
         id = uuid.uuid4()
     else:
         id = uuid.UUID(id)
+    if nickname is None or nickname == "":
+        nickname = 'NULL'
+    else:
+        nickname = f"'{nickname}'"
+    if legacy is None or legacy == "":
+        legacy = 'NULL'     
+    else:
+        legacy = f"'{legacy}'"
+    if classe is None or classe == "":
+        classe = 'NULL' 
+    else:
+        classe = f"'{classe}'"                                                      
+    if path is None or path == "":
+        path = 'NULL'
+    else:        
+        path = f"'{path}'"
+    if heritage is None or heritage == "":
+        heritage = 'NULL'
+    else:
+        heritage = f"'{heritage}'"
+    if melancholy is None or melancholy == "":
+        melancholy = 'NULL'
+    else:
+        melancholy = f"'{melancholy}'"                                          
+    if resistencia is None:
+        resistencia = 'NULL'
+    else:
+        resistencia = f"'{resistencia}'"
+    if vulnerabilidade is None:
+        vulnerabilidade = 'NULL'
+    else:
+        vulnerabilidade = f"'{vulnerabilidade}'"
+    if imunidade is None:
+        imunidade = 'NULL'
+    else:
+        imunidade = f"'{imunidade}'"
+    if imagem is None or imagem == "":
+        imagem = 'NULL'
+    else:
+        imagem = f"'{imagem}'"
+    if tokenn is None or tokenn == "":
+        tokenn = 'NULL' 
+    else:
+        tokenn = f"'{tokenn}'"
+    if usuario is None or usuario == "":
+        usuario = 'NULL'
+    else:        
+        usuario = f"{usuario}"
     personagem_novo = f"""{database.constantes.INSERT_PERSONAGEM}
-    VALUES ('{id}', '{nome}', '{nickname}', {level}, '{legacy}', '{classe}', '{path}', '{heritage}', '{melancholy}', {catarse}, {pe}, {pe_atual}, {hp}, {hp_atual}, '{hp_tipo}', {reducao_de_dano}, {bonus_de_proficiencia}, {pontos_de_sombra}, {protecao_forca}, {bonus_forca}, {protecao_destreza}, {bonus_destreza}, {protecao_contituicao}, {bonus_contituicao}, {protecao_inteligencia}, {bonus_inteligencia}, {protecao_sabedoria}, {bonus_sabedoria}, {protecao_carisma}, {bonus_carisma}, {volume_atual}, {limete_de_volumes}, '{resistencia}', '{vulnerabilidade}', '{imunidade}', {saldo}, '{imagem}', '{tokenn}', '{usuario}', '{id_party}');"""
+VALUES ('{id}', '{nome}', {nickname}, {level}, {legacy}, {classe}, {path}, {heritage}, {melancholy}, {catarse}, {pe}, {pe_atual}, {hp}, {hp_atual}, {hp_tipo}, {reducao_de_dano}, {bonus_de_proficiencia}, {pontos_de_sombra}, {protecao_forca}, {bonus_forca}, {protecao_destreza}, {bonus_destreza}, {protecao_contituicao}, {bonus_contituicao}, {protecao_inteligencia}, {bonus_inteligencia}, {protecao_sabedoria}, {bonus_sabedoria}, {protecao_carisma}, {bonus_carisma}, {volume_atual}, {limete_de_volumes}, {resistencia}, {vulnerabilidade}, {imunidade}, {saldo}, {imagem}, {tokenn}, {usuario}, '{id_party}');"""
     print(f"{personagem_novo}\n")
     with conexao.get_cursor() as cursor:
         cursor.execute(f"{personagem_novo}\n")

@@ -68,7 +68,7 @@ class PaginaFicha(discord.ui.View):
             )
             embed.add_field(
                 name="Status",
-                value=f"FOR: {self.personagem.atributos.forca.protection}, {self.personagem.atributos.forca.bonus}    DES: {self.personagem.atributos.destreza.protection}, {self.personagem.atributos.destreza.bonus}  CON: {self.personagem.atributos.constituicao.protection}, {self.personagem.atributos.constituicao.bonus} INT: {self.personagem.atributos.inteligencia.protection}, {self.personagem.atributos.inteligencia.bonus} SAB: {self.personagem.atributos.sabedoria.protection}, {self.personagem.atributos.sabedoria.bonus}   CAR: {self.personagem.atributos.carisma.protection}, {self.personagem.atributos.carisma.bonus}",
+                value=f"FOR: {self.personagem.atributos.forca.protection}, {self.personagem.atributos.forca.bonus} | DES: {self.personagem.atributos.destreza.protection}, {self.personagem.atributos.destreza.bonus} | CON: {self.personagem.atributos.constituicao.protection}, {self.personagem.atributos.constituicao.bonus} | INT: {self.personagem.atributos.inteligencia.protection}, {self.personagem.atributos.inteligencia.bonus} | SAB: {self.personagem.atributos.sabedoria.protection}, {self.personagem.atributos.sabedoria.bonus} | CAR: {self.personagem.atributos.carisma.protection}, {self.personagem.atributos.carisma.bonus}",
                 inline=False,
             )
             embed.add_field(

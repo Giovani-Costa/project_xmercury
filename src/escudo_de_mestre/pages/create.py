@@ -72,18 +72,58 @@ with st.expander("Criar Skill"):
     skill_descritores = st.multiselect(
         "Descritores", [d.nome for d in descritores.pegar_todos_os_descritores(st.session_state["db_session"])]
     )
-    skill_alcance = st.text_input("Alcance da skill", value="NULL")
-    skill_duracao = st.text_input("Duração da skill", value="NULL")
-    skill_ataque = st.text_input("Ataque da skill", value="NULL")
-    skill_acerto = st.text_input("Acerto da skill", value="NULL")
-    skill_erro = st.text_input("Erro da skill", value="NULL")
-    skill_efeito = st.text_input("Efeito da efeito", value="NULL")
-    skill_especial = st.text_input("Especial da skill", value="NULL")
-    skill_gatilho = st.text_input("Gatilho da skill", value="NULL")
-    skill_alvo = st.text_input("Alvo da skill", value="NULL")
-    skill_carga = st.text_input("Carga da skill", value="NULL")
+    skill_alcance = st.text_input("Alcance da skill")
+    skill_duracao = st.text_input("Duração da skill")
+    skill_ataque = st.text_input("Ataque da skill")
+    skill_acerto = st.text_input("Acerto da skill")
+    skill_erro = st.text_input("Erro da skill")
+    skill_efeito = st.text_input("Efeito da efeito")
+    skill_especial = st.text_input("Especial da skill")
+    skill_gatilho = st.text_input("Gatilho da skill")
+    skill_alvo = st.text_input("Alvo da skill")
+    skill_carga = st.text_input("Carga da skill", value="Ilimitado.")
     skill_personagem = st.selectbox("Personagem da Skill", [p.nome for p in lista_personagens])
     if st.button("Criar Skill"):
+        if skill_alcance is None or skill_alcance == "":
+            alcance = 'NULL'
+        else:
+            alcance = f"'{skill_alcance}'"
+        if skill_duracao is None or skill_duracao == "":
+            duracao = 'NULL'
+        else:
+            duracao = f"'{skill_duracao}'"
+        if skill_ataque is None or skill_ataque == "":
+            ataque = 'NULL'
+        else:
+            ataque = f"'{skill_ataque}'"
+        if skill_acerto is None or skill_acerto == "":
+            acerto = 'NULL'
+        else:
+            acerto = f"'{skill_acerto}'"
+        if skill_erro is None or skill_erro == "":
+            erro = 'NULL'
+        else:
+            erro = f"'{skill_erro}'"
+        if skill_efeito is None or skill_efeito == "":
+            efeito = 'NULL'
+        else:
+            efeito = f"'{skill_efeito}'"
+        if skill_especial is None or skill_especial == "":
+            especial = 'NULL'
+        else:
+            especial = f"'{skill_especial}'"
+        if skill_gatilho is None or skill_gatilho == "":
+            gatilho = 'NULL'
+        else:
+            gatilho = f"'{skill_gatilho}'"
+        if skill_alvo is None or skill_alvo == "":
+            alvo = 'NULL'
+        else:
+            alvo = f"'{skill_alvo}'"
+        if skill_carga is None or skill_carga == "":
+            carga = 'NULL'
+        else:
+            carga = f"'{skill_carga}'"
         uuid_criado = skills.criar_skill(
             st.session_state["db_session"],
             skill_nome,
@@ -104,7 +144,7 @@ with st.expander("Criar Skill"):
             skill_uuid,
         )
         st.success(
-            f"({skill_uuid}, '{skill_nome}', {skill_custo}, '{skill_execucao}', '{','.join(skill_descritores)}', '{skill_alcance}', '{skill_duracao}', '{skill_ataque}', '{skill_acerto}', '{skill_erro}', '{skill_efeito}', '{skill_especial}', '{skill_gatilho}', '{skill_alvo}', '{skill_carga}, '{mapa_nome_id_personagem[skill_personagem]}'),"
+            f"('{skill_uuid}', '{skill_nome}', {skill_custo}, '{skill_execucao}', '{', '.join(skill_descritores)}', {alcance}, {duracao}, {ataque}, {acerto}, {erro}, {efeito}, {especial}, {gatilho}, {alvo}, {carga}, '{mapa_nome_id_personagem[skill_personagem]}'),"
         )
 
 with st.expander("Criar Passiva/Talento"):
@@ -164,7 +204,7 @@ with st.expander("Criar Item"):
 with st.expander("Criar Perícia"):
     # Tentar automatizar isso depois
     atributos_somaticos = ["Bônus de Proficiência", "Bônus de Força", "Bônus de Constituição", "Bônus de Destreza", "Bônus de Inteligência", "Bônus de Sabedoria", "Bônus de Carisma"]
-    atributos_somaticos_mapa = {
+    mapa_execucao = {
         "Bônus de Proficiência": "bonus_de_proficiencia",
         "Bônus de Força": "forca",
         "Bônus de Constituição": "constituicao",
@@ -187,7 +227,7 @@ with st.expander("Criar Perícia"):
     pericia_atributo = st.toggle("Somar Atributo?", value=False)
     if pericia_atributo:
         pericia_soma = st.multiselect("Atributos somados", atributos_somaticos)
-        pericia_soma = str("'" + '{"'+ '","'.join([atributos_somaticos_mapa[attr] for attr in pericia_soma]) + '"}' + "'")
+        pericia_soma = str("'" + '{"'+ '","'.join([mapa_execucao[attr] for attr in pericia_soma]) + '"}' + "'")
     else:
         pericia_soma = "NULL"
 
@@ -269,7 +309,7 @@ with st.expander("Criar Descritor"):
         
 with st.expander("Criar Modificador"):
     execucao = ["Ação", "Ação Bônus", "Ação Livre", "Reação", "Ultimate"]
-    atributos_somaticos_mapa = {
+    mapa_execucao = {
         "Ação": "acao",
         "Ação Bônus": "acao bonus",
         "Ação Livre": "acao livre",
@@ -297,7 +337,7 @@ with st.expander("Criar Modificador"):
         modificador_tipo = st.text_input("Outro tipo de Modificador")
     modificador_descricao = st.text_area("Descrição da Modificador")
     modificador_execucao = st.selectbox(
-        "Execução", ["Ação", "Ação Bônus", "Ação Livre", "Reação", "Ultimate"], index=3
+        "Execução", execucao, index=3
     )
     modificador_gasto = st.number_input("Gasto do Modificador", step=1)
     modificador_gasto_tipo = st.selectbox(
@@ -316,7 +356,7 @@ with st.expander("Criar Modificador"):
             modificador_uuid,
         )
         st.success(
-            f"('{uuid_criado}', '{modificador_tipo}', '{modificador_descricao}', '{modificador_execucao}', {modificador_gasto}, '{modificador_gasto_tipo}', '{modificador_uuid}'),")
+            f"('{uuid_criado}', '{modificador_tipo}', '{modificador_descricao}', '{mapa_execucao[modificador_execucao]}', {modificador_gasto}, '{modificador_gasto_tipo.upper()}'),")
 
 with st.expander("Criar Personagem"):
     lista_skills = skills.pegar_todas_as_skills(st.session_state["db_session"])
@@ -351,13 +391,13 @@ with st.expander("Criar Personagem"):
         )
 
     personagem_nome = st.text_input("Nome do Personagem")
-    personagem_nickname = st.text_input("Nickname do Personagem", value="NULL")
+    personagem_nickname = st.text_input("Nickname do Personagem")
     personagem_level = st.number_input("Level do Personagem", step=1, value=constantes.LEVEL)
-    personagem_legacy = st.text_input("Legado do Personagem", value="NULL")
-    personagem_heritage = st.text_input("Heritage do Personagem", value="NULL")
-    personagem_classe = st.text_input("Classe do Personagem", value="NULL")
-    personagem_path = st.text_input("Trilha do Personagem", value="NULL")
-    personagem_melancolia = st.text_area("Melancolia do Personagem", value="NULL")
+    personagem_legacy = st.text_input("Legado do Personagem")
+    personagem_heritage = st.text_input("Heritage do Personagem")
+    personagem_classe = st.text_input("Classe do Personagem")
+    personagem_path = st.text_input("Trilha do Personagem")
+    personagem_melancolia = st.text_area("Melancolia do Personagem")
     personagem_pe = st.number_input("PE do Personagem", step=1, value=constantes.PE)
     personagem_hp = st.toggle("Calcular HP Automático?", value=True)
     personagem_hp_tipo = st.radio("Tipo de HP", options=["HP", "Carga"], index=0)
@@ -373,9 +413,9 @@ with st.expander("Criar Personagem"):
     personagem_catarse = st.number_input(
         "Pontos de Catarse do Personagem", step=1, max_value=5
     )
-    personagem_resistencia = st.text_input("Resistência do Personagem", value="NULL")
-    personagem_vulnerabilidade = st.text_input("Vulnerabilidade do Personagem", value="NULL")
-    personagem_imunidade = st.text_input("Imunidade do Personagem", value="NULL")
+    personagem_resistencia = st.text_input("Resistência do Personagem")
+    personagem_vulnerabilidade = st.text_input("Vulnerabilidade do Personagem")
+    personagem_imunidade = st.text_input("Imunidade do Personagem")
     personagem_volume_atual = st.number_input("Volume Atual do Personagem", step=1, value=0)
     personagem_limite_de_volume = st.toggle("Limite de Volume Automático?", value=True)
     if not personagem_limite_de_volume:
@@ -429,16 +469,64 @@ with st.expander("Criar Personagem"):
         personagem_hp = calc_hp(personagem_constituicao_bonus, personagem_classe_numero, personagem_level)
 
     personagem_saldo = st.number_input("Saldo do Personagem", step=1, value=100)
-    personagem_tokenn = st.text_input("Token do Personagem", value="NULL")
-    personagem_usuario = st.text_input("Usuário do Personagem", value="NULL")
+    personagem_tokenn = st.text_input("Token do Personagem")
+    personagem_imagem = st.text_input("Imagem do Personagem", placeholder="nome_da_imagem.png")
+    personagem_usuario = st.text_input("Usuário do Personagem")
     personagem_party = st.selectbox("Party do Personagem", [p.nome for p in party.pegar_todas_as_parties(st.session_state["db_session"])], index=0)
     personagem_party_mapa = {p.nome: p.id_party for p in party.pegar_todas_as_parties(st.session_state["db_session"])}
     personagem_party = personagem_party_mapa[personagem_party]
-    personagem_imagem = f"{personagem_nickname}.png"
 
     if st.button("Criar Personagem"):
         if personagem_limite_de_volume == True:
             personagem_limite_de_volume = calc_limite_peso(personagem_forca_bonus)
+        if personagem_nickname is None or personagem_nickname == "":
+            personagem_nickname = 'NULL'
+        else:
+            personagem_nickname = f"'{personagem_nickname}'"
+        if personagem_legacy is None or personagem_legacy == "":
+            personagem_legacy = 'NULL'     
+        else:
+            personagem_legacy = f"'{personagem_legacy}'"
+        if personagem_classe is None or personagem_classe == "":
+            personagem_classe = 'NULL' 
+        else:
+            personagem_classe = f"'{personagem_classe}'"                                                      
+        if personagem_path is None or personagem_path == "":
+            personagem_path = 'NULL'
+        else:        
+            personagem_path = f"'{personagem_path}'"
+        if personagem_heritage is None or personagem_heritage == "":
+            personagem_heritage = 'NULL'
+        else:
+            personagem_heritage = f"'{personagem_heritage}'"
+        if personagem_melancolia is None or personagem_melancolia == "":
+            personagem_melancolia = 'NULL'
+        else:
+            personagem_melancolia = f"'{personagem_melancolia}'"                                          
+        if personagem_resistencia is None:
+            personagem_resistencia = 'NULL'
+        else:
+            personagem_resistencia = f"'{personagem_resistencia}'"
+        if personagem_vulnerabilidade is None:
+            personagem_vulnerabilidade = 'NULL'
+        else:
+            personagem_vulnerabilidade = f"'{personagem_vulnerabilidade}'"
+        if personagem_imunidade is None:
+            personagem_imunidade = 'NULL'
+        else:
+            personagem_imunidade = f"'{personagem_imunidade}'"
+        if personagem_imagem is None or personagem_imagem == "":
+            personagem_imagem = 'NULL'
+        else:
+            personagem_imagem = f"'{personagem_imagem}'"
+        if personagem_tokenn is None or personagem_tokenn == "":
+            personagem_tokenn = 'NULL' 
+        else:
+            personagem_tokenn = f"'{personagem_tokenn}'"
+        if personagem_usuario is None or personagem_usuario == "":
+            personagem_usuario = 'NULL'
+        else:        
+            personagem_usuario = f"{personagem_usuario}"
         uuid_criado = personagens.criar_personagem(
             st.session_state["db_session"],
             personagem_nome,
@@ -483,7 +571,7 @@ with st.expander("Criar Personagem"):
             personagem_uuid,
         )
         st.success(
-            f"('{personagem_uuid}', '{personagem_nome}', '{personagem_nickname}', {personagem_level}, '{personagem_legacy}', '{personagem_classe}', '{personagem_path}', '{personagem_heritage}', '{personagem_melancolia}', {personagem_catarse}, {personagem_pe}, {personagem_pe}, {personagem_hp}, {personagem_hp}, '{personagem_hp_tipo}', {personagem_reducao_de_dano}, {personagem_bonus_de_proficiencia}, {personagem_pontos_de_sombra}, {personagem_forca_protecao}, {personagem_forca_bonus}, {personagem_destreza_protecao}, {personagem_destreza_bonus}, {personagem_constituicao_protecao}, {personagem_constituicao_bonus}, {personagem_inteligencia_protecao}, {personagem_inteligencia_bonus}, {personagem_sabedoria_protecao}, {personagem_sabedoria_bonus}, {personagem_carisma_protecao}, {personagem_carisma_bonus}, {personagem_volume_atual}, {personagem_limite_de_volume}, '{personagem_resistencia}', '{personagem_vulnerabilidade}', '{personagem_imunidade}', {personagem_saldo}, '{personagem_imagem}', '{personagem_tokenn}', '{personagem_usuario}', '{ personagem_party}'),")
+            f"('{personagem_uuid}', '{personagem_nome}', '{personagem_nickname}', {personagem_level}, {personagem_legacy}, {personagem_classe}, {personagem_path}, {personagem_heritage}, {personagem_melancolia}, {personagem_catarse}, {personagem_pe}, {personagem_pe}, {personagem_hp}, {personagem_hp}, '{personagem_hp_tipo}', {personagem_reducao_de_dano}, {personagem_bonus_de_proficiencia}, {personagem_pontos_de_sombra}, {personagem_forca_protecao}, {personagem_forca_bonus}, {personagem_destreza_protecao}, {personagem_destreza_bonus}, {personagem_constituicao_protecao}, {personagem_constituicao_bonus}, {personagem_inteligencia_protecao}, {personagem_inteligencia_bonus}, {personagem_sabedoria_protecao}, {personagem_sabedoria_bonus}, {personagem_carisma_protecao}, {personagem_carisma_bonus}, {personagem_volume_atual}, {personagem_limite_de_volume}, '{personagem_resistencia}, {personagem_vulnerabilidade}, {personagem_imunidade}, {personagem_saldo}, {personagem_imagem}, {personagem_tokenn}, {personagem_usuario}, '{ personagem_party}'),")
 
 with st.expander("Criar Party"):
     party_esquerda, party_direita = st.columns(2)
@@ -518,6 +606,9 @@ with st.expander("Criar Relação entre Personagem e Item"):
             mapa_itens_id[personagem_item_item],
             personagem_item_quantidade,
         )
+        st.success(
+                f"('{mapa_itens_id[personagem_item_item]}', '{mapa_nome_id_personagem[personagem_item_personagem]}'),"
+            )
 
 with st.expander("Criar Relação entre Personagem e Perícia"):
     personagem_pericia_personagem = st.selectbox("Personagem da Perícia", [p.nome for p in lista_personagens])
@@ -532,6 +623,9 @@ with st.expander("Criar Relação entre Personagem e Perícia"):
             mapa_pericias_id[personagem_pericia_pericia],
             personagem_pericia_nivel,
         )
+        st.success(
+                f"('{mapa_pericias_id[personagem_pericia_pericia]}', '{mapa_nome_id_personagem[personagem_pericia_personagem]}'),"
+            )
 
 with st.expander("Criar Relação entre Modificador e Skill"):
     lista_modificadores = modificadores.pegar_todos_os_modificadores(st.session_state["db_session"])
@@ -546,3 +640,6 @@ with st.expander("Criar Relação entre Modificador e Skill"):
             mapa_modificadores_id[modificador_skill_modificador],
             mapa_skills_id[modificador_skill_skill],
         )
+        st.success(
+                f"('{mapa_skills_id[modificador_skill_skill]}', '{mapa_modificadores_id[modificador_skill_modificador]}'),"
+            )
